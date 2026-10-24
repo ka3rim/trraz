@@ -3044,3 +3044,292 @@ html.teraz-js .teraz[data-pending] [data-hydrate] {
     width: 100%;
   }
 }
+
+/* ==========================================================================
+   Salla Payment & Express Checkout Integration
+   ========================================================================== */
+.teraz .installment-banner {
+  margin: 8px 0 14px;
+  padding: 10px 14px;
+  background: var(--cream);
+  border-inline-start: 2px solid var(--bronze);
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.teraz .installment-banner strong,
+.teraz .installment-banner b {
+  color: var(--ink);
+}
+
+.teraz .installment-hint {
+  font-size: 13px !important;
+  color: var(--stone);
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+  margin-top: 8px;
+}
+
+.teraz .payment-mini-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.teraz .payment-mini-badges span {
+  font-size: 11px;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  background: var(--ivory);
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+
+.teraz .teraz-bag-coupon {
+  margin: 14px 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.teraz .teraz-bag-coupon .teraz-coupon-row {
+  display: flex;
+  gap: 8px;
+}
+
+.teraz .teraz-bag-coupon input {
+  flex: 1;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  background: var(--ivory);
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.teraz .teraz-bag-coupon button {
+  min-height: 40px;
+  padding: 6px 16px;
+  font-size: 14px;
+}
+
+.teraz .coupon-applied {
+  display: block;
+  margin-top: 6px;
+  color: var(--olive);
+  font-size: 13px;
+}
+
+.teraz .discount-row strong {
+  color: var(--olive);
+}
+
+.teraz .teraz-salla-payments {
+  margin: 14px 0;
+}
+
+.teraz .payments-label {
+  display: block;
+  font-size: 13px;
+  color: var(--stone);
+  margin-bottom: 8px;
+}
+
+.teraz .payment-pills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.teraz .payment-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 54px;
+  padding: 8px 6px;
+  border: 1px solid var(--line);
+  background: var(--ivory);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.teraz .payment-pill b {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--bronze);
+}
+
+.teraz .payment-pill span {
+  font-size: 13px;
+}
+
+.teraz .payment-pill[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--ivory);
+}
+
+.teraz .payment-pill[aria-pressed="true"] b {
+  color: var(--sand);
+}
+
+.teraz .payment-desc {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--stone);
+}
+
+.teraz .salla-step-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.teraz .salla-step-bar span {
+  padding: 4px 12px;
+  background: var(--cream);
+  color: var(--stone);
+}
+
+.teraz .salla-step-bar span.done {
+  color: var(--olive);
+}
+
+.teraz .salla-step-bar span.active {
+  background: var(--ink);
+  color: var(--ivory);
+}
+
+.teraz .salla-checkout-section {
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+.teraz .salla-checkout-section h3 {
+  font-size: 19px;
+  margin: 0 0 14px;
+}
+
+.teraz .salla-address-grid,
+.teraz .salla-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.teraz .salla-card-grid label.full {
+  grid-column: 1 / -1;
+}
+
+.teraz .salla-address-grid label,
+.teraz .salla-card-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.teraz .salla-address-grid input,
+.teraz .salla-address-grid select,
+.teraz .salla-card-grid input {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.teraz .salla-pay-box {
+  margin-top: 14px;
+  padding: 16px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+}
+
+.teraz .salla-pay-box strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.teraz .bnpl-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.teraz .bnpl-steps > div {
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.teraz .bnpl-steps span {
+  display: block;
+  font-size: 12px;
+  color: var(--stone);
+}
+
+.teraz .bnpl-steps b {
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.teraz .confirmed-order-view {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.teraz .order-receipt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 22px 0 28px;
+  text-align: start;
+}
+
+.teraz .order-receipt-grid > div {
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+}
+
+.teraz .order-receipt-grid span {
+  display: block;
+  font-size: 13px;
+  color: var(--stone);
+  margin-bottom: 4px;
+}
+
+.teraz .order-receipt-grid strong {
+  font-size: 17px;
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .teraz .payment-pills {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .teraz .salla-address-grid,
+  .teraz .salla-card-grid,
+  .teraz .bnpl-steps,
+  .teraz .order-receipt-grid {
+    grid-template-columns: 1fr;
+  }
+}

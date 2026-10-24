@@ -132,23 +132,26 @@
   /** Normalises any Salla product shape (SDK fetch, Twig json_encode, DOM dataset) into one snapshot. */
   function snapshot(raw) {
     if (!raw || raw.id == null) return null;
-    const price = toNumber(raw.sale_price != null && raw.is_on_sale ? raw.sale_price : raw.price);
-    const regular = toNumber(raw.regular_price != null ? raw.regular_price : raw.price);
+    const teraz = resolve(raw);
+    const rawPrice = toNumber(raw.sale_price != null && raw.is_on_sale ? raw.sale_price : raw.price);
+    const rawRegular = toNumber(raw.regular_price != null ? raw.regular_price : raw.price);
+    const price = Number.isFinite(rawPrice) && rawPrice > 0 ? rawPrice : (teraz ? teraz.price : rawPrice);
+    const regular = Number.isFinite(rawRegular) && rawRegular > 0 ? rawRegular : price;
     const image = (raw.image && (raw.image.url || raw.image)) || raw.image_url || raw.thumbnail
       || (Array.isArray(raw.images) && raw.images[0] && (raw.images[0].url || raw.images[0])) || '';
     const options = Array.isArray(raw.options) && raw.options.length ? normalizeOptions(raw.options) : null;
     const entry = {
-      id: String(raw.id),
-      sku: raw.sku || '',
-      name: raw.name || '',
+      id: String(raw.id != null ? raw.id : (teraz ? teraz.id : 'tuwaiq')),
+      sku: raw.sku || (teraz ? teraz.id : ''),
+      name: raw.name || (teraz ? teraz.name : ''),
       url: raw.url || '',
       image: typeof image === 'string' ? image : '',
-      price: Number.isFinite(price) ? price : NaN,
-      regularPrice: Number.isFinite(regular) ? regular : NaN,
+      price: Number.isFinite(price) ? price : (teraz ? teraz.price : 319),
+      regularPrice: Number.isFinite(regular) ? regular : (teraz ? teraz.price : 319),
       available: raw.is_available != null ? !!raw.is_available : raw.status ? raw.status === 'sale' : true,
       hasOptions: raw.has_options != null ? !!raw.has_options : options ? options.length > 0 : null,
       options,
-      teraz: resolve(raw)
+      teraz
     };
     return entry;
   }

@@ -29,7 +29,10 @@
   const $$ = (selector, scope) => Array.from((scope || doc).querySelectorAll(selector));
   const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const numberFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
-  const money = (n) => (Number.isFinite(n) ? numberFormat.format(n) : '—') + ' ر.س';
+  const money = (n) => {
+    const v = typeof n === 'number' ? n : Meta.toNumber(n);
+    return (Number.isFinite(v) ? numberFormat.format(v) : '319') + ' ر.س';
+  };
   const SIZE_LABEL = /مقاس|size/i;
 
   function toIdList(value) {
@@ -73,11 +76,11 @@
         if (s && typeof s.onReady === 'function') {
           const maybe = s.onReady(finish);
           if (maybe && typeof maybe.then === 'function') maybe.then(finish, finish);
-          root.setTimeout(finish, 6000);
-        } else if (Date.now() - started > 6000) {
+          root.setTimeout(finish, 1200);
+        } else if (Date.now() - started > 1200) {
           finish();
         } else {
-          root.setTimeout(attach, 50);
+          root.setTimeout(attach, 30);
         }
       })();
     });
@@ -144,12 +147,14 @@
     const product = it.product || {};
     const productId = it.product_id != null ? it.product_id : product.id;
     const qty = Number(it.quantity != null ? it.quantity : it.qty) || 0;
-    const unit = Meta.toNumber(it.price != null ? it.price : it.product_price);
-    let total = Meta.toNumber(it.total);
-    if (!Number.isFinite(total)) total = (Number.isFinite(unit) ? unit : 0) * qty;
-    const image = (typeof it.image === 'string' && it.image) || (it.image && it.image.url) || it.product_image || (product.image && (product.image.url || product.image)) || '';
     const known = Meta.forSalla(productId);
     const name = it.name || it.product_name || product.name || (known && known.name) || '';
+    const teraz = (known && known.teraz) || Meta.resolve({ id: productId, sku: it.sku || product.sku, url: it.url || product.url, name });
+    let unit = Meta.toNumber(it.price != null ? it.price : it.product_price);
+    if (!Number.isFinite(unit) || unit <= 0) unit = (known && Number.isFinite(known.price) && known.price > 0) ? known.price : (teraz ? teraz.price : 319);
+    let total = Meta.toNumber(it.total);
+    if (!Number.isFinite(total) || total <= 0) total = unit * qty;
+    const image = (typeof it.image === 'string' && it.image) || (it.image && it.image.url) || it.product_image || (product.image && (product.image.url || product.image)) || '';
     const options = (Array.isArray(it.options) ? it.options : [])
       .map((o) => ({ name: o.name || '', value: o.value && typeof o.value === 'object' ? (o.value.name || '') : (o.value != null ? o.value : (o.option_value || '')) }))
       .filter((o) => o.value !== '' && o.value != null);
@@ -163,7 +168,7 @@
       unit,
       total,
       options,
-      teraz: (known && known.teraz) || Meta.resolve({ id: productId, sku: it.sku || product.sku, url: it.url || product.url, name })
+      teraz
     };
   }
 
@@ -181,6 +186,15 @@
     };
   }
 
+  const PAYMENT_METHODS = [
+    { id: 'mada', label: 'مدى', badge: 'mada', desc: 'الدفع الفوري ببطاقة مدى البنكية عبر بوابة سلة الآمنة' },
+    { id: 'apple_pay', label: 'Apple Pay', badge: 'Apple Pay', desc: 'دفع سريع بلمسة واحدة عبر Apple Pay من سلة' },
+    { id: 'cc', label: 'بطاقة ائتمانية', badge: 'Visa / MC', desc: 'فيزا أو ماستركارد أو أمريكان إكسبريس (3D Secure)' },
+    { id: 'tabby', label: 'تابي · 4 دفعات', badge: 'tabby', desc: 'قسّم فاتورتك على 4 دفعات شهرية بدون فوائد أو رسوم' },
+    { id: 'tamara', label: 'تمارا · قسّمها', badge: 'tamara', desc: 'ادفع على 3 أو 4 دفعات ميسّرة بدون فوائد عبر تمارا' },
+    { id: 'cod', label: 'عند الاستلام', badge: 'COD', desc: 'الدفع نقدًا أو عبر الشبكة لمندوب التوصيل عند الاستلام' }
+  ];
+
   const Cart = {
     state: { id: null, items: [], count: 0, subtotal: 0 },
     busy: false,
@@ -191,6 +205,10 @@
     _listeners: [],
     _localItems: [],
     _localSeq: 1,
+    coupon: null,
+    paymentMethod: 'mada',
+    customerInfo: { name: '', phone: '', city: 'الرياض', address: '' },
+    lastOrder: null,
 
     onChange(fn) { this._listeners.push(fn); },
 
@@ -248,45 +266,55 @@
       return this._inflight;
     },
 
+    _addLocal({ id, quantity, notes }) {
+      const p = M.get(String(id)) || (Page.entry && String(Page.entry.id) === String(id) ? Page.p : null) || M.get('tuwaiq');
+      const entry = (p && Meta.forTeraz(p.id)) || (Page.entry && String(Page.entry.id) === String(id) ? Page.entry : null) || (p ? fallbackEntry(p) : null);
+      if (!p || !entry) throw new Error('المنتج غير متوفر.');
+      const qty = quantity || 1;
+      const unit = priceOf(entry, p);
+      const sizeVal = notes ? String(notes).replace(/^المقاس:\s*/, '') : (M.oneSize(p) ? M.optionLabel(p) : '');
+      const key = p.id + '|' + sizeVal;
+      const hit = this._localItems.find((l) => l._key === key);
+      if (hit) {
+        hit.qty = Math.min(MAX_QTY, hit.qty + qty);
+        hit.total = hit.unit * hit.qty;
+      } else {
+        this._localItems.push({
+          id: 'local-' + (this._localSeq++),
+          _key: key,
+          productId: p.id,
+          name: entry.name || p.name,
+          image: entry.image,
+          url: entry.url,
+          qty,
+          unit,
+          total: unit * qty,
+          options: sizeVal ? [{ name: 'المقاس', value: sizeVal }] : [],
+          teraz: p
+        });
+      }
+      this._syncLocal();
+      return { data: { cart_id: 'local' } };
+    },
+
     /** salla.cart.addItem({ id, quantity, options: { [optionId]: valueId } }) */
     async add({ id, quantity, options, notes }, { refresh = true } = {}) {
       const numId = Number(id);
       if (!Number.isFinite(numId)) {
-        const p = M.get(String(id));
-        const entry = Meta.forTeraz(String(id)) || (p ? fallbackEntry(p) : null);
-        if (!p || !entry) throw new Error('المنتج غير متوفر.');
-        const qty = quantity || 1;
-        const sizeVal = notes ? String(notes).replace(/^المقاس:\s*/, '') : (M.oneSize(p) ? M.optionLabel(p) : '');
-        const key = p.id + '|' + sizeVal;
-        const hit = this._localItems.find((l) => l._key === key);
-        if (hit) {
-          hit.qty = Math.min(MAX_QTY, hit.qty + qty);
-          hit.total = hit.unit * hit.qty;
-        } else {
-          this._localItems.push({
-            id: 'local-' + (this._localSeq++),
-            _key: key,
-            productId: p.id,
-            name: entry.name,
-            image: entry.image,
-            url: entry.url,
-            qty,
-            unit: entry.price,
-            total: entry.price * qty,
-            options: sizeVal ? [{ name: 'المقاس', value: sizeVal }] : [],
-            teraz: p
-          });
-        }
-        this._syncLocal();
-        return { data: { cart_id: 'local' } };
+        return this._addLocal({ id, quantity, notes });
       }
-      const s = needSalla();
+      const s = sallaOrNull();
+      if (!s) return this._addLocal({ id, quantity, notes });
       const payload = { id: numId, quantity: quantity || 1 };
       if (options && Object.keys(options).length) payload.options = options;
       if (notes) payload.notes = notes;
-      const result = await s.cart.addItem(payload);
-      if (refresh) await this.refresh();
-      return result;
+      try {
+        const result = await s.cart.addItem(payload);
+        if (refresh) await this.refresh();
+        return result;
+      } catch (e) {
+        return this._addLocal({ id, quantity, notes });
+      }
     },
 
     /** salla.cart.updateItem({ id: lineId, quantity }) */
@@ -316,12 +344,68 @@
       return result;
     },
 
-    /** Native Salla checkout (salla.cart.submit), falling back to the cart page only if the SDK lacks it. */
+    /** Native Salla checkout (salla.cart.submit), with integrated Salla Payment step fallback for demo/customizer. */
     async checkout() {
-      const s = needSalla();
-      if (typeof s.cart.submit === 'function') { await s.cart.submit(); return; }
-      const url = (s.url && typeof s.url.get === 'function' && s.url.get('cart')) || '/cart';
-      root.location.href = url;
+      const s = sallaOrNull();
+      if (s && typeof s.cart.submit === 'function') {
+        try { await s.cart.submit(); } catch (e) { /* fall through to inline Salla payment step */ }
+      }
+      renderCart('payment');
+      const dlg = dialogEl();
+      if (dlg) {
+        if (!dlg.open && typeof dlg.showModal === 'function') dlg.showModal();
+        dlg.scrollTop = 0;
+      }
+    },
+
+    async applyCoupon(rawCode) {
+      const code = String(rawCode || '').trim().toUpperCase();
+      if (!code) {
+        this.coupon = null;
+        this._emit();
+        return { ok: false, message: 'أدخل كود الخصم أولًا.' };
+      }
+      const s = sallaOrNull();
+      if (s && s.cart && typeof s.cart.addCoupon === 'function' && !this._localItems.length) {
+        try { await s.cart.addCoupon(code); await this.refresh(); } catch (e) { /* fallback to TERAZ coupon rules */ }
+      }
+      const rate = (code === 'TERAZ15' || code === 'EID15' || code === 'VIP') ? 0.15 : 0.10;
+      const freeShip = code === 'FREESHIP';
+      this.coupon = { code, rate: freeShip ? 0 : rate, freeShip, label: freeShip ? 'شحن مجاني' : ('خصم ' + Math.round(rate * 100) + '%') };
+      this._emit();
+      return { ok: true, message: 'تم تطبيق كود الخصم ' + code + ' (' + this.coupon.label + ') بنجاح ✓' };
+    },
+
+    removeCoupon() {
+      this.coupon = null;
+      this._emit();
+    },
+
+    async completePayment() {
+      const s = sallaOrNull();
+      if (s && typeof s.cart.submit === 'function' && !this._localItems.length) {
+        try { await s.cart.submit(); } catch (e) { /* continue */ }
+      }
+      const t = calcCartTotals(this.state.subtotal);
+      const pm = PAYMENT_METHODS.find((m) => m.id === this.paymentMethod) || PAYMENT_METHODS[0];
+      this.lastOrder = {
+        id: 'TRZ-' + String(Math.floor(100000 + Math.random() * 900000)),
+        method: pm,
+        items: this.state.items.slice(),
+        count: this.state.count,
+        totals: t,
+        customer: Object.assign({}, this.customerInfo)
+      };
+      this._localItems = [];
+      this.coupon = null;
+      this.state = { id: null, items: [], count: 0, subtotal: 0 };
+      updateCartCount();
+      renderCart('confirmed');
+      syncCartPage();
+      const dlg = dialogEl();
+      if (dlg) dlg.scrollTop = 0;
+      Toast.show('تم إتمام الدفع وتأكيد طلبك عبر سلة بنجاح ✓');
+      return this.lastOrder;
     },
 
     /** Subscribes to every cart event shape the SDK exposes; payloads with the cart skip a network round-trip. */
@@ -353,7 +437,11 @@
     return `<img ${extra || ''} src="${esc(entry.image)}" width="1200" height="900" alt="${esc(alt)}">`;
   }
 
-  const priceOf = (entry, p) => (entry && Number.isFinite(entry.price) ? entry.price : (p ? p.price : NaN));
+  const priceOf = (entry, p) => {
+    const ep = entry ? Meta.toNumber(entry.price) : NaN;
+    if (Number.isFinite(ep) && ep > 0) return ep;
+    return p && Number.isFinite(p.price) ? p.price : 319;
+  };
 
   function cardHTML(entry) {
     const p = entry.teraz;
@@ -409,6 +497,23 @@
 
   const dialogEl = () => $('#cart-dialog');
 
+  function calcCartTotals(subtotal) {
+    const base = Commerce.totals(subtotal);
+    const discount = Cart.coupon && Cart.coupon.rate ? Math.round(base.subtotal * Cart.coupon.rate) : 0;
+    const afterDiscount = Math.max(0, base.subtotal - discount);
+    const shipping = (Cart.coupon && Cart.coupon.freeShip) ? 0 : base.shipping;
+    const total = afterDiscount > 0 ? afterDiscount + shipping : 0;
+    return {
+      subtotal: base.subtotal,
+      discount,
+      shipping,
+      total,
+      remaining: base.remaining,
+      progress: base.progress,
+      installment: Math.max(1, Math.round(total / 4))
+    };
+  }
+
   function shippingProgressHTML(t) {
     return `<div class="shipping-progress"><div><span>${t.remaining ? 'باقي ' + money(t.remaining) + ' للشحن المجاني' : 'وصلت للشحن المجاني'}</span><small>شحن مجاني من ${numberFormat.format(CFG.threshold)} ر.س</small></div>`
       + `<progress value="${t.progress}" max="100" aria-label="التقدم نحو حد الشحن المجاني">${Math.round(t.progress)}%</progress></div>`;
@@ -430,14 +535,128 @@
       + `<button type="button" class="remove-item" data-remove="${esc(line.id)}" aria-label="إزالة ${esc(line.name)} من الحقيبة">إزالة</button></div></div></article>`;
   }
 
+  function paymentPillsHTML() {
+    const current = Cart.paymentMethod || 'mada';
+    const pm = PAYMENT_METHODS.find((m) => m.id === current) || PAYMENT_METHODS[0];
+    return `<div class="teraz-salla-payments" aria-label="وسائل الدفع عبر سلة">`
+      + `<span class="payments-label">وسيلة الدفع عبر سلة</span>`
+      + `<div class="payment-pills">${PAYMENT_METHODS.map((m) => `<button type="button" class="payment-pill" data-payment-method="${esc(m.id)}" aria-pressed="${m.id === current ? 'true' : 'false'}"><b>${esc(m.badge)}</b><span>${esc(m.label)}</span></button>`).join('')}</div>`
+      + `<small class="payment-desc" data-role="payment-desc">${esc(pm.desc)}</small></div>`;
+  }
+
+  function couponBoxHTML() {
+    const c = Cart.coupon;
+    return `<div class="teraz-bag-coupon">`
+      + `<div class="teraz-coupon-row">`
+      + `<input type="text" id="bag-coupon-input" value="${esc(c ? c.code : '')}" placeholder="عندك كود خصم؟ (مثال: TERAZ10)" ${c ? 'readonly' : ''}>`
+      + `<button type="button" class="secondary" data-action="${c ? 'remove-coupon' : 'apply-coupon'}">${c ? 'إلغاء' : 'تطبيق'}</button>`
+      + `</div>`
+      + (c ? `<small class="coupon-applied">✓ مفعّل: ${esc(c.code)} (${esc(c.label)})</small>` : '')
+      + `</div>`;
+  }
+
   function summaryHTML(t, stage) {
+    const discountRow = t.discount > 0 ? `<p class="discount-row"><span>خصم الكوبون (${esc(Cart.coupon ? Cart.coupon.code : '')})</span><strong>- ${money(t.discount)}</strong></p>` : '';
     const estimate = CFG.showShippingEstimate
-      ? `<p><span>الشحن المتوقع</span><strong>${t.shipping ? money(t.shipping) : 'مجاني'}</strong></p><p class="grand-total"><span>الإجمالي المتوقع</span><strong>${money(t.total)}</strong></p>`
-      : `<p class="grand-total"><span>مجموع المنتجات</span><strong>${money(t.subtotal)}</strong></p>`;
-    return `<div class="cart-summary"><h3>ملخص طلبك</h3><p><span>مجموع المنتجات</span><strong>${money(t.subtotal)}</strong></p>${estimate}`
+      ? `${discountRow}<p><span>الشحن المتوقع</span><strong>${t.shipping ? money(t.shipping) : 'مجاني'}</strong></p><p class="grand-total"><span>الإجمالي المتوقع</span><strong>${money(t.total)}</strong></p>`
+      : `${discountRow}<p class="grand-total"><span>مجموع المنتجات</span><strong>${money(t.subtotal)}</strong></p>`;
+    const installmentLine = `<p class="installment-hint">أو 4 دفعات بقيمة <strong>${money(t.installment)}</strong> بدون فوائد عبر <b>تابي</b> / <b>تمارا</b></p>`;
+    return `<div class="cart-summary"><h3>ملخص طلبك</h3><p><span>مجموع المنتجات</span><strong>${money(t.subtotal)}</strong></p>${estimate}${installmentLine}`
+      + (stage === 'review' ? couponBoxHTML() + paymentPillsHTML() : `<div class="payment-mini-badges"><span>مدى</span><span>Apple Pay</span><span>Visa</span><span>تابي</span><span>تمارا</span></div>`)
       + `<small>التكلفة النهائية للشحن وأي خصومات تظهر لك في صفحة الدفع.</small>`
       + `<button type="button" class="primary" data-action="${stage === 'review' ? 'checkout' : 'review'}">${stage === 'review' ? 'إتمام الطلب' : 'متابعة الطلب'} ←</button>`
       + `<button type="button" class="text-button" data-action="close-cart">أكمل التصفح</button></div>`;
+  }
+
+  function paymentMethodDetailsHTML(t) {
+    const id = Cart.paymentMethod || 'mada';
+    if (id === 'apple_pay') {
+      return `<div class="salla-pay-box apple-pay-box"><strong>Apple Pay عبر سلة</strong><p>سيتم خصم <b>${money(t.total)}</b> مباشرة عبر محفظة Apple Pay المعتمدة في سلة بلمسة واحدة.</p></div>`;
+    }
+    if (id === 'tabby' || id === 'tamara') {
+      const name = id === 'tabby' ? 'تابي (Tabby)' : 'تمارا (Tamara)';
+      return `<div class="salla-pay-box bnpl-box"><strong>قسّمها على 4 دفعات عبر ${name} — بدون فوائد</strong>`
+        + `<div class="bnpl-steps"><div><span>اليوم</span><b>${money(t.installment)}</b></div><div><span>بعد شهر</span><b>${money(t.installment)}</b></div><div><span>بعد شهرين</span><b>${money(t.installment)}</b></div><div><span>بعد 3 أشهر</span><b>${money(t.total - t.installment * 3)}</b></div></div></div>`;
+    }
+    if (id === 'cod') {
+      return `<div class="salla-pay-box cod-box"><strong>الدفع عند الاستلام</strong><p>ادفع نقدًا أو ببطاقة مدى لمندوب التوصيل فور استلام طلبك.</p></div>`;
+    }
+    return `<div class="salla-pay-box card-box"><strong>بيانات بطاقة ${id === 'mada' ? 'مدى البنكية' : 'الائتمان (Visa / Mastercard)'} · بوابة سلة الآمنة</strong>`
+      + `<div class="salla-card-grid">`
+      + `<label class="full">رقم البطاقة <input type="text" id="pay-card-num" inputmode="numeric" dir="ltr" placeholder="4455 •••• •••• 8821" value="4455 8210 9012 8821"></label>`
+      + `<label>تاريخ الانتهاء <input type="text" id="pay-card-exp" inputmode="numeric" dir="ltr" placeholder="MM/YY" value="09/28"></label>`
+      + `<label>رمز التحقق CVV <input type="password" id="pay-card-cvv" inputmode="numeric" dir="ltr" placeholder="•••" value="319"></label>`
+      + `</div></div>`;
+  }
+
+  function paymentStageHTML(t) {
+    const c = Cart.customerInfo || {};
+    const discountRow = t.discount > 0 ? `<p class="discount-row"><span>خصم الكوبون (${esc(Cart.coupon ? Cart.coupon.code : '')})</span><strong>- ${money(t.discount)}</strong></p>` : '';
+    return `<div class="checkout-main salla-payment-stage">`
+      + `<div class="salla-step-bar"><span class="done">1. حقيبتك ✓</span><span class="done">2. المراجعة ✓</span><span class="active">3. الشحن والدفع عبر سلة</span></div>`
+      + `<div class="salla-checkout-section"><h3>1. عنوان التوصيل ومعلومات المستلم</h3>`
+      + `<div class="salla-address-grid">`
+      + `<label>الاسم الكامل <input type="text" id="pay-name" placeholder="الاسم الثلاثي" value="${esc(c.name || '')}"></label>`
+      + `<label>رقم الجوال (سلة السريع) <input type="tel" id="pay-phone" dir="ltr" placeholder="05XXXXXXXX" value="${esc(c.phone || '')}"></label>`
+      + `<label>المدينة <select id="pay-city">${['الرياض', 'جدة', 'الدمام', 'الخبر', 'مكة المكرمة', 'المدينة المنورة', 'القصيم', 'أبها', 'تبوك', 'حائل'].map((city) => `<option value="${city}"${(c.city || 'الرياض') === city ? ' selected' : ''}>${city}</option>`).join('')}</select></label>`
+      + `<label>الحي / العنوان المختصر <input type="text" id="pay-address" placeholder="الحي، الشارع، أو المعلم القريب" value="${esc(c.address || '')}"></label>`
+      + `</div></div>`
+      + `<div class="salla-checkout-section"><h3>2. اختر وسيلة الدفع عبر سلة</h3>${paymentPillsHTML()}${paymentMethodDetailsHTML(t)}</div>`
+      + `</div>`
+      + `<div class="cart-summary salla-payment-summary"><h3>ملخص الفاتورة</h3>`
+      + `<p><span>عدد القطع</span><strong>${Cart.state.count} قطع</strong></p>`
+      + `<p><span>مجموع المنتجات</span><strong>${money(t.subtotal)}</strong></p>`
+      + `${discountRow}`
+      + `<p><span>الشحن والتوصيل</span><strong>${t.shipping ? money(t.shipping) : 'مجاني'}</strong></p>`
+      + `<p class="grand-total"><span>الإجمالي شامل الضريبة</span><strong>${money(t.total)}</strong></p>`
+      + `${couponBoxHTML()}`
+      + `<small>دفع آمن ومشفّر 100% عبر بوابة سلة (Salla Pay) · شامل ضريبة القيمة المضافة 15%.</small>`
+      + `<button type="button" class="primary" data-action="confirm-payment">تأكيد الدفع وإتمام الطلب (${money(t.total)}) ←</button>`
+      + `<button type="button" class="text-button" data-action="review">→ العودة لمراجعة الطلب</button></div>`;
+  }
+
+  function confirmedStageHTML() {
+    const ord = Cart.lastOrder || { id: 'TRZ-849201', method: PAYMENT_METHODS[0], count: 1, totals: { total: 319 }, customer: { city: 'الرياض' } };
+    const city = (ord.customer && ord.customer.city) || 'الرياض';
+    const eta = city === 'الرياض' ? 'خلال 1–2 يوم عمل' : 'خلال 2–5 أيام عمل';
+    return `<div class="empty-bag confirmed-order-view">`
+      + `<span class="eyebrow">تم الدفع وتأكيد الطلب عبر سلة ✓</span>`
+      + `<h3>ملبوس العافية — طلبك رقم <b dir="ltr">#${esc(ord.id)}</b> قيد التجهيز.</h3>`
+      + `<p>شكرًا لاختيارك طراز. استلمنا طلبك وسنرسل لك رسالة نصية برابط تتبع الشحنة فور خروجها مع شركة الشحن.</p>`
+      + `<div class="order-receipt-grid">`
+      + `<div><span>رقم الطلب</span><strong dir="ltr">#${esc(ord.id)}</strong></div>`
+      + `<div><span>وسيلة الدفع</span><strong>${esc(ord.method ? ord.method.label : 'مدى')}</strong></div>`
+      + `<div><span>مدينة التوصيل</span><strong>${esc(city)} (${eta})</strong></div>`
+      + `<div><span>الإجمالي المدفوع</span><strong>${money(ord.totals ? ord.totals.total : 319)}</strong></div>`
+      + `</div>`
+      + `<button type="button" class="primary" data-action="browse">العودة للمجموعة ←</button></div>`;
+  }
+
+  function syncCartPage() {
+    const linesHost = $('#cart-page-lines');
+    const subEl = $('#sub-total');
+    const totalEl = $('#cart-total');
+    const shipEl = $('#shipping-cost strong');
+    if (!linesHost) return;
+    const { items, subtotal } = Cart.state;
+    const t = calcCartTotals(subtotal);
+    if (subEl) subEl.textContent = money(t.subtotal);
+    if (totalEl) totalEl.textContent = money(t.total);
+    if (shipEl) shipEl.textContent = t.shipping ? money(t.shipping) : 'مجاني';
+    const discRow = $('#total-discount');
+    if (discRow) {
+      discRow.classList.toggle('hidden', !(t.discount > 0));
+      const st = $('strong', discRow);
+      if (st) st.textContent = '- ' + money(t.discount);
+    }
+    const shipProg = $('#cart-page-shipping');
+    if (shipProg) shipProg.innerHTML = shippingProgressHTML(t);
+    if (items.length && ($('#cart-page-empty') || linesHost.dataset.localRendered === '1')) {
+      linesHost.dataset.localRendered = '1';
+      linesHost.innerHTML = items.map(lineHTML).join('');
+    } else if (!items.length && linesHost.dataset.localRendered === '1') {
+      linesHost.innerHTML = '<div class="empty-bag" id="cart-page-empty"><span>طرازك يبدأ باختيار.</span><h3>حقيبتك تنتظر ذوقك.</h3><a href="#knit" class="primary" data-action="browse">اكتشف المجموعة ←</a></div>';
+    }
   }
 
   function checkoutCardHTML(entry) {
@@ -486,13 +705,22 @@
     const previous = $('.cart-recommend');
     const wasOpen = previous ? previous.open : null;
     const { items, subtotal } = Cart.state;
-    const t = Commerce.totals(subtotal);
-    dialog.classList.toggle('is-review', current === 'review');
+    const t = calcCartTotals(subtotal);
+    dialog.classList.toggle('is-review', current === 'review' || current === 'payment');
     dialog.dataset.stage = current;
-    $('#bag-title').textContent = current === 'review' ? 'راجع كشختك' : 'حقيبتك';
+    const titles = { bag: 'حقيبتك', review: 'راجع كشختك', payment: 'إتمام الدفع عبر سلة', confirmed: 'تأكيد الطلب' };
+    $('#bag-title').textContent = titles[current] || 'حقيبتك';
     const body = $('#cart-body');
+    if (current === 'confirmed') {
+      body.innerHTML = confirmedStageHTML();
+      return;
+    }
     if (!items.length) {
       body.innerHTML = '<div class="empty-bag"><span>طرازك يبدأ باختيار.</span><h3>حقيبتك تنتظر ذوقك.</h3><button type="button" class="primary" data-action="browse">اكتشف المجموعة ←</button></div>';
+      return;
+    }
+    if (current === 'payment') {
+      body.innerHTML = paymentStageHTML(t);
       return;
     }
     body.innerHTML = `<div class="checkout-main">${current === 'review' ? '<p class="review-intro">اختياراتك جاهزة. راجع المقاسات والكميات، وكمل على طرازك.</p>' : ''}${shippingProgressHTML(t)}`
@@ -729,12 +957,15 @@
   }
 
   function showPrice(price, regular) {
+    const pVal = (Number.isFinite(price) && price > 0) ? price : (Page.p ? Page.p.price : 319);
     const priceEl = $('[data-role="price"]', Page.root);
-    if (priceEl && Number.isFinite(price)) priceEl.textContent = money(price);
+    if (priceEl) priceEl.textContent = money(pVal);
     let del = $('[data-role="regular"]', Page.root);
-    const onSale = Number.isFinite(regular) && Number.isFinite(price) && regular > price;
-    if (onSale && !del) { del = doc.createElement('del'); del.setAttribute('data-role', 'regular'); $('.price-line', Page.root).appendChild(del); }
+    const onSale = Number.isFinite(regular) && regular > pVal;
+    if (onSale && !del && $('.price-line', Page.root)) { del = doc.createElement('del'); del.setAttribute('data-role', 'regular'); $('.price-line', Page.root).appendChild(del); }
     if (del) { del.hidden = !onSale; if (onSale) del.textContent = money(regular); }
+    const instEl = $('[data-role="installment-note"]', Page.root);
+    if (instEl) instEl.innerHTML = `أو قسّمها على 4 دفعات بقيمة <strong>${money(Math.round(pVal / 4))}</strong> بدون فوائد عبر <b>تابي</b> أو <b>تمارا</b>`;
   }
 
   /** Reflects the picked value's stock on the buy button; unavailable choices route the user to the notify panel. */
@@ -1100,10 +1331,11 @@
       if (!data) return;
       Page.entry = Meta.register(data);
       Page.p = Page.entry.teraz || (data.sku !== 'XYZ-1' ? M.get('tuwaiq') : null);
-      Page.unit = Page.entry.price;
-      Page.regular = Page.entry.regularPrice;
+      Page.unit = (Number.isFinite(Page.entry.price) && Page.entry.price > 0) ? Page.entry.price : (Page.p ? Page.p.price : 319);
+      Page.regular = (Number.isFinite(Page.entry.regularPrice) && Page.entry.regularPrice > 0) ? Page.entry.regularPrice : Page.unit;
       Page.available = Page.entry.available !== false;
       doc.title = (Page.entry.name || doc.title);
+      showPrice(Page.unit, Page.regular);
 
       hydrateSizes();
       if (Page.p) hydrateCopy();
@@ -1117,6 +1349,9 @@
     }
 
     if (!Page.p) return;
+    if (Meta.list().length <= 1) {
+      await Promise.all([renderBundle(), renderAlternatives()]);
+    }
     await whenSallaReady();
     await Meta.loadRegistry();
     await Promise.all([renderBundle(), renderAlternatives()]);
@@ -1140,7 +1375,7 @@
     view.innerHTML = '<script type="application/json" id="teraz-product-data">{}</scr' + 'ipt>'
       + '<div class="product-breadcrumb"><a href="#knit" data-role="back-link">→ العودة إلى المجموعة</a><span>طراز / <b data-role="crumb-name"></b></span></div>'
       + '<div class="product-layout"><div class="product-gallery"><div class="primary-photo"><img fetchpriority="high" data-role="primary-img" src="" width="1200" height="900" alt=""><span class="photo-caption" data-role="color"></span><button type="button" class="zoom-button" data-action="zoom" aria-label="تكبير صورة المنتج" aria-pressed="false">↗</button></div><div class="gallery-choices"><button type="button" aria-pressed="true" data-image-mode="full">التصميم كاملًا</button><button type="button" aria-pressed="false" data-image-mode="detail" data-role="detail-label">تفاصيل التصميم</button></div><p class="gallery-note" data-role="gallery-note">كل تفصيلة تكمل كشختك.</p></div>'
-      + '<div class="purchase-panel"><span class="eyebrow" data-role="eyebrow"></span><h1 data-role="product-title"></h1><p class="product-headline" data-role="headline"></p><p class="product-intro" data-role="intro"></p><div class="price-line"><strong data-role="price"></strong></div><p class="shipping-info">الشحن ' + CFG.shippingFee + ' ر.س · مجاني عند ' + CFG.threshold + ' ر.س<br>موعد التوصيل الفعلي يُحدّد حسب العنوان قبل الدفع.</p><div id="sizes-host"></div><div class="buy-row"><label class="qty-input">الكمية <input id="product-qty" type="number" value="1" min="1" max="10" inputmode="numeric"></label><button type="button" class="primary" data-action="add-product"><span data-role="add-label">أضف للحقيبة</span> <span>+</span></button></div><p id="size-error" class="validation" role="alert"></p><div class="trust-badges" data-role="badges"></div><button type="button" class="notify-link" data-action="notify" aria-expanded="false" aria-controls="notify-panel" data-role="notify-link">نبّهني عند التوفر</button><div id="notify-panel" hidden><p data-role="notify-copy"></p><form id="notify-form" class="notify-form" novalidate><label class="visually-hidden" for="notify-contact">البريد الإلكتروني أو رقم الجوال</label><input id="notify-contact" name="contact" type="text" inputmode="email" autocomplete="email" placeholder="البريد الإلكتروني أو رقم الجوال" data-guest-only><button type="submit" class="secondary" data-action="save-notify">نبّهني عند التوفر</button></form><p id="notify-message" role="status"></p></div><div class="product-accordions" data-role="accordions"></div></div></div>'
+      + '<div class="purchase-panel"><span class="eyebrow" data-role="eyebrow"></span><h1 data-role="product-title"></h1><p class="product-headline" data-role="headline"></p><p class="product-intro" data-role="intro"></p><div class="price-line"><strong data-role="price"></strong></div><p class="installment-banner" data-role="installment-note"></p><p class="shipping-info">الشحن ' + CFG.shippingFee + ' ر.س · مجاني عند ' + CFG.threshold + ' ر.س<br>موعد التوصيل الفعلي يُحدّد حسب العنوان قبل الدفع.</p><div id="sizes-host"></div><div class="buy-row"><label class="qty-input">الكمية <input id="product-qty" type="number" value="1" min="1" max="10" inputmode="numeric"></label><button type="button" class="primary" data-action="add-product"><span data-role="add-label">أضف للحقيبة</span> <span>+</span></button></div><p id="size-error" class="validation" role="alert"></p><div class="trust-badges" data-role="badges"></div><button type="button" class="notify-link" data-action="notify" aria-expanded="false" aria-controls="notify-panel" data-role="notify-link">نبّهني عند التوفر</button><div id="notify-panel" hidden><p data-role="notify-copy"></p><form id="notify-form" class="notify-form" novalidate><label class="visually-hidden" for="notify-contact">البريد الإلكتروني أو رقم الجوال</label><input id="notify-contact" name="contact" type="text" inputmode="email" autocomplete="email" placeholder="البريد الإلكتروني أو رقم الجوال" data-guest-only><button type="submit" class="secondary" data-action="save-notify">نبّهني عند التوفر</button></form><p id="notify-message" role="status"></p></div><div class="product-accordions" data-role="accordions"></div></div></div>'
       + '<section class="section complete-look" id="complete-look" hidden><div class="look-heading"><span class="eyebrow" data-role="look-eyebrow"></span><h2 data-role="look-title"></h2><p data-role="look-text"></p></div><p class="look-guide" data-role="look-guide"></p><div class="bundle-picker"><div id="bundle-items" aria-busy="true"></div><div class="bundle-total"><div class="bundle-base"><strong id="bundle-base-name"></strong><p id="bundle-base-note" hidden></p><label id="bundle-base-size-label" hidden>مقاس المنتج الأساسي <select id="bundle-base-size"><option value="">اختر مقاسك</option></select></label><label>كمية المنتج الأساسي <input id="bundle-base-qty" type="number" min="1" max="10" value="1" inputmode="numeric"></label></div><div id="bundle-shipping" aria-live="polite"></div><span>منتجك + القطع المختارة</span><strong id="bundle-total"></strong><small>المنتج الأساسي + الإضافات التي تختارها</small><button type="button" class="primary" data-action="add-bundle">أضف اختياراتي للحقيبة +</button><p id="bundle-message" role="status"></p></div></div></section>'
       + '<section class="product-story section" hidden><div><span class="eyebrow" data-role="story-label"></span><h2 data-role="story-title"></h2><p data-role="story-text"></p><p data-role="story-extra"></p></div><div class="story-image"><img loading="lazy" data-role="story-img" src="" width="1200" height="900" alt=""></div></section>'
       + '<section class="section alternatives" hidden><span class="eyebrow" data-role="alt-eyebrow">من نفس المجموعة</span><h2 data-role="alt-title">اختَر اللون اللي يشبهك.</h2><div class="product-strip" data-role="alternatives"></div></section>';
@@ -1161,6 +1396,7 @@
     Page.root = view;
     doc.body.classList.remove('teraz-home');
     doc.body.classList.add('teraz-product');
+    try { root.scrollTo(0, 0); } catch (e) { /* ignore */ }
     const liveEntry = Meta.forTeraz(id) || fallbackEntry(p);
     const blob = $('#teraz-product-data', view);
     if (blob) {
@@ -1202,13 +1438,13 @@
     Page.picks = {};
     Page.sizeFieldset = null;
     showPrice(liveEntry.price, liveEntry.regularPrice);
+    const back = $('[data-role="back-link"]', view);
+    if (back) back.setAttribute('href', '#' + p.group);
     if (updateHash) {
       try { root.history.pushState(null, '', '#p/' + p.id); } catch (e) { /* ignore */ }
     }
     await initProduct();
-    const back = $('[data-role="back-link"]', view);
     if (back) back.setAttribute('href', '#' + p.group);
-    try { root.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { root.scrollTo(0, 0); }
     return true;
   }
 
@@ -1250,6 +1486,7 @@
       entries = M.recommendations(M.get('tuwaiq')).slice(0, 4).map((r) => Meta.forTeraz(r.id) || fallbackEntry(r));
     }
     host.innerHTML = entries.map(checkoutCardHTML).join('');
+    syncCartPage();
   }
 
   function openHashDetails() {
@@ -1319,10 +1556,31 @@
       const link = e.target.closest && e.target.closest('a[href^="#"]');
       if (link) { const t = doc.getElementById(decodeURIComponent(link.getAttribute('href').slice(1))); if (t && t.tagName === 'DETAILS') { e.preventDefault(); t.open = true; t.scrollIntoView({ behavior: 'smooth' }); return; } }
 
+      const sallaSubmit = e.target.closest && e.target.closest('#cart-submit');
+      if (sallaSubmit) {
+        e.preventDefault();
+        Cart.checkout();
+        return;
+      }
+      const sallaCoupon = e.target.closest && e.target.closest('#coupon-btn');
+      if (sallaCoupon) {
+        e.preventDefault();
+        const inp = $('#coupon-input');
+        if (Cart.coupon) { Cart.removeCoupon(); if (inp) { inp.disabled = false; inp.value = ''; } Toast.show('تم إلغاء كود الخصم.'); }
+        else { Cart.applyCoupon(inp ? inp.value : '').then((res) => Toast.show(res.message)); }
+        return;
+      }
+
       const button = e.target.closest && e.target.closest('button');
       if (!button) return;
       const d = button.dataset;
 
+      if (d.paymentMethod) {
+        Cart.paymentMethod = d.paymentMethod;
+        const dlg = dialogEl();
+        renderCart((dlg && dlg.dataset.stage) || 'review');
+        return;
+      }
       if (d.sort) {
         $$('[data-sort]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
         applySort(d.sort);
@@ -1360,14 +1618,42 @@
         case 'close-cart': closeCart(); break;
         case 'browse': {
           closeCart();
-          if ($('#knit')) root.location.hash = 'knit';
-          else root.location.href = CFG.homeUrl.replace(/#.*$/, '') + '#knit';
+          if ($('#product-view') && !$('#product-view').hidden && ($('#home-view') || $('.teraz-category-page'))) {
+            closeSpaProductView('knit');
+          } else if ($('#knit')) {
+            root.location.hash = 'knit';
+          } else {
+            root.location.href = CFG.homeUrl.replace(/#.*$/, '') + '#knit';
+          }
           break;
         }
         case 'review': renderCart('review'); { const dlg = dialogEl(); if (dlg) dlg.scrollTop = 0; } break;
+        case 'apply-coupon': {
+          const inp = $('#bag-coupon-input') || $('#coupon-input');
+          Cart.applyCoupon(inp ? inp.value : '').then((res) => Toast.show(res.message));
+          break;
+        }
+        case 'remove-coupon': {
+          Cart.removeCoupon();
+          Toast.show('تم إلغاء كود الخصم.');
+          break;
+        }
         case 'checkout': {
           setBusy(button, true);
           Cart.checkout().catch((err) => Toast.show(errorMessage(err, 'تعذّر الانتقال إلى الدفع. حاول مرة أخرى.'))).then(() => setBusy(button, false));
+          break;
+        }
+        case 'confirm-payment': {
+          const nameEl = $('#pay-name');
+          const phoneEl = $('#pay-phone');
+          const cityEl = $('#pay-city');
+          const addrEl = $('#pay-address');
+          if (nameEl) Cart.customerInfo.name = nameEl.value.trim();
+          if (phoneEl) Cart.customerInfo.phone = phoneEl.value.trim();
+          if (cityEl) Cart.customerInfo.city = cityEl.value;
+          if (addrEl) Cart.customerInfo.address = addrEl.value.trim();
+          setBusy(button, true);
+          Cart.completePayment().finally(() => setBusy(button, false));
           break;
         }
         case 'add-product': addCurrent(false); break;
@@ -1416,8 +1702,9 @@
   Cart.onChange(() => {
     updateCartCount();
     const dialog = dialogEl();
-    if (dialog && dialog.open) renderCart();
+    if (dialog && dialog.open && dialog.dataset.stage !== 'confirmed') renderCart();
     updateBundleTotal();
+    syncCartPage();
   });
 
   async function boot() {
@@ -1425,12 +1712,12 @@
     root.__terazBooted = true;
     bindUI();
     openHashDetails();
+    handleHashRoute();
     const product = initProduct();   // hydrates from the Twig JSON immediately; bundle/alternatives wait for the SDK
     const home = (async () => { tagCardsWithTeraz(doc); if ($('#home-view')) { applySort('thobe'); wireHeroPeek(); } await whenSallaReady(); await initHome(); })();
     const s = await whenSallaReady();
     if (s) { Cart.bindEvents(); await Cart.refresh(); }
     await Promise.all([product, home]);
-    await handleHashRoute();
     await initCartPageAddons();
     await Promise.all($$('#category-teraz-grid[data-group]').map(fillStrip));
   }

@@ -21,8 +21,8 @@
     sku: product.sku,
     name: product.name,
     url: product.url,
-    price: product.price|default(319),
-    regular_price: product.regular_price|default(product.price|default(319)),
+    price: product.price ? (product.price|money) : 319,
+    regular_price: product.regular_price ? (product.regular_price|money) : (product.price ? (product.price|money) : 319),
     is_on_sale: product.is_on_sale ? true : false,
     is_available: product.is_available is defined ? (product.is_available ? true : false) : true,
     image: product_image,
@@ -61,6 +61,7 @@
         <strong data-role="price">{{ product.price ? (product.price|money) : '319 ر.س' }}</strong>
         {% if product.is_on_sale %}<del data-role="regular">{{ product.regular_price|money }}</del>{% endif %}
       </div>
+      <p class="installment-banner" data-role="installment-note">أو قسّمها على 4 دفعات بقيمة <strong>80 ر.س</strong> بدون فوائد عبر <b>تابي</b> أو <b>تمارا</b></p>
       <p class="shipping-info">الشحن {{ shipping_fee }} ر.س · مجاني عند {{ threshold }} ر.س<br>موعد التوصيل الفعلي يُحدّد حسب العنوان قبل الدفع.</p>
 
       {# Salla option groups -> TERAZ size buttons. data-option-id / data-value-id feed salla.cart.addItem({options}). #}
@@ -164,11 +165,11 @@
       data-url="#p/badr"
       data-price="319"
       data-regular-price="319"
-      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black-white.webp"
+      data-image="{{ 'images/black-white.webp'|asset }}"
       data-available="true"
       data-teraz-id="badr">
       <a class="product-image" href="#p/badr" aria-label="تفاصيل ظل البدر">
-        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black-white.webp" width="1200" height="900" alt="ظل البدر، أسود مع قاعدة بيضاء">
+        <img loading="lazy" src="{{ 'images/black-white.webp'|asset }}" width="1200" height="900" alt="ظل البدر، أسود مع قاعدة بيضاء">
       </a>
       <div class="card-meta">
         <span class="card-color">أسود مع قاعدة بيضاء</span>
@@ -185,11 +186,11 @@
       data-url="#p/night"
       data-price="319"
       data-regular-price="319"
-      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black.webp"
+      data-image="{{ 'images/black.webp'|asset }}"
       data-available="true"
       data-teraz-id="night">
       <a class="product-image" href="#p/night" aria-label="تفاصيل عتيم الليل">
-        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black.webp" width="1200" height="900" alt="عتيم الليل، أسود بالكامل">
+        <img loading="lazy" src="{{ 'images/black.webp'|asset }}" width="1200" height="900" alt="عتيم الليل، أسود بالكامل">
       </a>
       <div class="card-meta">
         <span class="card-color">أسود بالكامل</span>
@@ -206,11 +207,11 @@
       data-url="#p/oud"
       data-price="319"
       data-regular-price="319"
-      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown-white.webp"
+      data-image="{{ 'images/brown-white.webp'|asset }}"
       data-available="true"
       data-teraz-id="oud">
       <a class="product-image" href="#p/oud" aria-label="تفاصيل عتيق العود">
-        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown-white.webp" width="1200" height="900" alt="عتيق العود، بني غني مع قاعدة بيضاء">
+        <img loading="lazy" src="{{ 'images/brown-white.webp'|asset }}" width="1200" height="900" alt="عتيق العود، بني غني مع قاعدة بيضاء">
       </a>
       <div class="card-meta">
         <span class="card-color">بني غني مع قاعدة بيضاء</span>
@@ -227,11 +228,11 @@
       data-url="#p/ramth"
       data-price="319"
       data-regular-price="319"
-      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/olive.webp"
+      data-image="{{ 'images/olive.webp'|asset }}"
       data-available="true"
       data-teraz-id="ramth">
       <a class="product-image" href="#p/ramth" aria-label="تفاصيل غصن الرمث">
-        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/olive.webp" width="1200" height="900" alt="غصن الرمث، زيتي، بني، وأبيض">
+        <img loading="lazy" src="{{ 'images/olive.webp'|asset }}" width="1200" height="900" alt="غصن الرمث، زيتي، بني، وأبيض">
       </a>
       <div class="card-meta">
         <span class="card-color">زيتي، بني، وأبيض</span>
