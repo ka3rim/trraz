@@ -555,10 +555,27 @@
   }
 
   /** Fills #hero-shoes with the 8 TERAZ knit shoes found in the store when the merchant did not pick any. */
+  function fallbackEntry(p) {
+    const base = CFG.imagesBaseUrl || 'images/';
+    return {
+      id: p.id,
+      sku: p.id,
+      name: p.name,
+      url: '#' + p.group,
+      price: p.price,
+      regularPrice: p.price,
+      image: p.image ? base + p.image : '',
+      available: true,
+      options: [],
+      teraz: p
+    };
+  }
+
   function fillHeroStage() {
     const host = $('#hero-shoes');
     if (!host || $('.exhibit', host)) { wireHeroPeek(); return; }
-    const entries = M.inGroup('knit').map((p) => Meta.forTeraz(p.id)).filter(Boolean).slice(0, 8);
+    let entries = M.inGroup('knit').map((p) => Meta.forTeraz(p.id)).filter(Boolean).slice(0, 8);
+    if (!entries.length) entries = M.inGroup('knit').slice(0, 8).map(fallbackEntry);
     host.innerHTML = entries.map((entry, i) => `<a href="${esc(entry.url)}" class="exhibit" style="--column:${i % 4};--tier:${Math.floor(i / 4)}" data-product-id="${esc(entry.id)}" data-name="${esc(entry.name)}" data-image="${esc(entry.image)}" data-peek-img="${esc(entry.image)}" data-peek-name="${esc(entry.name)}" data-teraz-id="${esc(entry.teraz.id)}" aria-label="اكتشف ${esc(entry.name)}">${imageTag(entry)}<span>${esc(entry.name)} ↗</span></a>`).join('');
     wireHeroPeek();
   }
@@ -586,6 +603,9 @@
     }
     if (!entries.length) {
       entries = M.inGroup(group).map((p) => Meta.forTeraz(p.id)).filter(Boolean);
+    }
+    if (!entries.length) {
+      entries = M.inGroup(group).map(fallbackEntry);
     }
     if (!entries.length) return;
     strip.innerHTML = entries.map(cardHTML).join('');

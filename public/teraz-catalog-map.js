@@ -29,6 +29,7 @@
   const PRODUCTS = [
     {
       "id": "tuwaiq",
+      "image": "beige-white.webp",
       "order": 0,
       "group": "knit",
       "name": "ثرى طويق",
@@ -52,6 +53,7 @@
     },
     {
       "id": "badr",
+      "image": "black-white.webp",
       "order": 1,
       "group": "knit",
       "name": "ظل البدر",
@@ -75,6 +77,7 @@
     },
     {
       "id": "night",
+      "image": "black.webp",
       "order": 2,
       "group": "knit",
       "name": "عتيم الليل",
@@ -98,6 +101,7 @@
     },
     {
       "id": "oud",
+      "image": "brown-white.webp",
       "order": 3,
       "group": "knit",
       "name": "عتيق العود",
@@ -121,6 +125,7 @@
     },
     {
       "id": "ramth",
+      "image": "olive.webp",
       "order": 4,
       "group": "knit",
       "name": "غصن الرمث",
@@ -144,6 +149,7 @@
     },
     {
       "id": "evening",
+      "image": "gray.webp",
       "order": 5,
       "group": "knit",
       "name": "سكون المساء",
@@ -167,6 +173,7 @@
     },
     {
       "id": "dahna",
+      "image": "beige.webp",
       "order": 6,
       "group": "knit",
       "name": "أرض الدهناء",
@@ -190,6 +197,7 @@
     },
     {
       "id": "coffee",
+      "image": "brown.webp",
       "order": 7,
       "group": "knit",
       "name": "حمسة البنّ",
@@ -213,6 +221,7 @@
     },
     {
       "id": "caps-0",
+      "image": "caps-0.webp",
       "order": 8,
       "group": "caps",
       "name": "كاب طراز — أسود",
@@ -227,6 +236,7 @@
     },
     {
       "id": "caps-1",
+      "image": "caps-1.webp",
       "order": 9,
       "group": "caps",
       "name": "كاب طراز — رملي",
@@ -241,6 +251,7 @@
     },
     {
       "id": "caps-2",
+      "image": "caps-2.webp",
       "order": 10,
       "group": "caps",
       "name": "كاب طراز — زيتوني",
@@ -255,6 +266,7 @@
     },
     {
       "id": "caps-3",
+      "image": "caps-3.webp",
       "order": 11,
       "group": "caps",
       "name": "كاب طراز — بيج",
@@ -269,6 +281,7 @@
     },
     {
       "id": "socks-0",
+      "image": "socks-0.webp",
       "order": 12,
       "group": "socks",
       "name": "شرابات الأناقة — أسود",
@@ -283,6 +296,7 @@
     },
     {
       "id": "socks-1",
+      "image": "socks-1.webp",
       "order": 13,
       "group": "socks",
       "name": "شرابات الأناقة — بني",
@@ -297,6 +311,7 @@
     },
     {
       "id": "socks-2",
+      "image": "socks-2.webp",
       "order": 14,
       "group": "socks",
       "name": "شرابات الأناقة — موكا",
@@ -311,6 +326,7 @@
     },
     {
       "id": "socks-3",
+      "image": "socks-3.webp",
       "order": 15,
       "group": "socks",
       "name": "شرابات الأناقة — زيتوني",
@@ -325,6 +341,7 @@
     },
     {
       "id": "clogs-0",
+      "image": "clogs-0.webp",
       "order": 16,
       "group": "clogs",
       "name": "خفّ الكشخة — أسود",
@@ -339,6 +356,7 @@
     },
     {
       "id": "clogs-1",
+      "image": "clogs-1.webp",
       "order": 17,
       "group": "clogs",
       "name": "خفّ الكشخة — جملي",
@@ -353,6 +371,7 @@
     },
     {
       "id": "clogs-2",
+      "image": "clogs-2.webp",
       "order": 18,
       "group": "clogs",
       "name": "خفّ الكشخة — زيتوني",
@@ -367,6 +386,7 @@
     },
     {
       "id": "clogs-3",
+      "image": "clogs-3.webp",
       "order": 19,
       "group": "clogs",
       "name": "خفّ الكشخة — بيج",
@@ -381,6 +401,7 @@
     },
     {
       "id": "cleaning-kit",
+      "image": "cleaning-kit.png",
       "order": 20,
       "group": "care",
       "name": "مجموعة تنظيف الجزم",
@@ -395,6 +416,7 @@
     },
     {
       "id": "water-shield",
+      "image": "water-shield.png",
       "order": 21,
       "group": "care",
       "name": "بخاخ عزل الماء",

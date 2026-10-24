@@ -17,7 +17,8 @@
   showShippingEstimate: show_estimate,
   categoryIds: theme.settings.get('teraz_category_ids')|default([]),
   productMap: theme.settings.get('teraz_product_map')|default(''),
-  homeUrl: home_url
+  homeUrl: home_url,
+  imagesBaseUrl: ('images/logo.webp'|asset)|replace({'logo.webp': ''})
 } %}
 <!DOCTYPE html>
 <html lang="{{ language.code|default('ar') }}" dir="{{ theme.is_rtl is defined and not theme.is_rtl ? 'ltr' : 'rtl' }}">
