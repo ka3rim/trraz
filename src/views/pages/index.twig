@@ -14,7 +14,7 @@
 {% set component = {} %}
 {# Hero Atelier Stage — .hero / .atelier-stage with the 8 hero shoes on the stone stage (--column / --tier). #}
 {% set c = component|default({}) %}
-{% set stage = c.stage_image|default('images/atelier.webp'|asset) %}
+{% set stage = c.stage_image|default('https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/atelier.webp') %}
 <section class="hero" id="home">
   <div class="hero-wording">
     <p class="eyebrow">{{ c.eyebrow|default('للرجل السعودي. ولكل يوم في حياته.') }}</p>
@@ -38,6 +38,71 @@
           aria-label="اكتشف {{ product.name }}">
           <img src="{{ product.image.url }}" width="1200" height="900" alt="{{ product.name }}"><span>{{ product.name }} ↗</span>
         </a>
+      {% else %}
+      <a href="#p/tuwaiq" class="exhibit" data-fallback="true"
+        style="--column:0;--tier:0"
+        data-name="ثرى طويق" data-url="#p/tuwaiq"
+        data-price="319" data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige-white.webp" data-available="true"
+        data-peek-img="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige-white.webp" data-peek-name="ثرى طويق" data-teraz-id="tuwaiq"
+        aria-label="اكتشف ثرى طويق">
+        <img src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige-white.webp" width="1200" height="900" alt="ثرى طويق، بيج دافئ، بني، وأبيض"><span>ثرى طويق ↗</span>
+      </a>
+      <a href="#p/badr" class="exhibit" data-fallback="true"
+        style="--column:1;--tier:0"
+        data-name="ظل البدر" data-url="#p/badr"
+        data-price="319" data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black-white.webp" data-available="true"
+        data-peek-img="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black-white.webp" data-peek-name="ظل البدر" data-teraz-id="badr"
+        aria-label="اكتشف ظل البدر">
+        <img src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black-white.webp" width="1200" height="900" alt="ظل البدر، أسود مع قاعدة بيضاء"><span>ظل البدر ↗</span>
+      </a>
+      <a href="#p/night" class="exhibit" data-fallback="true"
+        style="--column:2;--tier:0"
+        data-name="عتيم الليل" data-url="#p/night"
+        data-price="319" data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black.webp" data-available="true"
+        data-peek-img="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black.webp" data-peek-name="عتيم الليل" data-teraz-id="night"
+        aria-label="اكتشف عتيم الليل">
+        <img src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black.webp" width="1200" height="900" alt="عتيم الليل، أسود بالكامل"><span>عتيم الليل ↗</span>
+      </a>
+      <a href="#p/oud" class="exhibit" data-fallback="true"
+        style="--column:3;--tier:0"
+        data-name="عتيق العود" data-url="#p/oud"
+        data-price="319" data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown-white.webp" data-available="true"
+        data-peek-img="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown-white.webp" data-peek-name="عتيق العود" data-teraz-id="oud"
+        aria-label="اكتشف عتيق العود">
+        <img src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown-white.webp" width="1200" height="900" alt="عتيق العود، بني غني مع قاعدة بيضاء"><span>عتيق العود ↗</span>
+      </a>
+      <a href="#p/ramth" class="exhibit" data-fallback="true"
+        style="--column:0;--tier:1"
+        data-name="غصن الرمث" data-url="#p/ramth"
+        data-price="319" data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/olive.webp" data-available="true"
+        data-peek-img="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/olive.webp" data-peek-name="غصن الرمث" data-teraz-id="ramth"
+        aria-label="اكتشف غصن الرمث">
+        <img src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/olive.webp" width="1200" height="900" alt="غصن الرمث، زيتي، بني، وأبيض"><span>غصن الرمث ↗</span>
+      </a>
+      <a href="#p/evening" class="exhibit" data-fallback="true"
+        style="--column:1;--tier:1"
+        data-name="سكون المساء" data-url="#p/evening"
+        data-price="319" data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/gray.webp" data-available="true"
+        data-peek-img="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/gray.webp" data-peek-name="سكون المساء" data-teraz-id="evening"
+        aria-label="اكتشف سكون المساء">
+        <img src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/gray.webp" width="1200" height="900" alt="سكون المساء، رمادي مع قاعدة سوداء"><span>سكون المساء ↗</span>
+      </a>
+      <a href="#p/dahna" class="exhibit" data-fallback="true"
+        style="--column:2;--tier:1"
+        data-name="أرض الدهناء" data-url="#p/dahna"
+        data-price="319" data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige.webp" data-available="true"
+        data-peek-img="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige.webp" data-peek-name="أرض الدهناء" data-teraz-id="dahna"
+        aria-label="اكتشف أرض الدهناء">
+        <img src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige.webp" width="1200" height="900" alt="أرض الدهناء، بيج مع قاعدة بنية"><span>أرض الدهناء ↗</span>
+      </a>
+      <a href="#p/coffee" class="exhibit" data-fallback="true"
+        style="--column:3;--tier:1"
+        data-name="حمسة البنّ" data-url="#p/coffee"
+        data-price="319" data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown.webp" data-available="true"
+        data-peek-img="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown.webp" data-peek-name="حمسة البنّ" data-teraz-id="coffee"
+        aria-label="اكتشف حمسة البنّ">
+        <img src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown.webp" width="1200" height="900" alt="حمسة البنّ، بني بالكامل"><span>حمسة البنّ ↗</span>
+      </a>
       {% endfor %}
     </div>
     <div id="hero-peek" aria-hidden="true"><img alt=""><span></span></div>
@@ -119,11 +184,11 @@
     <p>{{ c.text|default('ابدأ بالقطعة الأقرب ليومك، وكمّلها بألوان تنسجم معها.') }}</p>
   </div>
   <a href="{{ c.card_1_link|default('#knit') }}" class="occasion-card">
-    <img src="{{ c.card_1_image|default('images/black.webp'|asset) }}" alt="{{ c.card_1_alt|default('عتيم الليل بكامل اللون الأسود') }}" loading="lazy" width="1200" height="900">
+    <img src="{{ c.card_1_image|default('https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black.webp') }}" alt="{{ c.card_1_alt|default('عتيم الليل بكامل اللون الأسود') }}" loading="lazy" width="1200" height="900">
     <span>{{ c.card_1_title|default('للثوب والدوام') }} <b>{{ c.card_1_cta|default('اكتشف مجموعة الأناقة ←') }}</b></span>
   </a>
   <a href="{{ c.card_2_link|default('#clogs') }}" class="occasion-card">
-    <img src="{{ c.card_2_image|default('images/clogs-1.webp'|asset) }}" alt="{{ c.card_2_alt|default('خف الكشخة الجملي للمشاوير اليومية') }}" loading="lazy" width="1200" height="900">
+    <img src="{{ c.card_2_image|default('https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-1.webp') }}" alt="{{ c.card_2_alt|default('خف الكشخة الجملي للمشاوير اليومية') }}" loading="lazy" width="1200" height="900">
     <span>{{ c.card_2_title|default('للمشوار القريب') }} <b>{{ c.card_2_cta|default('اكتشف خفّ الكشخة ←') }}</b></span>
   </a>
 </section>
@@ -231,6 +296,175 @@
   </div>
 </article>
 
+    {% else %}
+    <article class="product-card" data-fallback="true"
+      data-sku="night"
+      data-name="عتيم الليل"
+      data-url="#p/night"
+      data-price="319"
+      data-regular-price="319"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black.webp"
+      data-available="true"
+      data-teraz-id="night">
+      <a class="product-image" href="#p/night" aria-label="تفاصيل عتيم الليل">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black.webp" width="1200" height="900" alt="عتيم الليل، أسود بالكامل">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">أسود بالكامل</span>
+        <h3><a href="#p/night">عتيم الليل</a></h3>
+        <div class="card-bottom">
+          <b>319 ر.س</b>
+          <a href="#p/night">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="coffee"
+      data-name="حمسة البنّ"
+      data-url="#p/coffee"
+      data-price="319"
+      data-regular-price="319"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown.webp"
+      data-available="true"
+      data-teraz-id="coffee">
+      <a class="product-image" href="#p/coffee" aria-label="تفاصيل حمسة البنّ">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown.webp" width="1200" height="900" alt="حمسة البنّ، بني بالكامل">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">بني بالكامل</span>
+        <h3><a href="#p/coffee">حمسة البنّ</a></h3>
+        <div class="card-bottom">
+          <b>319 ر.س</b>
+          <a href="#p/coffee">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="dahna"
+      data-name="أرض الدهناء"
+      data-url="#p/dahna"
+      data-price="319"
+      data-regular-price="319"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige.webp"
+      data-available="true"
+      data-teraz-id="dahna">
+      <a class="product-image" href="#p/dahna" aria-label="تفاصيل أرض الدهناء">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige.webp" width="1200" height="900" alt="أرض الدهناء، بيج مع قاعدة بنية">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">بيج مع قاعدة بنية</span>
+        <h3><a href="#p/dahna">أرض الدهناء</a></h3>
+        <div class="card-bottom">
+          <b>319 ر.س</b>
+          <a href="#p/dahna">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="evening"
+      data-name="سكون المساء"
+      data-url="#p/evening"
+      data-price="319"
+      data-regular-price="319"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/gray.webp"
+      data-available="true"
+      data-teraz-id="evening">
+      <a class="product-image" href="#p/evening" aria-label="تفاصيل سكون المساء">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/gray.webp" width="1200" height="900" alt="سكون المساء، رمادي مع قاعدة سوداء">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">رمادي مع قاعدة سوداء</span>
+        <h3><a href="#p/evening">سكون المساء</a></h3>
+        <div class="card-bottom">
+          <b>319 ر.س</b>
+          <a href="#p/evening">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="oud"
+      data-name="عتيق العود"
+      data-url="#p/oud"
+      data-price="319"
+      data-regular-price="319"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown-white.webp"
+      data-available="true"
+      data-teraz-id="oud">
+      <a class="product-image" href="#p/oud" aria-label="تفاصيل عتيق العود">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/brown-white.webp" width="1200" height="900" alt="عتيق العود، بني غني مع قاعدة بيضاء">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">بني غني مع قاعدة بيضاء</span>
+        <h3><a href="#p/oud">عتيق العود</a></h3>
+        <div class="card-bottom">
+          <b>319 ر.س</b>
+          <a href="#p/oud">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="badr"
+      data-name="ظل البدر"
+      data-url="#p/badr"
+      data-price="319"
+      data-regular-price="319"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black-white.webp"
+      data-available="true"
+      data-teraz-id="badr">
+      <a class="product-image" href="#p/badr" aria-label="تفاصيل ظل البدر">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black-white.webp" width="1200" height="900" alt="ظل البدر، أسود مع قاعدة بيضاء">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">أسود مع قاعدة بيضاء</span>
+        <h3><a href="#p/badr">ظل البدر</a></h3>
+        <div class="card-bottom">
+          <b>319 ر.س</b>
+          <a href="#p/badr">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="tuwaiq"
+      data-name="ثرى طويق"
+      data-url="#p/tuwaiq"
+      data-price="319"
+      data-regular-price="319"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige-white.webp"
+      data-available="true"
+      data-teraz-id="tuwaiq">
+      <a class="product-image" href="#p/tuwaiq" aria-label="تفاصيل ثرى طويق">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige-white.webp" width="1200" height="900" alt="ثرى طويق، بيج دافئ، بني، وأبيض">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">بيج دافئ، بني، وأبيض</span>
+        <h3><a href="#p/tuwaiq">ثرى طويق</a></h3>
+        <div class="card-bottom">
+          <b>319 ر.س</b>
+          <a href="#p/tuwaiq">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="ramth"
+      data-name="غصن الرمث"
+      data-url="#p/ramth"
+      data-price="319"
+      data-regular-price="319"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/olive.webp"
+      data-available="true"
+      data-teraz-id="ramth">
+      <a class="product-image" href="#p/ramth" aria-label="تفاصيل غصن الرمث">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/olive.webp" width="1200" height="900" alt="غصن الرمث، زيتي، بني، وأبيض">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">زيتي، بني، وأبيض</span>
+        <h3><a href="#p/ramth">غصن الرمث</a></h3>
+        <div class="card-bottom">
+          <b>319 ر.س</b>
+          <a href="#p/ramth">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
     {% endfor %}
   </div>
 
@@ -260,7 +494,7 @@
 {# Material story (.material-story). The link resolves to the TERAZ "tuwaiq" product URL unless link_url is set. #}
 {% set c = component|default({}) %}
 <section class="material-story">
-  <div class="material-art"><img src="{{ c.image|default('images/beige-white.webp'|asset) }}" alt="{{ c.image_alt|default('تفاصيل النسيج والجلد في ثرى طويق') }}" loading="lazy"></div>
+  <div class="material-art"><img src="{{ c.image|default('https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige-white.webp') }}" alt="{{ c.image_alt|default('تفاصيل النسيج والجلد في ثرى طويق') }}" loading="lazy"></div>
   <div>
     <span class="eyebrow">{{ c.eyebrow|default('القيمة في اللي تلبسه') }}</span>
     <h2>{{ c.title|default('من النسيج
@@ -377,6 +611,91 @@
   </div>
 </article>
 
+    {% else %}
+    <article class="product-card" data-fallback="true"
+      data-sku="caps-0"
+      data-name="كاب طراز — أسود"
+      data-url="#p/caps-0"
+      data-price="79"
+      data-regular-price="79"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/caps-0.webp"
+      data-available="true"
+      data-teraz-id="caps-0">
+      <a class="product-image" href="#p/caps-0" aria-label="تفاصيل كاب طراز — أسود">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/caps-0.webp" width="1200" height="900" alt="كاب طراز — أسود، أسود">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">أسود</span>
+        <h3><a href="#p/caps-0">كاب طراز — أسود</a></h3>
+        <div class="card-bottom">
+          <b>79 ر.س</b>
+          <a href="#p/caps-0">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="caps-1"
+      data-name="كاب طراز — رملي"
+      data-url="#p/caps-1"
+      data-price="79"
+      data-regular-price="79"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/caps-1.webp"
+      data-available="true"
+      data-teraz-id="caps-1">
+      <a class="product-image" href="#p/caps-1" aria-label="تفاصيل كاب طراز — رملي">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/caps-1.webp" width="1200" height="900" alt="كاب طراز — رملي، رملي">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">رملي</span>
+        <h3><a href="#p/caps-1">كاب طراز — رملي</a></h3>
+        <div class="card-bottom">
+          <b>79 ر.س</b>
+          <a href="#p/caps-1">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="caps-2"
+      data-name="كاب طراز — زيتوني"
+      data-url="#p/caps-2"
+      data-price="79"
+      data-regular-price="79"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/caps-2.webp"
+      data-available="true"
+      data-teraz-id="caps-2">
+      <a class="product-image" href="#p/caps-2" aria-label="تفاصيل كاب طراز — زيتوني">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/caps-2.webp" width="1200" height="900" alt="كاب طراز — زيتوني، زيتوني">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">زيتوني</span>
+        <h3><a href="#p/caps-2">كاب طراز — زيتوني</a></h3>
+        <div class="card-bottom">
+          <b>79 ر.س</b>
+          <a href="#p/caps-2">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="caps-3"
+      data-name="كاب طراز — بيج"
+      data-url="#p/caps-3"
+      data-price="79"
+      data-regular-price="79"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/caps-3.webp"
+      data-available="true"
+      data-teraz-id="caps-3">
+      <a class="product-image" href="#p/caps-3" aria-label="تفاصيل كاب طراز — بيج">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/caps-3.webp" width="1200" height="900" alt="كاب طراز — بيج، بيج">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">بيج</span>
+        <h3><a href="#p/caps-3">كاب طراز — بيج</a></h3>
+        <div class="card-bottom">
+          <b>79 ر.س</b>
+          <a href="#p/caps-3">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
     {% endfor %}
   </div>
 
@@ -532,6 +851,91 @@
   </div>
 </article>
 
+    {% else %}
+    <article class="product-card" data-fallback="true"
+      data-sku="socks-0"
+      data-name="شرابات الأناقة — أسود"
+      data-url="#p/socks-0"
+      data-price="59"
+      data-regular-price="59"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/socks-0.webp"
+      data-available="true"
+      data-teraz-id="socks-0">
+      <a class="product-image" href="#p/socks-0" aria-label="تفاصيل شرابات الأناقة — أسود">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/socks-0.webp" width="1200" height="900" alt="شرابات الأناقة — أسود، أسود">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">أسود</span>
+        <h3><a href="#p/socks-0">شرابات الأناقة — أسود</a></h3>
+        <div class="card-bottom">
+          <b>59 ر.س</b>
+          <a href="#p/socks-0">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="socks-1"
+      data-name="شرابات الأناقة — بني"
+      data-url="#p/socks-1"
+      data-price="59"
+      data-regular-price="59"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/socks-1.webp"
+      data-available="true"
+      data-teraz-id="socks-1">
+      <a class="product-image" href="#p/socks-1" aria-label="تفاصيل شرابات الأناقة — بني">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/socks-1.webp" width="1200" height="900" alt="شرابات الأناقة — بني، بني">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">بني</span>
+        <h3><a href="#p/socks-1">شرابات الأناقة — بني</a></h3>
+        <div class="card-bottom">
+          <b>59 ر.س</b>
+          <a href="#p/socks-1">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="socks-2"
+      data-name="شرابات الأناقة — موكا"
+      data-url="#p/socks-2"
+      data-price="59"
+      data-regular-price="59"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/socks-2.webp"
+      data-available="true"
+      data-teraz-id="socks-2">
+      <a class="product-image" href="#p/socks-2" aria-label="تفاصيل شرابات الأناقة — موكا">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/socks-2.webp" width="1200" height="900" alt="شرابات الأناقة — موكا، موكا">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">موكا</span>
+        <h3><a href="#p/socks-2">شرابات الأناقة — موكا</a></h3>
+        <div class="card-bottom">
+          <b>59 ر.س</b>
+          <a href="#p/socks-2">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="socks-3"
+      data-name="شرابات الأناقة — زيتوني"
+      data-url="#p/socks-3"
+      data-price="59"
+      data-regular-price="59"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/socks-3.webp"
+      data-available="true"
+      data-teraz-id="socks-3">
+      <a class="product-image" href="#p/socks-3" aria-label="تفاصيل شرابات الأناقة — زيتوني">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/socks-3.webp" width="1200" height="900" alt="شرابات الأناقة — زيتوني، زيتوني">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">زيتوني</span>
+        <h3><a href="#p/socks-3">شرابات الأناقة — زيتوني</a></h3>
+        <div class="card-bottom">
+          <b>59 ر.س</b>
+          <a href="#p/socks-3">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
     {% endfor %}
   </div>
 
@@ -668,6 +1072,91 @@
   </div>
 </article>
 
+    {% else %}
+    <article class="product-card" data-fallback="true"
+      data-sku="clogs-0"
+      data-name="خفّ الكشخة — أسود"
+      data-url="#p/clogs-0"
+      data-price="129"
+      data-regular-price="129"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-0.webp"
+      data-available="true"
+      data-teraz-id="clogs-0">
+      <a class="product-image" href="#p/clogs-0" aria-label="تفاصيل خفّ الكشخة — أسود">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-0.webp" width="1200" height="900" alt="خفّ الكشخة — أسود، أسود">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">أسود</span>
+        <h3><a href="#p/clogs-0">خفّ الكشخة — أسود</a></h3>
+        <div class="card-bottom">
+          <b>129 ر.س</b>
+          <a href="#p/clogs-0">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="clogs-1"
+      data-name="خفّ الكشخة — جملي"
+      data-url="#p/clogs-1"
+      data-price="129"
+      data-regular-price="129"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-1.webp"
+      data-available="true"
+      data-teraz-id="clogs-1">
+      <a class="product-image" href="#p/clogs-1" aria-label="تفاصيل خفّ الكشخة — جملي">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-1.webp" width="1200" height="900" alt="خفّ الكشخة — جملي، جملي">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">جملي</span>
+        <h3><a href="#p/clogs-1">خفّ الكشخة — جملي</a></h3>
+        <div class="card-bottom">
+          <b>129 ر.س</b>
+          <a href="#p/clogs-1">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="clogs-2"
+      data-name="خفّ الكشخة — زيتوني"
+      data-url="#p/clogs-2"
+      data-price="129"
+      data-regular-price="129"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-2.webp"
+      data-available="true"
+      data-teraz-id="clogs-2">
+      <a class="product-image" href="#p/clogs-2" aria-label="تفاصيل خفّ الكشخة — زيتوني">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-2.webp" width="1200" height="900" alt="خفّ الكشخة — زيتوني، زيتوني">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">زيتوني</span>
+        <h3><a href="#p/clogs-2">خفّ الكشخة — زيتوني</a></h3>
+        <div class="card-bottom">
+          <b>129 ر.س</b>
+          <a href="#p/clogs-2">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="clogs-3"
+      data-name="خفّ الكشخة — بيج"
+      data-url="#p/clogs-3"
+      data-price="129"
+      data-regular-price="129"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-3.webp"
+      data-available="true"
+      data-teraz-id="clogs-3">
+      <a class="product-image" href="#p/clogs-3" aria-label="تفاصيل خفّ الكشخة — بيج">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-3.webp" width="1200" height="900" alt="خفّ الكشخة — بيج، بيج">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">بيج</span>
+        <h3><a href="#p/clogs-3">خفّ الكشخة — بيج</a></h3>
+        <div class="card-bottom">
+          <b>129 ر.س</b>
+          <a href="#p/clogs-3">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
     {% endfor %}
   </div>
 
@@ -823,6 +1312,49 @@
   </div>
 </article>
 
+    {% else %}
+    <article class="product-card" data-fallback="true"
+      data-sku="cleaning-kit"
+      data-name="مجموعة تنظيف الجزم"
+      data-url="#p/cleaning-kit"
+      data-price="29"
+      data-regular-price="29"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/cleaning-kit.png"
+      data-available="true"
+      data-teraz-id="cleaning-kit">
+      <a class="product-image" href="#p/cleaning-kit" aria-label="تفاصيل مجموعة تنظيف الجزم">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/cleaning-kit.png" width="1200" height="900" alt="مجموعة تنظيف الجزم، فوم 100 مل + فرشاة + منشفة">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">فوم 100 مل + فرشاة + منشفة</span>
+        <h3><a href="#p/cleaning-kit">مجموعة تنظيف الجزم</a></h3>
+        <div class="card-bottom">
+          <b>29 ر.س</b>
+          <a href="#p/cleaning-kit">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
+    <article class="product-card" data-fallback="true"
+      data-sku="water-shield"
+      data-name="بخاخ عزل الماء"
+      data-url="#p/water-shield"
+      data-price="29"
+      data-regular-price="29"
+      data-image="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/water-shield.png"
+      data-available="true"
+      data-teraz-id="water-shield">
+      <a class="product-image" href="#p/water-shield" aria-label="تفاصيل بخاخ عزل الماء">
+        <img loading="lazy" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/water-shield.png" width="1200" height="900" alt="بخاخ عزل الماء، 100 مل">
+      </a>
+      <div class="card-meta">
+        <span class="card-color">100 مل</span>
+        <h3><a href="#p/water-shield">بخاخ عزل الماء</a></h3>
+        <div class="card-bottom">
+          <b>29 ر.س</b>
+          <a href="#p/water-shield">اكتشف التفاصيل ↗</a>
+        </div>
+      </div>
+    </article>
     {% endfor %}
   </div>
 

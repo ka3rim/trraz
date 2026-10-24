@@ -631,8 +631,9 @@
 
   function fillHeroStage() {
     const host = $('#hero-shoes');
-    if (!host || $('.exhibit', host)) { wireHeroPeek(); return; }
+    if (!host || $('.exhibit:not([data-fallback])', host)) { wireHeroPeek(); return; }
     let entries = M.inGroup('knit').map((p) => Meta.forTeraz(p.id)).filter(Boolean).slice(0, 8);
+    if (!entries.length && $('.exhibit[data-fallback]', host)) { wireHeroPeek(); return; }
     if (!entries.length) entries = M.inGroup('knit').slice(0, 8).map(fallbackEntry);
     host.innerHTML = entries.map((entry, i) => `<a href="${esc(entry.url)}" class="exhibit" style="--column:${i % 4};--tier:${Math.floor(i / 4)}" data-product-id="${esc(entry.id)}" data-name="${esc(entry.name)}" data-image="${esc(entry.image)}" data-peek-img="${esc(entry.image)}" data-peek-name="${esc(entry.name)}" data-teraz-id="${esc(entry.teraz.id)}" aria-label="اكتشف ${esc(entry.name)}">${imageTag(entry)}<span>${esc(entry.name)} ↗</span></a>`).join('');
     wireHeroPeek();
@@ -648,7 +649,7 @@
 
   /** Empty strip -> its chosen category (salla.product.fetch), else the store's TERAZ products of that group. */
   async function fillStrip(strip) {
-    if ($('.product-card', strip)) return;
+    if ($('.product-card:not([data-fallback])', strip)) return;
     const group = strip.dataset.group;
     const s = root.salla;
     const ids = toIdList(parseJson(strip.dataset.category || '""', ''));
@@ -661,6 +662,10 @@
     }
     if (!entries.length) {
       entries = M.inGroup(group).map((p) => Meta.forTeraz(p.id)).filter(Boolean);
+    }
+    if (!entries.length && $('.product-card[data-fallback]', strip)) {
+      tagCardsWithTeraz(strip);
+      return;
     }
     if (!entries.length) {
       entries = M.inGroup(group).map(fallbackEntry);
