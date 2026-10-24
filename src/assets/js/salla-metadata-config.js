@@ -54,6 +54,7 @@
     categoryIds: parseIds(injected.categoryIds),
     productMap: parseProductMap(injected.productMap),
     homeUrl: injected.homeUrl || '/',
+    imagesBaseUrl: injected.imagesBaseUrl || '',
     preloaded: Array.isArray(injected.products) ? injected.products : []
   });
 

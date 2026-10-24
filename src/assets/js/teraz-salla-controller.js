@@ -189,6 +189,8 @@
     _inflight: null,
     _renderTimer: null,
     _listeners: [],
+    _localItems: [],
+    _localSeq: 1,
 
     onChange(fn) { this._listeners.push(fn); },
 
@@ -197,10 +199,22 @@
       this._renderTimer = root.setTimeout(() => this._listeners.forEach((fn) => fn(this.state)), 0);
     },
 
+    _syncLocal() {
+      const subtotal = this._localItems.reduce((sum, l) => sum + (Number.isFinite(l.total) ? l.total : 0), 0);
+      const count = this._localItems.reduce((sum, l) => sum + l.qty, 0);
+      this.state = { id: 'local', items: this._localItems.slice(), count, subtotal };
+      this._emit();
+      return this.state;
+    },
+
     /** Applies an SDK payload if it carries the cart; returns false when it does not (caller then refreshes). */
     apply(raw) {
       const next = normalizeCart(raw);
       if (!next) return false;
+      if (!next.items.length && this._localItems.length) {
+        this._syncLocal();
+        return true;
+      }
       this.state = next;
       this._emit();
       return true;
@@ -210,7 +224,7 @@
     refresh() {
       if (this._inflight) { this._queued = true; return this._inflight; }
       const s = sallaOrNull();
-      if (!s) return Promise.resolve(this.state);
+      if (!s) return Promise.resolve(this._localItems.length ? this._syncLocal() : this.state);
       this.busy = true;
       const fetchLatest = () => {
         if (typeof s.cart.latest === 'function') return s.cart.latest();
@@ -219,8 +233,11 @@
       };
       this._inflight = Promise.resolve()
         .then(fetchLatest)
-        .then((res) => { if (res) this.apply(res); })
-        .catch(() => { /* keep the last known cart; the next event retries */ })
+        .then((res) => {
+          if (res) this.apply(res);
+          else if (this._localItems.length) this._syncLocal();
+        })
+        .catch(() => { if (this._localItems.length) this._syncLocal(); })
         .then(() => {
           this.busy = false;
           this._lastDone = Date.now();
@@ -233,8 +250,38 @@
 
     /** salla.cart.addItem({ id, quantity, options: { [optionId]: valueId } }) */
     async add({ id, quantity, options, notes }, { refresh = true } = {}) {
+      const numId = Number(id);
+      if (!Number.isFinite(numId)) {
+        const p = M.get(String(id));
+        const entry = Meta.forTeraz(String(id)) || (p ? fallbackEntry(p) : null);
+        if (!p || !entry) throw new Error('المنتج غير متوفر.');
+        const qty = quantity || 1;
+        const sizeVal = notes ? String(notes).replace(/^المقاس:\s*/, '') : (M.oneSize(p) ? M.optionLabel(p) : '');
+        const key = p.id + '|' + sizeVal;
+        const hit = this._localItems.find((l) => l._key === key);
+        if (hit) {
+          hit.qty = Math.min(MAX_QTY, hit.qty + qty);
+          hit.total = hit.unit * hit.qty;
+        } else {
+          this._localItems.push({
+            id: 'local-' + (this._localSeq++),
+            _key: key,
+            productId: p.id,
+            name: entry.name,
+            image: entry.image,
+            url: entry.url,
+            qty,
+            unit: entry.price,
+            total: entry.price * qty,
+            options: sizeVal ? [{ name: 'المقاس', value: sizeVal }] : [],
+            teraz: p
+          });
+        }
+        this._syncLocal();
+        return { data: { cart_id: 'local' } };
+      }
       const s = needSalla();
-      const payload = { id: Number(id), quantity: quantity || 1 };
+      const payload = { id: numId, quantity: quantity || 1 };
       if (options && Object.keys(options).length) payload.options = options;
       if (notes) payload.notes = notes;
       const result = await s.cart.addItem(payload);
@@ -244,6 +291,12 @@
 
     /** salla.cart.updateItem({ id: lineId, quantity }) */
     async update(lineId, quantity) {
+      if (String(lineId).startsWith('local-')) {
+        const hit = this._localItems.find((l) => l.id === String(lineId));
+        if (hit) { hit.qty = quantity; hit.total = hit.unit * quantity; }
+        this._syncLocal();
+        return {};
+      }
       const s = needSalla();
       const result = await s.cart.updateItem({ id: Number(lineId), quantity });
       await this.refresh();
@@ -252,6 +305,11 @@
 
     /** salla.cart.deleteItem(lineId) */
     async remove(lineId) {
+      if (String(lineId).startsWith('local-')) {
+        this._localItems = this._localItems.filter((l) => l.id !== String(lineId));
+        this._syncLocal();
+        return {};
+      }
       const s = needSalla();
       const result = await s.cart.deleteItem(Number(lineId));
       await this.refresh();
@@ -403,7 +461,7 @@
       M.recommendations(line.teraz).forEach((r) => {
         if (inBag.has(r.id) || seen.has(r.id)) return;
         seen.add(r.id);
-        const entry = Meta.forTeraz(r.id);
+        const entry = Meta.forTeraz(r.id) || (Meta.list().length <= 1 ? fallbackEntry(r) : null);
         if (entry && entry.available !== false) out.push(entry);
       });
     });
@@ -491,7 +549,7 @@
    * ==================================================================== */
   async function quickAdd(terazId, button) {
     const p = M.get(terazId);
-    const entry = Meta.forTeraz(terazId);
+    const entry = Meta.forTeraz(terazId) || (p && Meta.list().length <= 1 ? fallbackEntry(p) : null);
     const card = button.closest('[data-match]');
     const feedback = $('.match-feedback', card);
     const select = $('select', card);
@@ -624,7 +682,7 @@
     fillHeroStage();
     $$('[data-teraz-link]').forEach((a) => {
       const entry = Meta.forTeraz(a.dataset.terazLink);
-      if (entry && entry.url) a.setAttribute('href', entry.url);
+      a.setAttribute('href', (entry && entry.url) || ('#p/' + a.dataset.terazLink));
     });
   }
 
@@ -810,7 +868,7 @@
       for (const input of $$('.bundle-check:checked')) {
         const card = input.closest('[data-match]');
         const p = M.get(input.value);
-        const entry = Meta.forTeraz(input.value);
+        const entry = Meta.forTeraz(input.value) || (p && Meta.list().length <= 1 ? fallbackEntry(p) : null);
         const feedback = $('.match-feedback', card);
         const select = $('select', card);
         if (!p || !entry) continue;
@@ -1066,8 +1124,11 @@
   function ensureSpaProductView() {
     let view = $('#product-view');
     if (view) return view;
-    const homeWrap = $('#home-view') && $('#home-view').parentElement;
-    if (!homeWrap) return null;
+    const hostWrap = ($('#home-view') && $('#home-view').parentElement)
+      || $('.teraz-category-page')
+      || $('main .teraz')
+      || $('main');
+    if (!hostWrap) return null;
     view = doc.createElement('div');
     view.id = 'product-view';
     view.hidden = true;
@@ -1078,70 +1139,102 @@
       + '<section class="section complete-look" id="complete-look" hidden><div class="look-heading"><span class="eyebrow" data-role="look-eyebrow"></span><h2 data-role="look-title"></h2><p data-role="look-text"></p></div><p class="look-guide" data-role="look-guide"></p><div class="bundle-picker"><div id="bundle-items" aria-busy="true"></div><div class="bundle-total"><div class="bundle-base"><strong id="bundle-base-name"></strong><p id="bundle-base-note" hidden></p><label id="bundle-base-size-label" hidden>مقاس المنتج الأساسي <select id="bundle-base-size"><option value="">اختر مقاسك</option></select></label><label>كمية المنتج الأساسي <input id="bundle-base-qty" type="number" min="1" max="10" value="1" inputmode="numeric"></label></div><div id="bundle-shipping" aria-live="polite"></div><span>منتجك + القطع المختارة</span><strong id="bundle-total"></strong><small>المنتج الأساسي + الإضافات التي تختارها</small><button type="button" class="primary" data-action="add-bundle">أضف اختياراتي للحقيبة +</button><p id="bundle-message" role="status"></p></div></div></section>'
       + '<section class="product-story section" hidden><div><span class="eyebrow" data-role="story-label"></span><h2 data-role="story-title"></h2><p data-role="story-text"></p><p data-role="story-extra"></p></div><div class="story-image"><img loading="lazy" data-role="story-img" src="" width="1200" height="900" alt=""></div></section>'
       + '<section class="section alternatives" hidden><span class="eyebrow" data-role="alt-eyebrow">من نفس المجموعة</span><h2 data-role="alt-title">اختَر اللون اللي يشبهك.</h2><div class="product-strip" data-role="alternatives"></div></section>';
-    homeWrap.appendChild(view);
+    hostWrap.appendChild(view);
     return view;
+  }
+
+  async function openProductById(id, updateHash = true) {
+    const p = M.get(id);
+    if (!p) return false;
+    closeCart();
+    const view = ensureSpaProductView();
+    if (!view) return false;
+    const homeView = $('#home-view');
+    if (homeView) homeView.hidden = true;
+    $$('.teraz-category-page > :not(#product-view)').forEach((el) => { el.hidden = true; });
+    view.hidden = false;
+    Page.root = view;
+    doc.body.classList.remove('teraz-home');
+    doc.body.classList.add('teraz-product');
+    const liveEntry = Meta.forTeraz(id) || fallbackEntry(p);
+    const blob = $('#teraz-product-data', view);
+    if (blob) {
+      blob.textContent = JSON.stringify({
+        id: liveEntry.id,
+        sku: p.id,
+        name: p.name,
+        url: liveEntry.url,
+        price: liveEntry.price,
+        regular_price: liveEntry.regularPrice || liveEntry.price,
+        is_on_sale: false,
+        is_available: liveEntry.available !== false,
+        image: liveEntry.image,
+        options: liveEntry.options || []
+      });
+    }
+    setText('[data-role="product-title"]', p.name);
+    setText('[data-role="crumb-name"]', p.name);
+    setText('#bundle-base-name', p.name);
+    const img1 = $('[data-role="primary-img"]', view);
+    const img2 = $('[data-role="story-img"]', view);
+    if (img1) { img1.src = liveEntry.image; img1.alt = p.name; }
+    if (img2) { img2.src = liveEntry.image; img2.alt = p.name; }
+    const photo = $('.primary-photo', view);
+    if (photo) photo.classList.remove('detail');
+    $$('[data-image-mode]', view).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.imageMode === 'full')));
+    const zoom = $('[data-action="zoom"]', view);
+    if (zoom) zoom.setAttribute('aria-pressed', 'false');
+    const sizesHost = $('#sizes-host', view);
+    if (sizesHost) sizesHost.innerHTML = '';
+    const baseSelect = $('#bundle-base-size', view);
+    if (baseSelect) baseSelect.innerHTML = '<option value="">اختر مقاسك</option>';
+    const qty1 = $('#product-qty', view);
+    const qty2 = $('#bundle-base-qty', view);
+    if (qty1) qty1.value = '1';
+    if (qty2) qty2.value = '1';
+    const err = $('#size-error', view);
+    if (err) err.textContent = '';
+    Page.picks = {};
+    Page.sizeFieldset = null;
+    showPrice(liveEntry.price, liveEntry.regularPrice);
+    if (updateHash) {
+      try { root.history.pushState(null, '', '#p/' + p.id); } catch (e) { /* ignore */ }
+    }
+    await initProduct();
+    const back = $('[data-role="back-link"]', view);
+    if (back) back.setAttribute('href', '#' + p.group);
+    try { root.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { root.scrollTo(0, 0); }
+    return true;
+  }
+
+  function closeSpaProductView(targetHash) {
+    const homeView = $('#home-view');
+    const catPage = $('.teraz-category-page');
+    const view = $('#product-view');
+    if (!view || view.hidden || (!homeView && !catPage)) return false;
+    view.hidden = true;
+    if (homeView) homeView.hidden = false;
+    if (catPage) $$('.teraz-category-page > :not(#product-view)').forEach((el) => { el.hidden = false; });
+    doc.body.classList.add('teraz-home');
+    doc.body.classList.remove('teraz-product');
+    const cleanHash = String(targetHash || '').replace(/^.*#/, '');
+    try { root.history.pushState(null, '', cleanHash ? '#' + cleanHash : root.location.pathname + root.location.search); } catch (e) { /* ignore */ }
+    if (cleanHash && doc.getElementById(cleanHash)) {
+      doc.getElementById(cleanHash).scrollIntoView({ behavior: 'smooth' });
+    } else {
+      try { root.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { root.scrollTo(0, 0); }
+    }
+    return true;
   }
 
   async function handleHashRoute() {
     const rawHash = decodeURIComponent((root.location.hash || '').slice(1));
     if (rawHash.startsWith('p/')) {
       const id = rawHash.slice(2);
-      const p = M.get(id);
-      if (!p) return;
-      const view = ensureSpaProductView();
-      if (!view) return;
-      const homeView = $('#home-view');
-      if (homeView) homeView.hidden = true;
-      view.hidden = false;
-      doc.body.classList.remove('teraz-home');
-      doc.body.classList.add('teraz-product');
-      const liveEntry = Meta.forTeraz(id) || fallbackEntry(p);
-      const blob = $('#teraz-product-data', view);
-      if (blob) {
-        blob.textContent = JSON.stringify({
-          id: liveEntry.id,
-          sku: p.id,
-          name: p.name,
-          url: liveEntry.url,
-          price: liveEntry.price,
-          regular_price: liveEntry.regularPrice || liveEntry.price,
-          is_on_sale: false,
-          is_available: liveEntry.available !== false,
-          image: liveEntry.image,
-          options: liveEntry.options || []
-        });
-      }
-      setText('[data-role="product-title"]', p.name);
-      setText('[data-role="crumb-name"]', p.name);
-      setText('#bundle-base-name', p.name);
-      const img1 = $('[data-role="primary-img"]', view);
-      const img2 = $('[data-role="story-img"]', view);
-      if (img1) { img1.src = liveEntry.image; img1.alt = p.name; }
-      if (img2) { img2.src = liveEntry.image; img2.alt = p.name; }
-      const sizesHost = $('#sizes-host', view);
-      if (sizesHost) sizesHost.innerHTML = '';
-      const baseSelect = $('#bundle-base-size', view);
-      if (baseSelect) baseSelect.innerHTML = '<option value="">اختر مقاسك</option>';
-      Page.picks = {};
-      Page.sizeFieldset = null;
-      showPrice(liveEntry.price, liveEntry.regularPrice);
-      await initProduct();
-      const back = $('[data-role="back-link"]', view);
-      if (back) back.setAttribute('href', '#' + p.group);
-      root.scrollTo({ top: 0, behavior: 'smooth' });
+      await openProductById(id, false);
       return;
     }
-    const homeView = $('#home-view');
-    const view = $('#product-view');
-    if (homeView && view && !view.hidden) {
-      view.hidden = true;
-      homeView.hidden = false;
-      doc.body.classList.add('teraz-home');
-      doc.body.classList.remove('teraz-product');
-      if (rawHash && doc.getElementById(rawHash)) {
-        doc.getElementById(rawHash).scrollIntoView({ behavior: 'smooth' });
-      }
-    }
+    closeSpaProductView(rawHash);
   }
 
   async function initCartPageAddons() {
@@ -1161,7 +1254,62 @@
     if (target && target.tagName === 'DETAILS') { target.open = true; target.scrollIntoView({ behavior: 'smooth' }); }
   }
 
+  function resolveClickedProductId(target) {
+    if (!target || !target.closest) return null;
+    if (target.closest('button, input, select, label, summary')) return null;
+    const link = target.closest('a');
+    if (link) {
+      const href = link.getAttribute('href') || '';
+      const hashMatch = href.match(/#p\/([\w-]+)/);
+      if (hashMatch && M.get(hashMatch[1])) return hashMatch[1];
+      if (link.dataset.terazLink && M.get(link.dataset.terazLink)) return link.dataset.terazLink;
+      const slugMatch = href.match(/\/p\/([\w-]+)/);
+      if (slugMatch && M.get(slugMatch[1])) return slugMatch[1];
+    }
+    const card = target.closest('.exhibit[data-teraz-id], .product-card[data-teraz-id]');
+    if (card && card.dataset.terazId && M.get(card.dataset.terazId)) {
+      if (link || card.classList.contains('exhibit') || target.closest('.product-image, .card-meta')) return card.dataset.terazId;
+    }
+    if (link) {
+      const matchCard = link.closest('[data-match]');
+      if (matchCard && matchCard.dataset.match && M.get(matchCard.dataset.match)) return matchCard.dataset.match;
+    }
+    return null;
+  }
+
   function bindUI() {
+    doc.addEventListener('click', (e) => {
+      const target = e.target;
+      if (!target || !target.closest) return;
+
+      // Return from SPA product view to home/category when clicking back-link or header/footer nav
+      const navLink = target.closest('a');
+      if (navLink && $('#product-view') && !$('#product-view').hidden && ($('#home-view') || $('.teraz-category-page'))) {
+        const href = navLink.getAttribute('href') || '';
+        const isBack = navLink.matches('[data-role="back-link"]');
+        const isBrand = navLink.matches('.site-header .brand, .site-footer .brand');
+        const hashIdx = href.indexOf('#');
+        const hashTarget = hashIdx !== -1 ? href.slice(hashIdx + 1) : '';
+        if (isBack || isBrand || (hashTarget && !hashTarget.startsWith('p/') && hashTarget !== 'product-guarantee')) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeSpaProductView(hashTarget);
+          const detailEl = hashTarget && doc.getElementById(decodeURIComponent(hashTarget));
+          if (detailEl && detailEl.tagName === 'DETAILS') detailEl.open = true;
+          return;
+        }
+      }
+
+      // Open product view when clicking any product card, hero shoe, or product link
+      const clickedTerazId = resolveClickedProductId(target);
+      if (clickedTerazId) {
+        e.preventDefault();
+        e.stopPropagation();
+        openProductById(clickedTerazId, true);
+        return;
+      }
+    }, true);
+
     doc.addEventListener('click', (e) => {
       const link = e.target.closest && e.target.closest('a[href^="#"]');
       if (link) { const t = doc.getElementById(decodeURIComponent(link.getAttribute('href').slice(1))); if (t && t.tagName === 'DETAILS') { e.preventDefault(); t.open = true; t.scrollIntoView({ behavior: 'smooth' }); return; } }
@@ -1254,6 +1402,7 @@
     const dialog = dialogEl();
     if (dialog) dialog.addEventListener('close', () => { if (lastTrigger && lastTrigger.isConnected) lastTrigger.focus({ preventScroll: true }); });
     root.addEventListener('hashchange', () => { closeCart(); openHashDetails(); handleHashRoute(); });
+    root.addEventListener('popstate', () => { closeCart(); openHashDetails(); handleHashRoute(); });
   }
 
   /* ======================================================================
@@ -1281,7 +1430,7 @@
     await Promise.all($$('#category-teraz-grid[data-group]').map(fillStrip));
   }
 
-  root.TerazController = Object.freeze({ Cart, Commerce, Page, openCart, closeCart, renderCart, applySort, boot });
+  root.TerazController = Object.freeze({ Cart, Commerce, Page, openCart, closeCart, renderCart, applySort, openProductById, closeSpaProductView, boot });
 
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', boot); else boot();
 })(typeof window !== 'undefined' ? window : globalThis);
