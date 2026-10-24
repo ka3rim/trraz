@@ -556,7 +556,7 @@
 
   /** Fills #hero-shoes with the 8 TERAZ knit shoes found in the store when the merchant did not pick any. */
   function fallbackEntry(p) {
-    const base = CFG.imagesBaseUrl || 'images/';
+    const base = String(CFG.imagesBaseUrl || 'images/').replace(/logo\.webp.*$/, '');
     return {
       id: p.id,
       sku: p.id,

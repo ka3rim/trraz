@@ -18,7 +18,7 @@
   categoryIds: theme.settings.get('teraz_category_ids')|default([]),
   productMap: theme.settings.get('teraz_product_map')|default(''),
   homeUrl: home_url,
-  imagesBaseUrl: ('images/logo.webp'|asset)|replace({'logo.webp': ''})
+  imagesBaseUrl: 'images/logo.webp'|asset
 } %}
 <!DOCTYPE html>
 <html lang="{{ language.code|default('ar') }}" dir="{{ theme.is_rtl is defined and not theme.is_rtl ? 'ltr' : 'rtl' }}">
@@ -34,7 +34,7 @@
 
   {% block head_scripts %}{% endblock %}
   {% hook 'head:start' %}
-  {% hook 'head' %}
+  {% hook head %}
   {% block styles %}{% endblock %}
 
   <script>document.documentElement.classList.add('teraz-js');</script>

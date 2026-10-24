@@ -1,1 +1,1186 @@
-!function(t){"use strict";const e=t.TerazMap,a=t.TerazMeta;if(!e||!a)return void(t.console&&t.console.error("TERAZ: teraz-catalog-map.js and salla-metadata-config.js must load first."));const o=t.document,n=a.config,i=e.MAX_QTY,r=(t,e)=>(e||o).querySelector(t),s=(t,e)=>Array.from((e||o).querySelectorAll(t)),l=t=>String(t??"").replace(/[&<>"']/g,t=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[t])),c=new Intl.NumberFormat("en-US",{maximumFractionDigits:0}),d=t=>(Number.isFinite(t)?c.format(t):"—")+" ر.س",u=/مقاس|size/i;function p(t,e){try{return JSON.parse(t)}catch(t){return e}}function f(t,e){const a=t||{},o=a.response&&a.response.data&&a.response.data.error,n=o&&(o.message||o.code)||a.error&&a.error.message||a.message||a.data&&a.data.error&&a.data.error.message;return"string"==typeof n&&n?n:e}function m(t,e){t&&(e?(t.setAttribute("aria-busy","true"),t.disabled=!0):(t.removeAttribute("aria-busy"),t.disabled=!1))}const h=()=>t.salla&&t.salla.cart?t.salla:null;function b(){const t=h();if(!t)throw new Error("خدمة المتجر غير جاهزة بعد. حدّث الصفحة وحاول مرة أخرى.");return t}function g(){return new Promise(e=>{let a=!1;const o=()=>{a||(a=!0,e(h()))},n=Date.now();!function e(){const a=t.salla;if(a&&"function"==typeof a.onReady){const e=a.onReady(o);e&&"function"==typeof e.then&&e.then(o,o),t.setTimeout(o,6e3)}else Date.now()-n>6e3?o():t.setTimeout(e,50)}()})}const y=()=>{try{const e=t.salla&&t.salla.config;if(e&&"function"==typeof e.isGuest)return!!e.isGuest();if(e&&"function"==typeof e.get)return!e.get("user.id")}catch(t){}return!0},v={clampQty(t){const e=Number(t);return Number.isInteger(e)&&e>=1&&e<=i?e:null},totals(t){const e=n.threshold,a=0===t||t>=e?0:n.shippingFee;return{subtotal:t,remaining:Math.max(0,e-t),progress:Math.min(100,t/e*100),shipping:a,total:t+a}}},$=(()=>{let e;const a=()=>{const t=r("#toast");return!!t&&"function"==typeof t.showPopover};return{show(o){const n=r("#toast");if(n){if(n.textContent=o,a())try{n.matches(":popover-open")||n.showPopover()}catch(t){}n.classList.add("show"),t.clearTimeout(e),e=t.setTimeout(()=>{n.classList.remove("show"),t.setTimeout(()=>{if(!n.classList.contains("show")&&a())try{n.hidePopover()}catch(t){}},260)},3600)}}}})();function z(t){const e=t.product||{},o=null!=t.product_id?t.product_id:e.id,n=Number(null!=t.quantity?t.quantity:t.qty)||0,i=a.toNumber(null!=t.price?t.price:t.product_price);let r=a.toNumber(t.total);Number.isFinite(r)||(r=(Number.isFinite(i)?i:0)*n);const s="string"==typeof t.image&&t.image||t.image&&t.image.url||t.product_image||e.image&&(e.image.url||e.image)||"",l=a.forSalla(o),c=t.name||t.product_name||e.name||l&&l.name||"",d=(Array.isArray(t.options)?t.options:[]).map(t=>({name:t.name||"",value:t.value&&"object"==typeof t.value?t.value.name||"":null!=t.value?t.value:t.option_value||""})).filter(t=>""!==t.value&&null!=t.value);return{id:String(t.id),productId:String(o),name:c,image:"string"==typeof s?s:"",url:t.url||e.url||l&&l.url||"",qty:n,unit:i,total:r,options:d,teraz:l&&l.teraz||a.resolve({id:o,sku:t.sku||e.sku,url:t.url||e.url,name:c})}}const w={state:{id:null,items:[],count:0,subtotal:0},busy:!1,_lastDone:0,_queued:!1,_inflight:null,_renderTimer:null,_listeners:[],onChange(t){this._listeners.push(t)},_emit(){t.clearTimeout(this._renderTimer),this._renderTimer=t.setTimeout(()=>this._listeners.forEach(t=>t(this.state)),0)},apply(t){const e=function(t){const e=t&&(t.data&&t.data.cart||t.cart||t.data||t);if(!e||!Array.isArray(e.items))return null;const o=e.items.map(z),n=o.reduce((t,e)=>t+(Number.isFinite(e.total)?e.total:0),0),i=a.toNumber(e.sub_total);return{id:null!=e.id?String(e.id):null,items:o,count:o.reduce((t,e)=>t+e.qty,0),subtotal:o.length?n:Number.isFinite(i)?i:0}}(t);return!!e&&(this.state=e,this._emit(),!0)},refresh(){if(this._inflight)return this._queued=!0,this._inflight;const t=h();return t?(this.busy=!0,this._inflight=Promise.resolve().then(()=>"function"==typeof t.cart.latest?t.cart.latest():t.cart.api&&"function"==typeof t.cart.api.latest?t.cart.api.latest():Promise.resolve(null)).then(t=>{t&&this.apply(t)}).catch(()=>{}).then(()=>(this.busy=!1,this._lastDone=Date.now(),this._inflight=null,this._queued?(this._queued=!1,this.refresh()):this.state)),this._inflight):Promise.resolve(this.state)},async add({id:t,quantity:e,options:a,notes:o},{refresh:n=!0}={}){const i=b(),r={id:Number(t),quantity:e||1};a&&Object.keys(a).length&&(r.options=a),o&&(r.notes=o);const s=await i.cart.addItem(r);return n&&await this.refresh(),s},async update(t,e){const a=b(),o=await a.cart.updateItem({id:Number(t),quantity:e});return await this.refresh(),o},async remove(t){const e=b(),a=await e.cart.deleteItem(Number(t));return await this.refresh(),a},async checkout(){const e=b();if("function"==typeof e.cart.submit)return void await e.cart.submit();const a=e.url&&"function"==typeof e.url.get&&e.url.get("cart")||"/cart";t.location.href=a},bindEvents(){const t=h();if(!t)return;const e=t=>{this.apply(t)||this.busy||Date.now()-this._lastDone<300||this.refresh()},a=t.cart&&t.cart.event||t.event&&t.event.cart||null;a&&["onUpdated","onItemAdded","onItemDeleted","onItemUpdated"].forEach(t=>{"function"==typeof a[t]&&a[t](e)}),t.event&&"function"==typeof t.event.on&&["cart::updated","cart::item.added","cart::item.deleted","cart::item.updated"].forEach(a=>t.event.on(a,e))}};function k(t,e){const a=(t.name||"")+(t.teraz?"، "+t.teraz.color:"");return`<img ${e||""} src="${l(t.image)}" width="1200" height="900" alt="${l(a)}">`}const x=(t,e)=>t&&Number.isFinite(t.price)?t.price:e?e.price:NaN;function C(t){const e=t.teraz,a=Number.isFinite(t.regularPrice)&&Number.isFinite(t.price)&&t.regularPrice>t.price;return`<article class="product-card" data-product-id="${l(t.id)}" data-sku="${l(t.sku)}" data-name="${l(t.name)}" data-url="${l(t.url)}" data-price="${l(t.price)}" data-regular-price="${l(t.regularPrice)}" data-image="${l(t.image)}" data-available="${!1===t.available?"false":"true"}"${e?` data-teraz-id="${l(e.id)}"`:""}><a class="product-image" href="${l(t.url)}" aria-label="تفاصيل ${l(t.name)}">${k(t,'loading="lazy"')}</a><div class="card-meta"><span class="card-color">${l(e?e.color:"")}</span><h3><a href="${l(t.url)}">${l(t.name)}</a></h3><div class="card-bottom"><b>${d(x(t,e))}</b>${a?`<del class="card-regular">${d(t.regularPrice)}</del>`:""}${!1===t.available?'<span class="card-flag">غير متوفر</span>':""}<a href="${l(t.url)}">اكتشف التفاصيل ↗</a></div></div></article>`}function E(t,o){if(e.oneSize(o))return[];const n=a.pickSizeOption(t.options);return n&&n.values.length?n.values.map(t=>({label:t.name,out:t.outOfStock})):e.SHOE_SIZES.map(t=>({label:t,out:!1}))}function S(t,o,n){const i=a.buildOptionPayload(t.options,o,n);if(i.error)return{error:i.error};const r=e.isFootwear(o)&&!i.option?"المقاس: "+n:void 0;return{options:i.options,notes:r}}function T(t,e){return"size_not_available"===t?"المقاس "+e+" غير متوفر لهذا المنتج حاليًا.":"تعذّر تحديد خيارات هذا المنتج. افتح صفحته واختر الخيارات."}let L=null;const N=()=>r("#cart-dialog");function _(t){const a=t.image?`<img src="${l(t.image)}" width="1200" height="900" alt="${l(t.name)}">`:"";return`<article class="cart-line" data-line="${l(t.id)}">${a}<div><h3>${l(t.name)}</h3><p>${l(function(t){const a=t.teraz;return a&&"care"===a.group?"المحتوى: "+a.fit:t.options.length?t.options.map(t=>(u.test(t.name)?"المقاس":t.name)+": "+t.value).join(" · "):a&&e.oneSize(a)?"المقاس: "+e.ONE_SIZE_LABEL:""}(t))}</p><strong>${d(t.total)}</strong><div class="qty-control"><button type="button" data-quantity="${l(t.id)}" data-delta="-1" aria-label="تقليل كمية ${l(t.name)}">−</button><span>${t.qty}</span><button type="button" data-quantity="${l(t.id)}" data-delta="1" aria-label="زيادة كمية ${l(t.name)}"${t.qty>=i?" disabled":""}>+</button><button type="button" class="remove-item" data-remove="${l(t.id)}" aria-label="إزالة ${l(t.name)} من الحقيبة">إزالة</button></div></div></article>`}function q(t){const a=t.teraz,o=E(t,a),n=e.oneSize(a)?`<small>${l("care"===a.group?a.fit:"مقاس واحد")}</small>`:`<label>المقاس <select aria-label="مقاس ${l(t.name)}"><option value="">اختر</option>${o.map(t=>`<option value="${l(t.label)}"${t.out?" disabled":""}>${l(t.label)}</option>`).join("")}</select></label>`;return`<article class="checkout-addon" data-match="${l(a.id)}"><a href="${l(t.url)}" class="addon-image">${k(t,'loading="lazy"')}</a><div class="addon-details"><span>${l(e.matchReason(a))}</span><a href="${l(t.url)}"><h4>${l(t.name)}</h4></a><strong>${d(x(t,a))}</strong>${n}<button type="button" data-quick="${l(a.id)}" class="addon-add">أضف +</button><p class="match-feedback" role="status"></p></div></article>`}function A(t){const o=N();if(!o)return;const i=t||o.dataset.stage||"bag",s=r(".cart-recommend"),l=s?s.open:null,{items:u,subtotal:p}=w.state,f=v.totals(p);o.classList.toggle("is-review","review"===i),o.dataset.stage=i,r("#bag-title").textContent="review"===i?"راجع كشختك":"حقيبتك";const m=r("#cart-body");if(!u.length)return void(m.innerHTML='<div class="empty-bag"><span>طرازك يبدأ باختيار.</span><h3>حقيبتك تنتظر ذوقك.</h3><button type="button" class="primary" data-action="browse">اكتشف المجموعة ←</button></div>');m.innerHTML=`<div class="checkout-main">${"review"===i?'<p class="review-intro">اختياراتك جاهزة. راجع المقاسات والكميات، وكمل على طرازك.</p>':""}${function(t){return`<div class="shipping-progress"><div><span>${t.remaining?"باقي "+d(t.remaining)+" للشحن المجاني":"وصلت للشحن المجاني"}</span><small>شحن مجاني من ${c.format(n.threshold)} ر.س</small></div><progress value="${t.progress}" max="100" aria-label="التقدم نحو حد الشحن المجاني">${Math.round(t.progress)}%</progress></div>`}(f)}<div class="cart-lines">${u.map(_).join("")}</div><details class="cart-recommend"${"review"===i?"":" open"}><summary><span>كمّل كشختك <small>قطع تتناسق مع اختيارك · اختياري</small></span><b>+</b></summary><div class="checkout-addons"></div></details></div>`+function(t,e){const a=n.showShippingEstimate?`<p><span>الشحن المتوقع</span><strong>${t.shipping?d(t.shipping):"مجاني"}</strong></p><p class="grand-total"><span>الإجمالي المتوقع</span><strong>${d(t.total)}</strong></p>`:`<p class="grand-total"><span>مجموع المنتجات</span><strong>${d(t.subtotal)}</strong></p>`;return`<div class="cart-summary"><h3>ملخص طلبك</h3><p><span>مجموع المنتجات</span><strong>${d(t.subtotal)}</strong></p>${a}<small>التكلفة النهائية للشحن وأي خصومات تظهر لك في صفحة الدفع.</small><button type="button" class="primary" data-action="${"review"===e?"checkout":"review"}">${"review"===e?"إتمام الطلب":"متابعة الطلب"} ←</button><button type="button" class="text-button" data-action="close-cart">أكمل التصفح</button></div>`}(f,i);const h=r(".cart-recommend");h&&null!==l&&(h.open=l),async function(){const t=r(".checkout-addons");if(!t)return;const o=function(){const t=new Set(w.state.items.map(t=>t.teraz&&t.teraz.id).filter(Boolean)),o=new Set,n=[];return w.state.items.forEach(i=>{i.teraz&&e.recommendations(i.teraz).forEach(e=>{if(t.has(e.id)||o.has(e.id))return;o.add(e.id);const i=a.forTeraz(e.id);i&&!1!==i.available&&n.push(i)})}),n.slice(0,5)}();t.setAttribute("aria-busy","true"),await Promise.all(o.map(t=>a.ensureOptions(t))),t.isConnected&&(t.innerHTML=o.map(q).join("")||"<p>كشختك مكتملة بالقطع المقترحة.</p>",t.removeAttribute("aria-busy"))}()}function I(){const t=N();t&&(L=o.activeElement,A("bag"),t.open||"function"!=typeof t.showModal||t.showModal())}const F=()=>{const t=N();t&&t.open&&t.close()};async function M(t,e){const a=N(),o=function(t){if(!t||!t.closest)return null;const e=t.closest("button");return e?e.dataset.quantity?`button[data-quantity="${e.dataset.quantity}"][data-delta="${e.dataset.delta}"]`:e.dataset.remove?`button[data-remove="${e.dataset.remove}"]`:null:null}(t),n=t.closest(".cart-line");s("button",n).forEach(t=>{t.disabled=!0}),n&&n.setAttribute("aria-busy","true");try{await e()}catch(t){$.show(f(t,"تعذّر تحديث الحقيبة. حاول مرة أخرى.")),A(a&&a.dataset.stage)}const i=o&&r(o,a)||r("#bag-title");i&&(i.hasAttribute("tabindex")||"H2"!==i.tagName||i.setAttribute("tabindex","-1"),i.focus({preventScroll:!0}))}function P(t){s(".product-card, .exhibit",t).forEach(t=>{if(t.dataset.terazId)return;const e=a.forSalla(t.dataset.productId),o=e&&e.teraz||a.resolve({id:t.dataset.productId,sku:t.dataset.sku,url:t.dataset.url,name:t.dataset.name});if(!o)return;t.dataset.terazId=o.id;const n=r(".card-color",t);n&&(n.textContent=o.color)})}function O(){const t=r("#hero-peek");t&&s(".exhibit").forEach(e=>{if(e.dataset.peekWired)return;e.dataset.peekWired="1";const a=()=>{r("img",t).src=e.dataset.peekImg||e.dataset.image||"",r("span",t).textContent=e.dataset.peekName||e.dataset.name||"",t.classList.add("visible")},o=()=>t.classList.remove("visible");e.addEventListener("mouseenter",a),e.addEventListener("focus",a),e.addEventListener("mouseleave",o),e.addEventListener("blur",o)})}function j(t){const e=n.imagesBaseUrl||"images/";return{id:t.id,sku:t.id,name:t.name,url:"#"+t.group,price:t.price,regularPrice:t.price,image:t.image?e+t.image:"",available:!0,options:[],teraz:t}}function D(t){const a=r('.product-strip[data-group="knit"]');if(!a)return;const o=s(".product-card",a);e.ordered(o,t,t=>t.dataset.terazId).forEach(t=>a.appendChild(t)),a.scrollLeft=0}async function H(o){if(r(".product-card",o))return;const n=o.dataset.group,i=t.salla,s=null==(l=p(o.dataset.category||'""',""))||""===l?[]:(Array.isArray(l)?l:[l]).map(t=>t&&"object"==typeof t?t.id:t).filter(t=>null!=t&&""!==t).map(String);var l;let c=[];if(s.length&&i&&i.product&&"function"==typeof i.product.fetch)try{const t=await i.product.fetch({source:"categories",source_value:s});c=(t&&(t.data||t.products)||[]).map(t=>a.register(t)).filter(Boolean)}catch(t){c=[]}c.length||(c=e.inGroup(n).map(t=>a.forTeraz(t.id)).filter(Boolean)),c.length||(c=e.inGroup(n).map(j)),c.length&&(o.innerHTML=c.map(C).join(""),P(o))}const B={root:null,entry:null,p:null,unit:NaN,regular:NaN,picks:{},sizeFieldset:null,auto:null,available:!0,priceTimer:null},R=()=>s("#sizes-host fieldset.sizes");function U(t,e){const a=r(t,B.root);a&&(a.textContent=e||"",a.hasAttribute("data-hydrate")&&(a.hidden=!e))}function G(t,e){const a=r('[data-action="add-product"]',B.root),o=r('[data-role="add-label"]',B.root);a&&(a.disabled=!t),o&&e&&(o.textContent=e)}function Z(){const t=Object.keys(B.picks).map(t=>B.picks[t]).find(t=>t.out),e=r("#size-error");B.available?t?(G(!1,"غير متوفر لهذا المقاس"),e&&(e.textContent="هذا الخيار غير متوفر حاليًا. اضغط «نبّهني عند التوفر» لنخبرك فور توفره.")):(G(!0,"أضف للحقيبة"),e&&-1!==e.textContent.indexOf("غير متوفر")&&(e.textContent="")):G(!1,"غير متوفر حاليًا")}function Q(e){const n=e.closest("fieldset.sizes");if(!n)return;const i=n.dataset.optionId||"";if(s("button[data-size]",n).forEach(t=>t.setAttribute("aria-pressed",String(t===e))),B.picks[i]={valueId:e.dataset.valueId||"",label:e.dataset.size,out:"true"===e.dataset.out},n===B.sizeFieldset){const t=r("#bundle-base-size");t&&(t.value=e.dataset.size);const a=r("#bundle-message");a&&(a.textContent="مقاس منتجك: "+e.dataset.size)}const l=r("#size-error");l&&(l.textContent=""),Z(),t.clearTimeout(B.priceTimer),B.priceTimer=t.setTimeout(async()=>{const e=t.salla,n=V();if(e&&e.product&&"function"==typeof e.product.getPrice&&!n.error&&Object.keys(n.options||{}).length)try{const t=await e.product.getPrice({id:Number(B.entry.id),quantity:1,options:n.options}),i=t&&t.data||t||{},s=a.toNumber(i.price),l=a.toNumber(i.regular_price);Number.isFinite(s)&&s>0&&(B.unit=s,function(t,e){const a=r('[data-role="price"]',B.root);a&&Number.isFinite(t)&&(a.textContent=d(t));let n=r('[data-role="regular"]',B.root);const i=Number.isFinite(e)&&Number.isFinite(t)&&e>t;i&&!n&&(n=o.createElement("del"),n.setAttribute("data-role","regular"),r(".price-line",B.root).appendChild(n)),n&&(n.hidden=!i,i&&(n.textContent=d(e)))}(s,Number.isFinite(l)?l:B.regular),K())}catch(t){}},250),K()}function V(){const t=R();if(!t.length)return B.auto&&B.auto.error?{error:!0,message:T(B.auto.error,e.optionLabel(B.p))}:{options:B.auto?B.auto.options:{},notes:void 0};const a={};let o;for(const e of t){const t=e.dataset.optionId||"",n=B.picks[t],i=e===B.sizeFieldset,r=(B.entry.options||[]).find(e=>e.id===t),s=i||!r||r.required;if(n){if(n.out)return{error:!0,focus:e,message:"هذا الخيار غير متوفر حاليًا. اضغط «نبّهني عند التوفر»."};t?a[t]=n.valueId:i&&(o="المقاس: "+n.label)}else if(s)return{error:!0,focus:e,message:i?"اختر المقاس أولًا، عشان نضيف اختيارك الصحيح.":"اختر "+(e.dataset.optionName||"الخيار")+" أولًا."}}return{options:a,notes:o}}function W(){const t=r("#product-qty");return v.clampQty(t&&t.value)}function K(){if(!B.root||!r("#bundle-total"))return;const t=W();if(!t)return void(r("#bundle-message").textContent="اختر كمية من 1 إلى 10.");const o=s(".bundle-check:checked").reduce((t,o)=>{const n=a.forTeraz(o.value);return t+(n?x(n,e.get(o.value)):0)},0),i=(Number.isFinite(B.unit)?B.unit:0)*t+o;r("#bundle-total").textContent=d(i);const l=w.state.subtotal,u=v.totals(l+i);r("#bundle-shipping").innerHTML=`<div class="shipping-progress"><div><strong>${u.remaining?"باقي "+d(u.remaining)+" للشحن المجاني":"اختياراتك توصلك للشحن المجاني"}</strong><small>الشحن مجاني من ${c.format(n.threshold)} ر.س</small></div><progress value="${u.progress}" max="100" aria-label="التقدم المتوقع نحو الشحن المجاني"></progress><p>${l?"حقيبتك الحالية "+d(l)+" + اختياراتك الجديدة":"محسوب على المنتج الأساسي والإضافات المختارة"} · المجموع بعد الإضافة ${d(u.subtotal)}</p></div>`}async function J(t){if(!B.root)return;const o=r("#size-error"),n=r("#bundle-message"),i=V();if(i.error){if(o.textContent=i.message,t){n&&(n.textContent="اختر المقاس أولًا من أعلى الصفحة.");const t=r("#bundle-base-size");t&&!t.closest("[hidden]")&&t.focus({preventScroll:!0})}else if(i.focus){i.focus.scrollIntoView({behavior:"smooth",block:"center"});const t=r("button",i.focus);t&&t.focus({preventScroll:!0})}return}const l=W();if(!l)return void(o.textContent="اختر كمية من 1 إلى 10.");const c=[];if(t)for(const t of s(".bundle-check:checked")){const o=t.closest("[data-match]"),n=e.get(t.value),i=a.forTeraz(t.value),s=r(".match-feedback",o),l=r("select",o);if(!n||!i)continue;const d=e.oneSize(n)?e.optionLabel(n):l?l.value:"";if(!d)return s.textContent="اختر مقاس هذه القطعة أولًا.",void(l&&l.focus());await a.ensureOptions(i);const u=S(i,n,d);if(u.error)return void(s.textContent=T(u.error,d));c.push({entry:i,options:u.options,notes:u.notes})}const d=r(t?'[data-action="add-bundle"]':'[data-action="add-product"]',B.root);m(d,!0);let u=0;try{await w.add({id:B.entry.id,quantity:l,options:i.options,notes:i.notes},{refresh:!1}),u+=1;for(const t of c)await w.add({id:t.entry.id,quantity:1,options:t.options,notes:t.notes},{refresh:!1}),u+=1;await w.refresh(),I(),$.show("أُضيف اختيارك للحقيبة.")}catch(t){u&&await w.refresh();const e=f(t,"تعذّرت الإضافة للحقيبة. حاول مرة أخرى.");o.textContent=e,$.show(e)}finally{m(d,!1),B.available?Z():G(!1)}}function X(t){const e=r("#notify-panel"),a=r('[data-role="notify-link"]');if(e&&(e.hidden=void 0===t?!e.hidden:!t,a&&a.setAttribute("aria-expanded",String(!e.hidden)),!e.hidden)){const t=r("#notify-contact");t&&!t.hidden&&t.focus({preventScroll:!0})}}async function Y(){const t=r("#bundle-items"),o=r("#complete-look");if(!t||!o)return;const n=e.recommendations(B.p).map(t=>a.forTeraz(t.id)).filter(t=>t&&!1!==t.available);await Promise.all(n.map(t=>a.ensureOptions(t))),t.innerHTML=n.map(t=>function(t){const a=t.teraz,o=w.state.items.some(t=>t.teraz&&t.teraz.id===a.id),n=E(t,a),i=e.oneSize(a)?`<p class="match-size">${l("care"===a.group?a.fit:"مقاس واحد · محدد تلقائيًا")}</p>`:`<label class="match-size">المقاس <select class="match-size-select" aria-label="مقاس ${l(t.name)}"><option value="">اختر مقاسك</option>${n.map(t=>`<option value="${l(t.label)}"${t.out?" disabled":""}>${l(t.label)}${t.out?" — غير متوفر":""}</option>`).join("")}</select></label>`;return`<article class="match-item" data-match="${l(a.id)}"><a href="${l(t.url)}" class="match-photo">${k(t,'loading="lazy"')}</a><div class="match-info"><span class="match-kicker">${l(e.matchReason(a))}</span><a href="${l(t.url)}"><h4>${l(t.name)}</h4></a><p class="match-price">${d(x(t,a))} </p>${i}<label class="match-check"><input type="checkbox" class="bundle-check" value="${l(a.id)}"> أضف إلى تنسيقي</label><button type="button" class="text-button" data-quick="${l(a.id)}">أضف القطعة +</button><p class="match-feedback" role="status">${o?"قطعة من هذا الموديل في حقيبتك بالفعل":""}</p></div></article>`}(t)).join(""),t.setAttribute("aria-busy","false"),o.hidden=!n.length,K()}async function tt(){const e=r(".alternatives",B.root),o=r('[data-role="alternatives"]',B.root);if(!e||!o)return;let n=a.list().filter(t=>t.teraz&&t.teraz.group===B.p.group&&t.teraz.id!==B.p.id).sort((t,e)=>t.teraz.order-e.teraz.order);const i=t.salla;if(!n.length&&i&&i.product&&"function"==typeof i.product.fetch)try{const t=await i.product.fetch({source:"related",source_value:[Number(B.entry.id)]});n=(t&&(t.data||t.products)||[]).map(t=>a.register(t)).filter(t=>t&&t.id!==B.entry.id)}catch(t){n=[]}n=n.slice(0,4),n.length&&(o.innerHTML=n.map(C).join(""),e.hidden=!1)}function et(){B.root&&B.root.removeAttribute("data-pending")}async function at(){const i=r("#product-view"),c=r("#teraz-product-data");if(i&&c){B.root=i,t.setTimeout(et,4e3);try{const t=p(c.textContent,null);if(!t)return;B.entry=a.register(t),B.p=B.entry.teraz,B.unit=B.entry.price,B.regular=B.entry.regularPrice,B.available=!1!==B.entry.available,o.title=B.entry.name||o.title,function(){const t=r("#sizes-host"),n=B.p,i=B.entry.options||[];if(s("fieldset.sizes",t).forEach(t=>{r("button[data-size]",t)||t.remove()}),n&&"footwear"!==e.variantKind(n))return t.innerHTML=`<div class="sizes one-size"><strong>${l(e.sizeNote(n))}</strong><p>أضف اختيارك مباشرة.</p></div>`,void(B.auto=a.buildOptionPayload(i,n,e.optionLabel(n)));var c,d;R().length||!n&&i.length||n&&(t.innerHTML=(c=e.SHOE_SIZES,d=n.fit,`<fieldset class="sizes" data-option-id="" data-option-name="المقاس"><legend>اختر المقاس</legend><div>${c.map(t=>`<button type="button" data-size="${l(t)}" data-option-id="" data-value-id="" aria-pressed="false">${l(t)}</button>`).join("")}</div><p data-role="fit-note">${l(d)}</p></fieldset>`));const u=a.pickSizeOption(i);if(B.sizeFieldset=u&&R().find(t=>t.dataset.optionId===u.id)||R()[0]||null,B.sizeFieldset||n||(B.auto={options:{},error:null}),B.sizeFieldset&&n){const t=r('[data-role="fit-note"]',B.sizeFieldset);t&&(t.textContent=n.fit)}i.forEach(t=>t.values.forEach(e=>{const a=r(`#sizes-host button[data-option-id="${t.id}"][data-value-id="${e.id}"]`);a&&e.outOfStock&&(a.dataset.out="true")})),R().forEach(t=>{if(t===B.sizeFieldset)return;const e=s("button[data-size]",t);1===e.length&&"true"!==e[0].dataset.out&&Q(e[0])});const p=r("#bundle-base-size"),f=r("#bundle-base-size-label");p&&B.sizeFieldset&&(s("button[data-size]",B.sizeFieldset).forEach(t=>{const e=o.createElement("option");e.value=t.dataset.size,e.textContent=t.dataset.size+("true"===t.dataset.out?" — غير متوفر":""),"true"===t.dataset.out&&(e.disabled=!0),p.appendChild(e)}),f&&(f.hidden=!1))}(),B.p?function(){const t=B.p,a=e.content(t),o=t.group;U('[data-role="eyebrow"]',a.eyebrow),U('[data-role="headline"]',t.headline),U('[data-role="intro"]',t.description),U('[data-role="color"]',t.color),U('[data-role="detail-label"]',a.detailLabel),U('[data-role="gallery-note"]',e.galleryNote(t));const i=r('[data-role="back-link"]');i&&i.setAttribute("href",n.homeUrl.replace(/#.*$/,"")+"#"+o),r('[data-role="badges"]').innerHTML=a.badges.map(t=>-1!==t.indexOf("ضمان")?`<a href="#product-guarantee">${l(t)}</a>`:`<span>${l(t)}</span>`).join(""),r('[data-role="accordions"]').innerHTML=a.sections.map(([t,e,a],o)=>`<details${0===o?" open":""}${a?` id="${l(a)}"`:""}><summary>${l(t)}</summary><p>${l(e)}</p></details>`).join(""),U('[data-role="notify-copy"]',e.notifyCopy(t)+" سنرسل لك إشعارًا عند توفره.");const s=r('[data-role="notify-link"]');s&&(s.textContent=e.oneSize(t)?"نبّهني عند توفر المنتج":"ما لقيت مقاسك؟ نبّهني عند التوفر"),U('[data-role="look-eyebrow"]',a.lookEyebrow),U('[data-role="look-title"]',a.lookTitle),U('[data-role="look-text"]',a.lookText),U('[data-role="look-guide"]',a.lookGuide);const c=r("#bundle-base-note"),d=e.oneSize(t);c&&(c.hidden=!d,c.textContent=d?"care"===o?t.fit:"مقاس واحد · محدد تلقائيًا":""),r("#bundle-message").textContent=d?"جاهز للإضافة مباشرة.":"اختر مقاس المنتج الأساسي هنا، ثم أضف اختياراتك.",U('[data-role="story-label"]',a.storyLabel),U('[data-role="story-title"]',a.storyTitle),U('[data-role="story-text"]',a.storyText),U('[data-role="story-extra"]',a.storyExtra),U('[data-role="alt-eyebrow"]',"care"===o?"مجموعة العناية بالجزم":"من نفس المجموعة"),U('[data-role="alt-title"]',a.alternativeTitle),r(".product-story",B.root).hidden=!1}():s('[data-role="headline"]',i).forEach(t=>{t.hidden=!t.textContent.trim()}),B.available||(Z(),X(!0));const d=r("#notify-contact");if(d&&!y()){const t=r("#notify-form");d.hidden=!0,s('label[for="notify-contact"]',t).forEach(t=>{t.hidden=!0})}K()}finally{et()}B.p&&(await g(),await a.loadRegistry(),await Promise.all([Y(),tt()]))}}function ot(){const e=decodeURIComponent((t.location.hash||"").slice(1));if(!e)return;const a=o.getElementById(e);a&&"DETAILS"===a.tagName&&(a.open=!0,a.scrollIntoView({behavior:"smooth"}))}function nt(){o.addEventListener("click",l=>{const c=l.target.closest&&l.target.closest('a[href^="#"]');if(c){const t=o.getElementById(decodeURIComponent(c.getAttribute("href").slice(1)));if(t&&"DETAILS"===t.tagName)return l.preventDefault(),t.open=!0,void t.scrollIntoView({behavior:"smooth"})}const d=l.target.closest&&l.target.closest("button");if(!d)return;const u=d.dataset;if(u.sort)return s("[data-sort]").forEach(t=>t.setAttribute("aria-pressed",String(t===d))),void D(u.sort);if(u.scroll){const t=r("#"+u.scroll+" .product-strip");return void(t&&t.scrollBy({left:Number(u.dir)*t.clientWidth*.8,behavior:"smooth"}))}if(void 0!==u.size&&d.closest("fieldset.sizes"))Q(d);else{if(u.imageMode){const t=r(".primary-photo");if(!t)return;t.classList.toggle("detail","detail"===u.imageMode),s("[data-image-mode]").forEach(t=>t.setAttribute("aria-pressed",String(t===d)));const e=r('[data-action="zoom"]');return void(e&&e.setAttribute("aria-pressed",String("detail"===u.imageMode)))}if(u.quick)!async function(t,o){const n=e.get(t),i=a.forTeraz(t),s=o.closest("[data-match]"),l=r(".match-feedback",s),c=r("select",s);if(!n||!i)return;const d=e.oneSize(n)?e.optionLabel(n):c?c.value:"";if(!d)return l.textContent="اختر المقاس لإضافة هذه القطعة.",void(c&&c.focus());await a.ensureOptions(i);const u=S(i,n,d);if(u.error)l.textContent=T(u.error,d);else{m(o,!0);try{await w.add({id:i.id,quantity:1,options:u.options,notes:u.notes});const t=N();if(t&&t.open){const t=r(".addon-add")||r("#cart-body .primary");t&&t.focus({preventScroll:!0})}else l.textContent="✓ أُضيفت للحقيبة — "+d,o.textContent="أضف قطعة أخرى +";$.show("أُضيف "+i.name+" للحقيبة.")}catch(t){l.textContent=f(t,"تعذّرت الإضافة. حاول مرة أخرى.")}finally{m(o,!1)}}}(u.quick,d);else{if(void 0!==u.quantity){const t=w.state.items.find(t=>t.id===u.quantity);if(!t)return;const e=t.qty+Number(u.delta);return void(e<1?M(d,()=>w.remove(t.id)):e>i?$.show("الحد الأقصى "+i+" قطع لكل منتج."):M(d,()=>w.update(t.id,e)))}if(void 0===u.remove)switch(u.action){case"cart":I();break;case"close-cart":F();break;case"browse":F(),r("#knit")?t.location.hash="knit":t.location.href=n.homeUrl.replace(/#.*$/,"")+"#knit";break;case"review":A("review");{const t=N();t&&(t.scrollTop=0)}break;case"checkout":m(d,!0),w.checkout().catch(t=>$.show(f(t,"تعذّر الانتقال إلى الدفع. حاول مرة أخرى."))).then(()=>m(d,!1));break;case"add-product":J(!1);break;case"add-bundle":J(!0);break;case"zoom":{const t=r(".primary-photo");if(!t)break;const e=t.classList.toggle("detail");d.setAttribute("aria-pressed",String(e)),s("[data-image-mode]").forEach(t=>t.setAttribute("aria-pressed",String(t.dataset.imageMode===(e?"detail":"full"))));break}case"notify":X()}else M(d,()=>w.remove(u.remove))}}}),o.addEventListener("submit",o=>{o.target&&"notify-form"===o.target.id&&(o.preventDefault(),async function(){const o=r("#notify-message"),n=B.p?B.p.group:null,i=B.p?"footwear"===e.variantKind(B.p):R().length>0,s=(()=>{if(!B.sizeFieldset)return B.auto?e.optionLabel(B.p):"";const t=B.picks[B.sizeFieldset.dataset.optionId];return t?t.label:""})();if(i&&!s)return void(o.textContent="اختر مقاسًا من الخيارات أولًا.");const l={id:Number(B.entry.id)};if(y()){const t=a.toLatinDigits((r("#notify-contact").value||"").trim()),e=t.replace(/[\s-]/g,"").match(/^(?:\+?966|00966|0)?(5\d{8})$/);if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t))l.email=t;else{if(!e)return o.textContent="أدخل بريدًا إلكترونيًا أو رقم جوال سعودي صحيحًا.",void r("#notify-contact").focus();l.mobile=e[1],l.country_code="+966"}}const c=function(){const e=t.salla;if(!e)return null;const a=[[e.product,e.product&&e.product.availabilitySubscribe],[e.product&&e.product.api,e.product&&e.product.api&&e.product.api.availabilitySubscribe],[e.api&&e.api.product,e.api&&e.api.product&&e.api.product.availabilitySubscribe],[e.product&&e.product.availability,e.product&&e.product.availability&&e.product.availability.subscribe]].find(t=>"function"==typeof t[1]);return a?t=>a[1].call(a[0],t):null}();if(!c)return void(o.textContent="خدمة التنبيه غير متاحة حاليًا. حاول لاحقًا.");const d=r('[data-action="save-notify"]');m(d,!0);try{await c(l),o.textContent="تم تسجيل اهتمامك "+("care"!==n&&s&&s!==e.ONE_SIZE_LABEL?"بمقاس "+s:"بالمنتج")+". سنخبرك فور توفره."}catch(t){o.textContent=f(t,"تعذّر تسجيل التنبيه. حاول مرة أخرى.")}finally{m(d,!1)}}())}),o.addEventListener("change",t=>{const e=t.target;e.matches("#bundle-base-size")&&function(t){if(!B.sizeFieldset)return;const e=s("button[data-size]",B.sizeFieldset).find(e=>e.dataset.size===t);if(e)return void Q(e);s("button[data-size]",B.sizeFieldset).forEach(t=>t.setAttribute("aria-pressed","false")),delete B.picks[B.sizeFieldset.dataset.optionId];const a=r("#bundle-message");a&&(a.textContent="اختر مقاس المنتج الأساسي هنا."),Z(),K()}(e.value),e.matches(".bundle-check,.match-size-select,#product-qty,#bundle-base-qty")&&K()}),o.addEventListener("input",t=>{const e=t.target;if(e.matches("#product-qty,#bundle-base-qty")){const t=r("product-qty"===e.id?"#bundle-base-qty":"#product-qty");t&&(t.value=e.value),K()}});const l=N();l&&l.addEventListener("close",()=>{L&&L.isConnected&&L.focus({preventScroll:!0})}),t.addEventListener("hashchange",()=>{F(),ot()})}async function it(){if(t.__terazBooted)return;t.__terazBooted=!0,nt(),ot();const n=at(),i=(async()=>{P(o),r("#home-view")&&(D("thobe"),O()),await g(),await async function(){r("#home-view")&&(P(o),D("thobe"),O(),await a.loadRegistry(),await Promise.all(s(".product-strip[data-group]").map(H)),P(o),D((r('.sort-bar [aria-pressed="true"]')||{dataset:{}}).dataset.sort||"thobe"),function(){const t=r("#hero-shoes");if(!t||r(".exhibit",t))return void O();let o=e.inGroup("knit").map(t=>a.forTeraz(t.id)).filter(Boolean).slice(0,8);o.length||(o=e.inGroup("knit").slice(0,8).map(j)),t.innerHTML=o.map((t,e)=>`<a href="${l(t.url)}" class="exhibit" style="--column:${e%4};--tier:${Math.floor(e/4)}" data-product-id="${l(t.id)}" data-name="${l(t.name)}" data-image="${l(t.image)}" data-peek-img="${l(t.image)}" data-peek-name="${l(t.name)}" data-teraz-id="${l(t.teraz.id)}" aria-label="اكتشف ${l(t.name)}">${k(t)}<span>${l(t.name)} ↗</span></a>`).join(""),O()}(),s("[data-teraz-link]").forEach(t=>{const e=a.forTeraz(t.dataset.terazLink);e&&e.url&&t.setAttribute("href",e.url)}))}()})();await g()&&(w.bindEvents(),await w.refresh()),await Promise.all([n,i])}w.onChange(()=>{!function(){const t=r("#cart-count");t&&(t.textContent=String(w.state.count))}();const t=N();t&&t.open&&A(),K()}),t.TerazController=Object.freeze({Cart:w,Commerce:v,Page:B,openCart:I,closeCart:F,renderCart:A,applySort:D,boot:it}),"loading"===o.readyState?o.addEventListener("DOMContentLoaded",it):it()}("undefined"!=typeof window?window:globalThis);
+/**
+ * TERAZ (طراز) — Salla controller for theme-raed.
+ *
+ * Replaces the prototype's atelier.js + commerce.js. All commerce goes through the Salla Twilight SDK:
+ *   cart      salla.cart.addItem / updateItem / deleteItem / latest / submit   + cart events
+ *   product   salla.product.getPrice / getDetails / fetch / availabilitySubscribe
+ * TERAZ-only content (copy, pairing, sort ranks) comes from teraz-catalog-map.js via salla-metadata-config.js.
+ *
+ * Modules (all inside this file):  Commerce · Toast · Cart (store + SDK bridge) · CartDialog · Home (hero peek,
+ * sort bar, strips) · Product (gallery, sizes, notify, bundle calculator, alternatives) · global UI wiring.
+ *
+ * Load order: teraz-catalog-map.js -> salla-metadata-config.js -> teraz-salla-controller.js (all deferred).
+ */
+(function (root) {
+  'use strict';
+
+  const M = root.TerazMap;
+  const Meta = root.TerazMeta;
+  if (!M || !Meta) { if (root.console) root.console.error('TERAZ: teraz-catalog-map.js and salla-metadata-config.js must load first.'); return; }
+
+  const doc = root.document;
+  const CFG = Meta.config;
+  const MAX_QTY = M.MAX_QTY;
+
+  /* ======================================================================
+   * Helpers
+   * ==================================================================== */
+  const $ = (selector, scope) => (scope || doc).querySelector(selector);
+  const $$ = (selector, scope) => Array.from((scope || doc).querySelectorAll(selector));
+  const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const numberFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+  const money = (n) => (Number.isFinite(n) ? numberFormat.format(n) : '—') + ' ر.س';
+  const SIZE_LABEL = /مقاس|size/i;
+
+  function toIdList(value) {
+    if (value == null || value === '') return [];
+    const list = Array.isArray(value) ? value : [value];
+    return list.map((x) => (x && typeof x === 'object' ? x.id : x)).filter((x) => x != null && x !== '').map(String);
+  }
+
+  function parseJson(text, fallback) {
+    try { return JSON.parse(text); } catch (e) { return fallback; }
+  }
+
+  function errorMessage(error, fallback) {
+    const e = error || {};
+    const nested = e.response && e.response.data && e.response.data.error;
+    const msg = (nested && (nested.message || nested.code)) || (e.error && e.error.message) || e.message
+      || (e.data && e.data.error && e.data.error.message);
+    return typeof msg === 'string' && msg ? msg : fallback;
+  }
+
+  function setBusy(button, busy) {
+    if (!button) return;
+    if (busy) { button.setAttribute('aria-busy', 'true'); button.disabled = true; } else { button.removeAttribute('aria-busy'); button.disabled = false; }
+  }
+
+  const sallaOrNull = () => (root.salla && root.salla.cart ? root.salla : null);
+  function needSalla() {
+    const s = sallaOrNull();
+    if (!s) throw new Error('خدمة المتجر غير جاهزة بعد. حدّث الصفحة وحاول مرة أخرى.');
+    return s;
+  }
+
+  /** Resolves once the Twilight SDK is ready (or null if it never shows up, so the UI degrades instead of hanging). */
+  function whenSallaReady() {
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = () => { if (!done) { done = true; resolve(sallaOrNull()); } };
+      const started = Date.now();
+      (function attach() {
+        const s = root.salla;
+        if (s && typeof s.onReady === 'function') {
+          const maybe = s.onReady(finish);
+          if (maybe && typeof maybe.then === 'function') maybe.then(finish, finish);
+          root.setTimeout(finish, 6000);
+        } else if (Date.now() - started > 6000) {
+          finish();
+        } else {
+          root.setTimeout(attach, 50);
+        }
+      })();
+    });
+  }
+
+  const isGuest = () => {
+    try {
+      const c = root.salla && root.salla.config;
+      if (c && typeof c.isGuest === 'function') return !!c.isGuest();
+      if (c && typeof c.get === 'function') return !c.get('user.id');
+    } catch (e) { /* treat as guest */ }
+    return true;
+  };
+
+  /* ======================================================================
+   * Commerce (commerce.js): quantity rules + shipping maths on a numeric subtotal
+   * ==================================================================== */
+  const Commerce = {
+    clampQty(value) {
+      const n = Number(value);
+      return Number.isInteger(n) && n >= 1 && n <= MAX_QTY ? n : null;
+    },
+    /** 29 SAR shipping below the threshold (479), free at >= threshold, none for an empty cart. */
+    totals(subtotal) {
+      const threshold = CFG.threshold;
+      const free = subtotal === 0 || subtotal >= threshold;
+      const shipping = free ? 0 : CFG.shippingFee;
+      return {
+        subtotal,
+        remaining: Math.max(0, threshold - subtotal),
+        progress: Math.min(100, (subtotal / threshold) * 100),
+        shipping,
+        total: subtotal + shipping
+      };
+    }
+  };
+
+  /* ======================================================================
+   * Toast (#toast)
+   * ==================================================================== */
+  const Toast = (() => {
+    let timer;
+    const supportsPopover = () => { const el = $('#toast'); return !!el && typeof el.showPopover === 'function'; };
+    return {
+      show(message) {
+        const el = $('#toast');
+        if (!el) return;
+        el.textContent = message;
+        if (supportsPopover()) { try { if (!el.matches(':popover-open')) el.showPopover(); } catch (e) { /* older engines */ } }
+        el.classList.add('show');
+        root.clearTimeout(timer);
+        timer = root.setTimeout(() => {
+          el.classList.remove('show');
+          root.setTimeout(() => { if (!el.classList.contains('show') && supportsPopover()) { try { el.hidePopover(); } catch (e) { /* noop */ } } }, 260);
+        }, 3600);
+      }
+    };
+  })();
+
+  /* ======================================================================
+   * Cart store: one normalised view of salla.cart, refreshed from SDK events
+   * ==================================================================== */
+  function normalizeLine(it) {
+    const product = it.product || {};
+    const productId = it.product_id != null ? it.product_id : product.id;
+    const qty = Number(it.quantity != null ? it.quantity : it.qty) || 0;
+    const unit = Meta.toNumber(it.price != null ? it.price : it.product_price);
+    let total = Meta.toNumber(it.total);
+    if (!Number.isFinite(total)) total = (Number.isFinite(unit) ? unit : 0) * qty;
+    const image = (typeof it.image === 'string' && it.image) || (it.image && it.image.url) || it.product_image || (product.image && (product.image.url || product.image)) || '';
+    const known = Meta.forSalla(productId);
+    const name = it.name || it.product_name || product.name || (known && known.name) || '';
+    const options = (Array.isArray(it.options) ? it.options : [])
+      .map((o) => ({ name: o.name || '', value: o.value && typeof o.value === 'object' ? (o.value.name || '') : (o.value != null ? o.value : (o.option_value || '')) }))
+      .filter((o) => o.value !== '' && o.value != null);
+    return {
+      id: String(it.id),
+      productId: String(productId),
+      name,
+      image: typeof image === 'string' ? image : '',
+      url: it.url || product.url || (known && known.url) || '',
+      qty,
+      unit,
+      total,
+      options,
+      teraz: (known && known.teraz) || Meta.resolve({ id: productId, sku: it.sku || product.sku, url: it.url || product.url, name })
+    };
+  }
+
+  function normalizeCart(raw) {
+    const cart = raw && ((raw.data && raw.data.cart) || raw.cart || raw.data || raw);
+    if (!cart || !Array.isArray(cart.items)) return null;
+    const lines = cart.items.map(normalizeLine);
+    const subtotalFromLines = lines.reduce((n, l) => n + (Number.isFinite(l.total) ? l.total : 0), 0);
+    const subtotalFromCart = Meta.toNumber(cart.sub_total);
+    return {
+      id: cart.id != null ? String(cart.id) : null,
+      items: lines,
+      count: lines.reduce((n, l) => n + l.qty, 0),
+      subtotal: lines.length ? subtotalFromLines : (Number.isFinite(subtotalFromCart) ? subtotalFromCart : 0)
+    };
+  }
+
+  const Cart = {
+    state: { id: null, items: [], count: 0, subtotal: 0 },
+    busy: false,
+    _lastDone: 0,
+    _queued: false,
+    _inflight: null,
+    _renderTimer: null,
+    _listeners: [],
+
+    onChange(fn) { this._listeners.push(fn); },
+
+    _emit() {
+      root.clearTimeout(this._renderTimer);
+      this._renderTimer = root.setTimeout(() => this._listeners.forEach((fn) => fn(this.state)), 0);
+    },
+
+    /** Applies an SDK payload if it carries the cart; returns false when it does not (caller then refreshes). */
+    apply(raw) {
+      const next = normalizeCart(raw);
+      if (!next) return false;
+      this.state = next;
+      this._emit();
+      return true;
+    },
+
+    /** Authoritative cart from Salla. Coalesces concurrent calls. */
+    refresh() {
+      if (this._inflight) { this._queued = true; return this._inflight; }
+      const s = sallaOrNull();
+      if (!s) return Promise.resolve(this.state);
+      this.busy = true;
+      const fetchLatest = () => {
+        if (typeof s.cart.latest === 'function') return s.cart.latest();
+        if (s.cart.api && typeof s.cart.api.latest === 'function') return s.cart.api.latest();
+        return Promise.resolve(null);
+      };
+      this._inflight = Promise.resolve()
+        .then(fetchLatest)
+        .then((res) => { if (res) this.apply(res); })
+        .catch(() => { /* keep the last known cart; the next event retries */ })
+        .then(() => {
+          this.busy = false;
+          this._lastDone = Date.now();
+          this._inflight = null;
+          if (this._queued) { this._queued = false; return this.refresh(); }
+          return this.state;
+        });
+      return this._inflight;
+    },
+
+    /** salla.cart.addItem({ id, quantity, options: { [optionId]: valueId } }) */
+    async add({ id, quantity, options, notes }, { refresh = true } = {}) {
+      const s = needSalla();
+      const payload = { id: Number(id), quantity: quantity || 1 };
+      if (options && Object.keys(options).length) payload.options = options;
+      if (notes) payload.notes = notes;
+      const result = await s.cart.addItem(payload);
+      if (refresh) await this.refresh();
+      return result;
+    },
+
+    /** salla.cart.updateItem({ id: lineId, quantity }) */
+    async update(lineId, quantity) {
+      const s = needSalla();
+      const result = await s.cart.updateItem({ id: Number(lineId), quantity });
+      await this.refresh();
+      return result;
+    },
+
+    /** salla.cart.deleteItem(lineId) */
+    async remove(lineId) {
+      const s = needSalla();
+      const result = await s.cart.deleteItem(Number(lineId));
+      await this.refresh();
+      return result;
+    },
+
+    /** Native Salla checkout (salla.cart.submit), falling back to the cart page only if the SDK lacks it. */
+    async checkout() {
+      const s = needSalla();
+      if (typeof s.cart.submit === 'function') { await s.cart.submit(); return; }
+      const url = (s.url && typeof s.url.get === 'function' && s.url.get('cart')) || '/cart';
+      root.location.href = url;
+    },
+
+    /** Subscribes to every cart event shape the SDK exposes; payloads with the cart skip a network round-trip. */
+    bindEvents() {
+      const s = sallaOrNull();
+      if (!s) return;
+      const handler = (res) => {
+        // Payloads that carry the cart are applied without a request. Payload-less events are refreshed unless
+        // they are echoes of our own latest() call (in flight, or arriving right after it completed).
+        if (this.apply(res)) return;
+        if (this.busy || Date.now() - this._lastDone < 300) return;
+        this.refresh();
+      };
+      const emitter = (s.cart && s.cart.event) || (s.event && s.event.cart) || null;
+      if (emitter) {
+        ['onUpdated', 'onItemAdded', 'onItemDeleted', 'onItemUpdated'].forEach((name) => { if (typeof emitter[name] === 'function') emitter[name](handler); });
+      }
+      if (s.event && typeof s.event.on === 'function') {
+        ['cart::updated', 'cart::item.added', 'cart::item.deleted', 'cart::item.updated'].forEach((name) => s.event.on(name, handler));
+      }
+    }
+  };
+
+  /* ======================================================================
+   * Rendering helpers shared by home, product page and bag
+   * ==================================================================== */
+  function imageTag(entry, extra) {
+    const alt = (entry.name || '') + (entry.teraz ? '، ' + entry.teraz.color : '');
+    return `<img ${extra || ''} src="${esc(entry.image)}" width="1200" height="900" alt="${esc(alt)}">`;
+  }
+
+  const priceOf = (entry, p) => (entry && Number.isFinite(entry.price) ? entry.price : (p ? p.price : NaN));
+
+  function cardHTML(entry) {
+    const p = entry.teraz;
+    const sale = Number.isFinite(entry.regularPrice) && Number.isFinite(entry.price) && entry.regularPrice > entry.price;
+    return `<article class="product-card" data-product-id="${esc(entry.id)}" data-sku="${esc(entry.sku)}" data-name="${esc(entry.name)}" data-url="${esc(entry.url)}" data-price="${esc(entry.price)}" data-regular-price="${esc(entry.regularPrice)}" data-image="${esc(entry.image)}" data-available="${entry.available === false ? 'false' : 'true'}"${p ? ` data-teraz-id="${esc(p.id)}"` : ''}>`
+      + `<a class="product-image" href="${esc(entry.url)}" aria-label="تفاصيل ${esc(entry.name)}">${imageTag(entry, 'loading="lazy"')}</a>`
+      + `<div class="card-meta"><span class="card-color">${esc(p ? p.color : '')}</span><h3><a href="${esc(entry.url)}">${esc(entry.name)}</a></h3>`
+      + `<div class="card-bottom"><b>${money(priceOf(entry, p))}</b>${sale ? `<del class="card-regular">${money(entry.regularPrice)}</del>` : ''}${entry.available === false ? '<span class="card-flag">غير متوفر</span>' : ''}<a href="${esc(entry.url)}">اكتشف التفاصيل ↗</a></div></div></article>`;
+  }
+
+  /** Size labels offered for an entry: its Salla size option when known, else the TERAZ 40–45 set. */
+  function sizeChoices(entry, p) {
+    if (M.oneSize(p)) return [];
+    const opt = Meta.pickSizeOption(entry.options);
+    if (opt && opt.values.length) return opt.values.map((v) => ({ label: v.name, out: v.outOfStock }));
+    return M.SHOE_SIZES.map((s) => ({ label: s, out: false }));
+  }
+
+  /**
+   * Payload for salla.cart.addItem for an entry + chosen size label.
+   * Footwear that has no Salla size option falls back to a cart-line note so the size is never lost.
+   */
+  function payloadFor(entry, p, sizeLabel) {
+    const built = Meta.buildOptionPayload(entry.options, p, sizeLabel);
+    if (built.error) return { error: built.error };
+    const notes = M.isFootwear(p) && !built.option ? 'المقاس: ' + sizeLabel : undefined;
+    return { options: built.options, notes };
+  }
+
+  function optionErrorText(code, label) {
+    return code === 'size_not_available' ? 'المقاس ' + label + ' غير متوفر لهذا المنتج حاليًا.' : 'تعذّر تحديد خيارات هذا المنتج. افتح صفحته واختر الخيارات.';
+  }
+
+  function matchItemHTML(entry, withCheckbox) {
+    const p = entry.teraz;
+    const inBag = Cart.state.items.some((l) => l.teraz && l.teraz.id === p.id);
+    const sizes = sizeChoices(entry, p);
+    const sizeBlock = M.oneSize(p)
+      ? `<p class="match-size">${esc(p.group === 'care' ? p.fit : 'مقاس واحد · محدد تلقائيًا')}</p>`
+      : `<label class="match-size">المقاس <select class="match-size-select" aria-label="مقاس ${esc(entry.name)}"><option value="">اختر مقاسك</option>${sizes.map((x) => `<option value="${esc(x.label)}"${x.out ? ' disabled' : ''}>${esc(x.label)}${x.out ? ' — غير متوفر' : ''}</option>`).join('')}</select></label>`;
+    return `<article class="match-item" data-match="${esc(p.id)}"><a href="${esc(entry.url)}" class="match-photo">${imageTag(entry, 'loading="lazy"')}</a>`
+      + `<div class="match-info"><span class="match-kicker">${esc(M.matchReason(p))}</span><a href="${esc(entry.url)}"><h4>${esc(entry.name)}</h4></a>`
+      + `<p class="match-price">${money(priceOf(entry, p))} </p>${sizeBlock}`
+      + (withCheckbox ? `<label class="match-check"><input type="checkbox" class="bundle-check" value="${esc(p.id)}"> أضف إلى تنسيقي</label>` : '')
+      + `<button type="button" class="text-button" data-quick="${esc(p.id)}">أضف القطعة +</button>`
+      + `<p class="match-feedback" role="status">${inBag ? 'قطعة من هذا الموديل في حقيبتك بالفعل' : ''}</p></div></article>`;
+  }
+
+  /* ======================================================================
+   * Cart dialog (#cart-dialog) — stage 1 "bag", stage 2 ".is-review"
+   * ==================================================================== */
+  let lastTrigger = null;
+
+  const dialogEl = () => $('#cart-dialog');
+
+  function shippingProgressHTML(t) {
+    return `<div class="shipping-progress"><div><span>${t.remaining ? 'باقي ' + money(t.remaining) + ' للشحن المجاني' : 'وصلت للشحن المجاني'}</span><small>شحن مجاني من ${numberFormat.format(CFG.threshold)} ر.س</small></div>`
+      + `<progress value="${t.progress}" max="100" aria-label="التقدم نحو حد الشحن المجاني">${Math.round(t.progress)}%</progress></div>`;
+  }
+
+  function lineDetail(line) {
+    const p = line.teraz;
+    if (p && p.group === 'care') return 'المحتوى: ' + p.fit;
+    if (line.options.length) return line.options.map((o) => (SIZE_LABEL.test(o.name) ? 'المقاس' : o.name) + ': ' + o.value).join(' · ');
+    if (p && M.oneSize(p)) return 'المقاس: ' + M.ONE_SIZE_LABEL;
+    return '';
+  }
+
+  function lineHTML(line) {
+    const image = line.image ? `<img src="${esc(line.image)}" width="1200" height="900" alt="${esc(line.name)}">` : '';
+    return `<article class="cart-line" data-line="${esc(line.id)}">${image}<div><h3>${esc(line.name)}</h3><p>${esc(lineDetail(line))}</p><strong>${money(line.total)}</strong>`
+      + `<div class="qty-control"><button type="button" data-quantity="${esc(line.id)}" data-delta="-1" aria-label="تقليل كمية ${esc(line.name)}">−</button><span>${line.qty}</span>`
+      + `<button type="button" data-quantity="${esc(line.id)}" data-delta="1" aria-label="زيادة كمية ${esc(line.name)}"${line.qty >= MAX_QTY ? ' disabled' : ''}>+</button>`
+      + `<button type="button" class="remove-item" data-remove="${esc(line.id)}" aria-label="إزالة ${esc(line.name)} من الحقيبة">إزالة</button></div></div></article>`;
+  }
+
+  function summaryHTML(t, stage) {
+    const estimate = CFG.showShippingEstimate
+      ? `<p><span>الشحن المتوقع</span><strong>${t.shipping ? money(t.shipping) : 'مجاني'}</strong></p><p class="grand-total"><span>الإجمالي المتوقع</span><strong>${money(t.total)}</strong></p>`
+      : `<p class="grand-total"><span>مجموع المنتجات</span><strong>${money(t.subtotal)}</strong></p>`;
+    return `<div class="cart-summary"><h3>ملخص طلبك</h3><p><span>مجموع المنتجات</span><strong>${money(t.subtotal)}</strong></p>${estimate}`
+      + `<small>التكلفة النهائية للشحن وأي خصومات تظهر لك في صفحة الدفع.</small>`
+      + `<button type="button" class="primary" data-action="${stage === 'review' ? 'checkout' : 'review'}">${stage === 'review' ? 'إتمام الطلب' : 'متابعة الطلب'} ←</button>`
+      + `<button type="button" class="text-button" data-action="close-cart">أكمل التصفح</button></div>`;
+  }
+
+  function checkoutCardHTML(entry) {
+    const p = entry.teraz;
+    const sizes = sizeChoices(entry, p);
+    const sizeBlock = M.oneSize(p)
+      ? `<small>${esc(p.group === 'care' ? p.fit : 'مقاس واحد')}</small>`
+      : `<label>المقاس <select aria-label="مقاس ${esc(entry.name)}"><option value="">اختر</option>${sizes.map((x) => `<option value="${esc(x.label)}"${x.out ? ' disabled' : ''}>${esc(x.label)}</option>`).join('')}</select></label>`;
+    return `<article class="checkout-addon" data-match="${esc(p.id)}"><a href="${esc(entry.url)}" class="addon-image">${imageTag(entry, 'loading="lazy"')}</a>`
+      + `<div class="addon-details"><span>${esc(M.matchReason(p))}</span><a href="${esc(entry.url)}"><h4>${esc(entry.name)}</h4></a><strong>${money(priceOf(entry, p))}</strong>${sizeBlock}`
+      + `<button type="button" data-quick="${esc(p.id)}" class="addon-add">أضف +</button><p class="match-feedback" role="status"></p></div></article>`;
+  }
+
+  /** In-cart cross-sell: recommendations of everything in the bag, minus what is already in the bag. */
+  function cartSuggestions() {
+    const inBag = new Set(Cart.state.items.map((l) => l.teraz && l.teraz.id).filter(Boolean));
+    const seen = new Set();
+    const out = [];
+    Cart.state.items.forEach((line) => {
+      if (!line.teraz) return;
+      M.recommendations(line.teraz).forEach((r) => {
+        if (inBag.has(r.id) || seen.has(r.id)) return;
+        seen.add(r.id);
+        const entry = Meta.forTeraz(r.id);
+        if (entry && entry.available !== false) out.push(entry);
+      });
+    });
+    return out.slice(0, 5);
+  }
+
+  async function fillAddons() {
+    const host = $('.checkout-addons');
+    if (!host) return;
+    const entries = cartSuggestions();
+    host.setAttribute('aria-busy', 'true');
+    await Promise.all(entries.map((e) => Meta.ensureOptions(e)));
+    if (!host.isConnected) return; // the bag re-rendered while options were loading
+    host.innerHTML = entries.map(checkoutCardHTML).join('') || '<p>كشختك مكتملة بالقطع المقترحة.</p>';
+    host.removeAttribute('aria-busy');
+  }
+
+  function renderCart(stage) {
+    const dialog = dialogEl();
+    if (!dialog) return;
+    const current = stage || dialog.dataset.stage || 'bag';
+    const previous = $('.cart-recommend');
+    const wasOpen = previous ? previous.open : null;
+    const { items, subtotal } = Cart.state;
+    const t = Commerce.totals(subtotal);
+    dialog.classList.toggle('is-review', current === 'review');
+    dialog.dataset.stage = current;
+    $('#bag-title').textContent = current === 'review' ? 'راجع كشختك' : 'حقيبتك';
+    const body = $('#cart-body');
+    if (!items.length) {
+      body.innerHTML = '<div class="empty-bag"><span>طرازك يبدأ باختيار.</span><h3>حقيبتك تنتظر ذوقك.</h3><button type="button" class="primary" data-action="browse">اكتشف المجموعة ←</button></div>';
+      return;
+    }
+    body.innerHTML = `<div class="checkout-main">${current === 'review' ? '<p class="review-intro">اختياراتك جاهزة. راجع المقاسات والكميات، وكمل على طرازك.</p>' : ''}${shippingProgressHTML(t)}`
+      + `<div class="cart-lines">${items.map(lineHTML).join('')}</div>`
+      + `<details class="cart-recommend"${current === 'review' ? '' : ' open'}><summary><span>كمّل كشختك <small>قطع تتناسق مع اختيارك · اختياري</small></span><b>+</b></summary><div class="checkout-addons"></div></details></div>`
+      + summaryHTML(t, current);
+    const recommend = $('.cart-recommend');
+    if (recommend && wasOpen !== null) recommend.open = wasOpen;
+    fillAddons();
+  }
+
+  function openCart() {
+    const dialog = dialogEl();
+    if (!dialog) return;
+    lastTrigger = doc.activeElement;
+    renderCart('bag');
+    if (!dialog.open && typeof dialog.showModal === 'function') dialog.showModal();
+  }
+  const closeCart = () => { const d = dialogEl(); if (d && d.open) d.close(); };
+
+  function updateCartCount() {
+    const el = $('#cart-count');
+    if (el) el.textContent = String(Cart.state.count);
+  }
+
+  /** Re-focuses the control that was used before the bag re-rendered (quantity / remove buttons are replaced). */
+  function focusKeyOf(element) {
+    if (!element || !element.closest) return null;
+    const btn = element.closest('button');
+    if (!btn) return null;
+    if (btn.dataset.quantity) return `button[data-quantity="${btn.dataset.quantity}"][data-delta="${btn.dataset.delta}"]`;
+    if (btn.dataset.remove) return `button[data-remove="${btn.dataset.remove}"]`;
+    return null;
+  }
+
+  async function mutateLine(button, action) {
+    const dialog = dialogEl();
+    const key = focusKeyOf(button);
+    const line = button.closest('.cart-line');
+    $$('button', line).forEach((b) => { b.disabled = true; });
+    if (line) line.setAttribute('aria-busy', 'true');
+    try {
+      await action();
+    } catch (e) {
+      Toast.show(errorMessage(e, 'تعذّر تحديث الحقيبة. حاول مرة أخرى.'));
+      renderCart(dialog && dialog.dataset.stage);
+    }
+    const target = (key && $(key, dialog)) || $('#bag-title');
+    if (target) { if (!target.hasAttribute('tabindex') && target.tagName === 'H2') target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
+  }
+
+  /* ======================================================================
+   * Quick add (bundle cards on the product page and cross-sell cards in the bag)
+   * ==================================================================== */
+  async function quickAdd(terazId, button) {
+    const p = M.get(terazId);
+    const entry = Meta.forTeraz(terazId);
+    const card = button.closest('[data-match]');
+    const feedback = $('.match-feedback', card);
+    const select = $('select', card);
+    if (!p || !entry) return;
+    const size = M.oneSize(p) ? M.optionLabel(p) : (select ? select.value : '');
+    if (!size) { feedback.textContent = 'اختر المقاس لإضافة هذه القطعة.'; if (select) select.focus(); return; }
+    await Meta.ensureOptions(entry);
+    const built = payloadFor(entry, p, size);
+    if (built.error) { feedback.textContent = optionErrorText(built.error, size); return; }
+    setBusy(button, true);
+    try {
+      await Cart.add({ id: entry.id, quantity: 1, options: built.options, notes: built.notes });
+      const dialog = dialogEl();
+      if (dialog && dialog.open) {
+        const next = $('.addon-add') || $('#cart-body .primary');
+        if (next) next.focus({ preventScroll: true });
+      } else {
+        feedback.textContent = '✓ أُضيفت للحقيبة — ' + size;
+        button.textContent = 'أضف قطعة أخرى +';
+      }
+      Toast.show('أُضيف ' + entry.name + ' للحقيبة.');
+    } catch (e) {
+      feedback.textContent = errorMessage(e, 'تعذّرت الإضافة. حاول مرة أخرى.');
+    } finally {
+      setBusy(button, false);
+    }
+  }
+
+  /* ======================================================================
+   * Home: hero peek, sort bar, strips
+   * ==================================================================== */
+  function tagCardsWithTeraz(scope) {
+    $$('.product-card, .exhibit', scope).forEach((el) => {
+      if (el.dataset.terazId) return;
+      const known = Meta.forSalla(el.dataset.productId);
+      const p = (known && known.teraz) || Meta.resolve({ id: el.dataset.productId, sku: el.dataset.sku, url: el.dataset.url, name: el.dataset.name });
+      if (!p) return;
+      el.dataset.terazId = p.id;
+      const color = $('.card-color', el);
+      if (color) color.textContent = p.color;
+    });
+  }
+
+  function wireHeroPeek() {
+    const peek = $('#hero-peek');
+    if (!peek) return;
+    $$('.exhibit').forEach((el) => {
+      if (el.dataset.peekWired) return;
+      el.dataset.peekWired = '1';
+      const show = () => {
+        $('img', peek).src = el.dataset.peekImg || el.dataset.image || '';
+        $('span', peek).textContent = el.dataset.peekName || el.dataset.name || '';
+        peek.classList.add('visible');
+      };
+      const hide = () => peek.classList.remove('visible');
+      el.addEventListener('mouseenter', show);
+      el.addEventListener('focus', show);
+      el.addEventListener('mouseleave', hide);
+      el.addEventListener('blur', hide);
+    });
+  }
+
+  /** Fills #hero-shoes with the 8 TERAZ knit shoes found in the store when the merchant did not pick any. */
+  function fallbackEntry(p) {
+    const base = String(CFG.imagesBaseUrl || 'images/').replace(/logo\.webp.*$/, '');
+    return {
+      id: p.id,
+      sku: p.id,
+      name: p.name,
+      url: '#' + p.group,
+      price: p.price,
+      regularPrice: p.price,
+      image: p.image ? base + p.image : '',
+      available: true,
+      options: [],
+      teraz: p
+    };
+  }
+
+  function fillHeroStage() {
+    const host = $('#hero-shoes');
+    if (!host || $('.exhibit', host)) { wireHeroPeek(); return; }
+    let entries = M.inGroup('knit').map((p) => Meta.forTeraz(p.id)).filter(Boolean).slice(0, 8);
+    if (!entries.length) entries = M.inGroup('knit').slice(0, 8).map(fallbackEntry);
+    host.innerHTML = entries.map((entry, i) => `<a href="${esc(entry.url)}" class="exhibit" style="--column:${i % 4};--tier:${Math.floor(i / 4)}" data-product-id="${esc(entry.id)}" data-name="${esc(entry.name)}" data-image="${esc(entry.image)}" data-peek-img="${esc(entry.image)}" data-peek-name="${esc(entry.name)}" data-teraz-id="${esc(entry.teraz.id)}" aria-label="اكتشف ${esc(entry.name)}">${imageTag(entry)}<span>${esc(entry.name)} ↗</span></a>`).join('');
+    wireHeroPeek();
+  }
+
+  function applySort(key) {
+    const strip = $('.product-strip[data-group="knit"]');
+    if (!strip) return;
+    const cards = $$('.product-card', strip);
+    M.ordered(cards, key, (c) => c.dataset.terazId).forEach((card) => strip.appendChild(card));
+    strip.scrollLeft = 0;
+  }
+
+  /** Empty strip -> its chosen category (salla.product.fetch), else the store's TERAZ products of that group. */
+  async function fillStrip(strip) {
+    if ($('.product-card', strip)) return;
+    const group = strip.dataset.group;
+    const s = root.salla;
+    const ids = toIdList(parseJson(strip.dataset.category || '""', ''));
+    let entries = [];
+    if (ids.length && s && s.product && typeof s.product.fetch === 'function') {
+      try {
+        const res = await s.product.fetch({ source: 'categories', source_value: ids });
+        entries = ((res && (res.data || res.products)) || []).map((raw) => Meta.register(raw)).filter(Boolean);
+      } catch (e) { entries = []; }
+    }
+    if (!entries.length) {
+      entries = M.inGroup(group).map((p) => Meta.forTeraz(p.id)).filter(Boolean);
+    }
+    if (!entries.length) {
+      entries = M.inGroup(group).map(fallbackEntry);
+    }
+    if (!entries.length) return;
+    strip.innerHTML = entries.map(cardHTML).join('');
+    tagCardsWithTeraz(strip);
+  }
+
+  async function initHome() {
+    if (!$('#home-view')) return;
+    tagCardsWithTeraz(doc);
+    applySort('thobe');
+    wireHeroPeek();
+    await Meta.loadRegistry();
+    await Promise.all($$('.product-strip[data-group]').map(fillStrip));
+    tagCardsWithTeraz(doc);
+    applySort(($('.sort-bar [aria-pressed="true"]') || { dataset: {} }).dataset.sort || 'thobe');
+    fillHeroStage();
+    $$('[data-teraz-link]').forEach((a) => {
+      const entry = Meta.forTeraz(a.dataset.terazLink);
+      if (entry && entry.url) a.setAttribute('href', entry.url);
+    });
+  }
+
+  /* ======================================================================
+   * Product page
+   * ==================================================================== */
+  const Page = {
+    root: null, entry: null, p: null, unit: NaN, regular: NaN,
+    picks: {},            // optionId ('' when Salla has no option) -> { valueId, label, out }
+    sizeFieldset: null,
+    auto: null,           // payload for one-size / care products
+    available: true,
+    priceTimer: null
+  };
+
+  const fieldsets = () => $$('#sizes-host fieldset.sizes');
+  const baseSizeLabel = () => {
+    if (!Page.sizeFieldset) return Page.auto ? M.optionLabel(Page.p) : '';
+    const pick = Page.picks[Page.sizeFieldset.dataset.optionId];
+    return pick ? pick.label : '';
+  };
+
+  function sizeFieldsetHTML(labels, note) {
+    return `<fieldset class="sizes" data-option-id="" data-option-name="المقاس"><legend>اختر المقاس</legend><div>${labels.map((s) => `<button type="button" data-size="${esc(s)}" data-option-id="" data-value-id="" aria-pressed="false">${esc(s)}</button>`).join('')}</div><p data-role="fit-note">${esc(note)}</p></fieldset>`;
+  }
+
+  function setText(selector, text) {
+    const el = $(selector, Page.root);
+    if (!el) return;
+    el.textContent = text || '';
+    if (el.hasAttribute('data-hydrate')) el.hidden = !text;
+  }
+
+  function setAddState(enabled, label) {
+    const add = $('[data-action="add-product"]', Page.root);
+    const text = $('[data-role="add-label"]', Page.root);
+    if (add) add.disabled = !enabled;
+    if (text && label) text.textContent = label;
+  }
+
+  function showPrice(price, regular) {
+    const priceEl = $('[data-role="price"]', Page.root);
+    if (priceEl && Number.isFinite(price)) priceEl.textContent = money(price);
+    let del = $('[data-role="regular"]', Page.root);
+    const onSale = Number.isFinite(regular) && Number.isFinite(price) && regular > price;
+    if (onSale && !del) { del = doc.createElement('del'); del.setAttribute('data-role', 'regular'); $('.price-line', Page.root).appendChild(del); }
+    if (del) { del.hidden = !onSale; if (onSale) del.textContent = money(regular); }
+  }
+
+  /** Reflects the picked value's stock on the buy button; unavailable choices route the user to the notify panel. */
+  function syncAvailability() {
+    const picked = Object.keys(Page.picks).map((k) => Page.picks[k]);
+    const outPick = picked.find((x) => x.out);
+    const err = $('#size-error');
+    if (!Page.available) { setAddState(false, 'غير متوفر حاليًا'); return; }
+    if (outPick) {
+      setAddState(false, 'غير متوفر لهذا المقاس');
+      if (err) err.textContent = 'هذا الخيار غير متوفر حاليًا. اضغط «نبّهني عند التوفر» لنخبرك فور توفره.';
+    } else {
+      setAddState(true, 'أضف للحقيبة');
+      if (err && err.textContent.indexOf('غير متوفر') !== -1) err.textContent = '';
+    }
+  }
+
+  /** Salla's real price for the picked option combination (options can carry a price delta). */
+  function schedulePrice() {
+    root.clearTimeout(Page.priceTimer);
+    Page.priceTimer = root.setTimeout(async () => {
+      const s = root.salla;
+      const payload = basePayload();
+      if (!s || !s.product || typeof s.product.getPrice !== 'function' || payload.error || !Object.keys(payload.options || {}).length) return;
+      try {
+        const res = await s.product.getPrice({ id: Number(Page.entry.id), quantity: 1, options: payload.options });
+        const data = (res && res.data) || res || {};
+        const price = Meta.toNumber(data.price);
+        const regular = Meta.toNumber(data.regular_price);
+        if (Number.isFinite(price) && price > 0) {
+          Page.unit = price;
+          showPrice(price, Number.isFinite(regular) ? regular : Page.regular);
+          updateBundleTotal();
+        }
+      } catch (e) { /* the server-rendered price stays */ }
+    }, 250);
+  }
+
+  function setPick(button) {
+    const set = button.closest('fieldset.sizes');
+    if (!set) return;
+    const optionId = set.dataset.optionId || '';
+    $$('button[data-size]', set).forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+    Page.picks[optionId] = { valueId: button.dataset.valueId || '', label: button.dataset.size, out: button.dataset.out === 'true' };
+    if (set === Page.sizeFieldset) {
+      const select = $('#bundle-base-size');
+      if (select) select.value = button.dataset.size;
+      const msg = $('#bundle-message');
+      if (msg) msg.textContent = 'مقاس منتجك: ' + button.dataset.size;
+    }
+    const err = $('#size-error');
+    if (err) err.textContent = '';
+    syncAvailability();
+    schedulePrice();
+    updateBundleTotal();
+  }
+
+  function setBaseSizeByLabel(label) {
+    if (!Page.sizeFieldset) return;
+    const button = $$('button[data-size]', Page.sizeFieldset).find((b) => b.dataset.size === label);
+    if (button) { setPick(button); return; }
+    $$('button[data-size]', Page.sizeFieldset).forEach((b) => b.setAttribute('aria-pressed', 'false'));
+    delete Page.picks[Page.sizeFieldset.dataset.optionId];
+    const msg = $('#bundle-message');
+    if (msg) msg.textContent = 'اختر مقاس المنتج الأساسي هنا.';
+    syncAvailability();
+    updateBundleTotal();
+  }
+
+  /** Payload for the product being viewed: picked option values, or the auto-selected one-size / care option. */
+  function basePayload() {
+    const sets = fieldsets();
+    if (!sets.length) {
+      if (Page.auto && Page.auto.error) return { error: true, message: optionErrorText(Page.auto.error, M.optionLabel(Page.p)) };
+      return { options: Page.auto ? Page.auto.options : {}, notes: undefined };
+    }
+    const options = {};
+    let notes;
+    for (const set of sets) {
+      const id = set.dataset.optionId || '';
+      const pick = Page.picks[id];
+      const isSize = set === Page.sizeFieldset;
+      const meta = (Page.entry.options || []).find((o) => o.id === id);
+      const required = isSize || !meta || meta.required;
+      if (!pick) {
+        if (required) return { error: true, focus: set, message: isSize ? 'اختر المقاس أولًا، عشان نضيف اختيارك الصحيح.' : 'اختر ' + (set.dataset.optionName || 'الخيار') + ' أولًا.' };
+        continue;
+      }
+      if (pick.out) return { error: true, focus: set, message: 'هذا الخيار غير متوفر حاليًا. اضغط «نبّهني عند التوفر».' };
+      if (id) options[id] = pick.valueId; else if (isSize) notes = 'المقاس: ' + pick.label;
+    }
+    return { options, notes };
+  }
+
+  function currentQty() { const input = $('#product-qty'); return Commerce.clampQty(input && input.value); }
+
+  function updateBundleTotal() {
+    if (!Page.root || !$('#bundle-total')) return;
+    const qty = currentQty();
+    if (!qty) { $('#bundle-message').textContent = 'اختر كمية من 1 إلى 10.'; return; }
+    const checks = $$('.bundle-check:checked');
+    const extras = checks.reduce((n, c) => { const e = Meta.forTeraz(c.value); return n + (e ? priceOf(e, M.get(c.value)) : 0); }, 0);
+    const addition = (Number.isFinite(Page.unit) ? Page.unit : 0) * qty + extras;
+    $('#bundle-total').textContent = money(addition);
+    const current = Cart.state.subtotal;
+    const t = Commerce.totals(current + addition);
+    $('#bundle-shipping').innerHTML = `<div class="shipping-progress"><div><strong>${t.remaining ? 'باقي ' + money(t.remaining) + ' للشحن المجاني' : 'اختياراتك توصلك للشحن المجاني'}</strong><small>الشحن مجاني من ${numberFormat.format(CFG.threshold)} ر.س</small></div>`
+      + `<progress value="${t.progress}" max="100" aria-label="التقدم المتوقع نحو الشحن المجاني"></progress>`
+      + `<p>${current ? 'حقيبتك الحالية ' + money(current) + ' + اختياراتك الجديدة' : 'محسوب على المنتج الأساسي والإضافات المختارة'} · المجموع بعد الإضافة ${money(t.subtotal)}</p></div>`;
+  }
+
+  async function addCurrent(bundle) {
+    if (!Page.root) return;
+    const err = $('#size-error');
+    const bundleMessage = $('#bundle-message');
+    const base = basePayload();
+    if (base.error) {
+      err.textContent = base.message;
+      if (bundle) {
+        if (bundleMessage) bundleMessage.textContent = 'اختر المقاس أولًا من أعلى الصفحة.';
+        const select = $('#bundle-base-size');
+        if (select && !select.closest('[hidden]')) select.focus({ preventScroll: true });
+      } else if (base.focus) {
+        base.focus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const first = $('button', base.focus);
+        if (first) first.focus({ preventScroll: true });
+      }
+      return;
+    }
+    const qty = currentQty();
+    if (!qty) { err.textContent = 'اختر كمية من 1 إلى 10.'; return; }
+
+    // Validate every extra first, so a bad choice never leaves the bag half-filled.
+    const extras = [];
+    if (bundle) {
+      for (const input of $$('.bundle-check:checked')) {
+        const card = input.closest('[data-match]');
+        const p = M.get(input.value);
+        const entry = Meta.forTeraz(input.value);
+        const feedback = $('.match-feedback', card);
+        const select = $('select', card);
+        if (!p || !entry) continue;
+        const size = M.oneSize(p) ? M.optionLabel(p) : (select ? select.value : '');
+        if (!size) { feedback.textContent = 'اختر مقاس هذه القطعة أولًا.'; if (select) select.focus(); return; }
+        await Meta.ensureOptions(entry);
+        const built = payloadFor(entry, p, size);
+        if (built.error) { feedback.textContent = optionErrorText(built.error, size); return; }
+        extras.push({ entry, options: built.options, notes: built.notes });
+      }
+    }
+
+    const trigger = $(bundle ? '[data-action="add-bundle"]' : '[data-action="add-product"]', Page.root);
+    setBusy(trigger, true);
+    let added = 0;
+    try {
+      await Cart.add({ id: Page.entry.id, quantity: qty, options: base.options, notes: base.notes }, { refresh: false });
+      added += 1;
+      for (const x of extras) {
+        await Cart.add({ id: x.entry.id, quantity: 1, options: x.options, notes: x.notes }, { refresh: false });
+        added += 1;
+      }
+      await Cart.refresh();
+      openCart();
+      Toast.show('أُضيف اختيارك للحقيبة.');
+    } catch (e) {
+      if (added) await Cart.refresh();
+      const message = errorMessage(e, 'تعذّرت الإضافة للحقيبة. حاول مرة أخرى.');
+      err.textContent = message;
+      Toast.show(message);
+    } finally {
+      setBusy(trigger, false);
+      if (!Page.available) setAddState(false);
+      else syncAvailability();
+    }
+  }
+
+  /* ----- availability notification ------------------------------------- */
+  function resolveSubscribe() {
+    const s = root.salla;
+    if (!s) return null;
+    const candidates = [
+      [s.product, s.product && s.product.availabilitySubscribe],
+      [s.product && s.product.api, s.product && s.product.api && s.product.api.availabilitySubscribe],
+      [s.api && s.api.product, s.api && s.api.product && s.api.product.availabilitySubscribe],
+      [s.product && s.product.availability, s.product && s.product.availability && s.product.availability.subscribe]
+    ];
+    const hit = candidates.find((c) => typeof c[1] === 'function');
+    return hit ? (payload) => hit[1].call(hit[0], payload) : null;
+  }
+
+  function toggleNotify(force) {
+    const panel = $('#notify-panel');
+    const link = $('[data-role="notify-link"]');
+    if (!panel) return;
+    panel.hidden = force === undefined ? !panel.hidden : !force;
+    if (link) link.setAttribute('aria-expanded', String(!panel.hidden));
+    if (!panel.hidden) { const input = $('#notify-contact'); if (input && !input.hidden) input.focus({ preventScroll: true }); }
+  }
+
+  async function submitNotify() {
+    const message = $('#notify-message');
+    const group = Page.p ? Page.p.group : null;
+    const needsSize = Page.p ? M.variantKind(Page.p) === 'footwear' : fieldsets().length > 0;
+    const label = baseSizeLabel();
+    if (needsSize && !label) { message.textContent = 'اختر مقاسًا من الخيارات أولًا.'; return; }
+
+    const payload = { id: Number(Page.entry.id) };
+    if (isGuest()) {
+      const raw = Meta.toLatinDigits(($('#notify-contact').value || '').trim());
+      const local = raw.replace(/[\s-]/g, '').match(/^(?:\+?966|00966|0)?(5\d{8})$/);
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) payload.email = raw;
+      else if (local) { payload.mobile = local[1]; payload.country_code = '+966'; }
+      else { message.textContent = 'أدخل بريدًا إلكترونيًا أو رقم جوال سعودي صحيحًا.'; $('#notify-contact').focus(); return; }
+    }
+    const subscribe = resolveSubscribe();
+    if (!subscribe) { message.textContent = 'خدمة التنبيه غير متاحة حاليًا. حاول لاحقًا.'; return; }
+    const button = $('[data-action="save-notify"]');
+    setBusy(button, true);
+    try {
+      await subscribe(payload);
+      message.textContent = 'تم تسجيل اهتمامك ' + (group === 'care' || !label || label === M.ONE_SIZE_LABEL ? 'بالمنتج' : 'بمقاس ' + label) + '. سنخبرك فور توفره.';
+    } catch (e) {
+      message.textContent = errorMessage(e, 'تعذّر تسجيل التنبيه. حاول مرة أخرى.');
+    } finally {
+      setBusy(button, false);
+    }
+  }
+
+  /* ----- hydration ------------------------------------------------------- */
+  function hydrateSizes() {
+    const host = $('#sizes-host');
+    const p = Page.p;
+    const options = Page.entry.options || [];
+    // A fieldset without selectable values (text / date options) cannot be driven by buttons.
+    $$('fieldset.sizes', host).forEach((set) => { if (!$('button[data-size]', set)) set.remove(); });
+
+    if (p && M.variantKind(p) !== 'footwear') {
+      host.innerHTML = `<div class="sizes one-size"><strong>${esc(M.sizeNote(p))}</strong><p>أضف اختيارك مباشرة.</p></div>`;
+      Page.auto = Meta.buildOptionPayload(options, p, M.optionLabel(p));
+      return;
+    }
+    if (!fieldsets().length && (p || !options.length)) {
+      if (p) host.innerHTML = sizeFieldsetHTML(M.SHOE_SIZES, p.fit);
+    }
+    const sizeOpt = Meta.pickSizeOption(options);
+    Page.sizeFieldset = (sizeOpt && fieldsets().find((f) => f.dataset.optionId === sizeOpt.id)) || fieldsets()[0] || null;
+    if (!Page.sizeFieldset && !p) { Page.auto = { options: {}, error: null }; }
+    if (Page.sizeFieldset && p) { const note = $('[data-role="fit-note"]', Page.sizeFieldset); if (note) note.textContent = p.fit; }
+    // Stock from the Salla option values.
+    options.forEach((o) => o.values.forEach((v) => {
+      const b = $(`#sizes-host button[data-option-id="${o.id}"][data-value-id="${v.id}"]`);
+      if (b && v.outOfStock) b.dataset.out = 'true';
+    }));
+    // Single-value groups (e.g. one colour) are pre-selected; the size group is never pre-selected.
+    fieldsets().forEach((set) => {
+      if (set === Page.sizeFieldset) return;
+      const buttons = $$('button[data-size]', set);
+      if (buttons.length === 1 && buttons[0].dataset.out !== 'true') setPick(buttons[0]);
+    });
+    // Bundle "base size" select mirrors the size buttons.
+    const select = $('#bundle-base-size');
+    const label = $('#bundle-base-size-label');
+    if (select && Page.sizeFieldset) {
+      $$('button[data-size]', Page.sizeFieldset).forEach((b) => {
+        const o = doc.createElement('option');
+        o.value = b.dataset.size;
+        o.textContent = b.dataset.size + (b.dataset.out === 'true' ? ' — غير متوفر' : '');
+        if (b.dataset.out === 'true') o.disabled = true;
+        select.appendChild(o);
+      });
+      if (label) label.hidden = false;
+    }
+  }
+
+  function hydrateCopy() {
+    const p = Page.p;
+    const c = M.content(p);
+    const group = p.group;
+    setText('[data-role="eyebrow"]', c.eyebrow);
+    setText('[data-role="headline"]', p.headline);
+    setText('[data-role="intro"]', p.description);
+    setText('[data-role="color"]', p.color);
+    setText('[data-role="detail-label"]', c.detailLabel);
+    setText('[data-role="gallery-note"]', M.galleryNote(p));
+    const back = $('[data-role="back-link"]');
+    if (back) back.setAttribute('href', CFG.homeUrl.replace(/#.*$/, '') + '#' + group);
+
+    $('[data-role="badges"]').innerHTML = c.badges.map((l) => (l.indexOf('ضمان') !== -1 ? `<a href="#product-guarantee">${esc(l)}</a>` : `<span>${esc(l)}</span>`)).join('');
+    $('[data-role="accordions"]').innerHTML = c.sections.map(([title, body, id], i) => `<details${i === 0 ? ' open' : ''}${id ? ` id="${esc(id)}"` : ''}><summary>${esc(title)}</summary><p>${esc(body)}</p></details>`).join('');
+
+    setText('[data-role="notify-copy"]', M.notifyCopy(p) + ' سنرسل لك إشعارًا عند توفره.');
+    const link = $('[data-role="notify-link"]');
+    if (link) link.textContent = M.oneSize(p) ? 'نبّهني عند توفر المنتج' : 'ما لقيت مقاسك؟ نبّهني عند التوفر';
+
+    setText('[data-role="look-eyebrow"]', c.lookEyebrow);
+    setText('[data-role="look-title"]', c.lookTitle);
+    setText('[data-role="look-text"]', c.lookText);
+    setText('[data-role="look-guide"]', c.lookGuide);
+    const note = $('#bundle-base-note');
+    const isOne = M.oneSize(p);
+    if (note) { note.hidden = !isOne; note.textContent = isOne ? (group === 'care' ? p.fit : 'مقاس واحد · محدد تلقائيًا') : ''; }
+    $('#bundle-message').textContent = isOne ? 'جاهز للإضافة مباشرة.' : 'اختر مقاس المنتج الأساسي هنا، ثم أضف اختياراتك.';
+
+    setText('[data-role="story-label"]', c.storyLabel);
+    setText('[data-role="story-title"]', c.storyTitle);
+    setText('[data-role="story-text"]', c.storyText);
+    setText('[data-role="story-extra"]', c.storyExtra);
+    setText('[data-role="alt-eyebrow"]', group === 'care' ? 'مجموعة العناية بالجزم' : 'من نفس المجموعة');
+    setText('[data-role="alt-title"]', c.alternativeTitle);
+    $('.product-story', Page.root).hidden = false;
+  }
+
+  async function renderBundle() {
+    const host = $('#bundle-items');
+    const section = $('#complete-look');
+    if (!host || !section) return;
+    const recs = M.recommendations(Page.p).map((r) => Meta.forTeraz(r.id)).filter((e) => e && e.available !== false);
+    await Promise.all(recs.map((e) => Meta.ensureOptions(e)));
+    host.innerHTML = recs.map((e) => matchItemHTML(e, true)).join('');
+    host.setAttribute('aria-busy', 'false');
+    section.hidden = !recs.length;
+    updateBundleTotal();
+  }
+
+  async function renderAlternatives() {
+    const section = $('.alternatives', Page.root);
+    const strip = $('[data-role="alternatives"]', Page.root);
+    if (!section || !strip) return;
+    let entries = Meta.list()
+      .filter((e) => e.teraz && e.teraz.group === Page.p.group && e.teraz.id !== Page.p.id)
+      .sort((a, b) => a.teraz.order - b.teraz.order);
+    const s = root.salla;
+    if (!entries.length && s && s.product && typeof s.product.fetch === 'function') {
+      try {
+        const res = await s.product.fetch({ source: 'related', source_value: [Number(Page.entry.id)] });
+        entries = ((res && (res.data || res.products)) || []).map((raw) => Meta.register(raw)).filter((e) => e && e.id !== Page.entry.id);
+      } catch (e) { entries = []; }
+    }
+    entries = entries.slice(0, 4);
+    if (!entries.length) return;
+    strip.innerHTML = entries.map(cardHTML).join('');
+    section.hidden = false;
+  }
+
+  function finishHydration() {
+    if (Page.root) Page.root.removeAttribute('data-pending');
+  }
+
+  async function initProduct() {
+    const rootEl = $('#product-view');
+    const blob = $('#teraz-product-data');
+    if (!rootEl || !blob) return;
+    Page.root = rootEl;
+    root.setTimeout(finishHydration, 4000); // never leave the page hidden if something below throws
+    try {
+      const data = parseJson(blob.textContent, null);
+      if (!data) return;
+      Page.entry = Meta.register(data);
+      Page.p = Page.entry.teraz;
+      Page.unit = Page.entry.price;
+      Page.regular = Page.entry.regularPrice;
+      Page.available = Page.entry.available !== false;
+      doc.title = (Page.entry.name || doc.title);
+
+      hydrateSizes();
+      if (Page.p) hydrateCopy();
+      else $$('[data-role="headline"]', rootEl).forEach((el) => { el.hidden = !el.textContent.trim(); });
+      if (!Page.available) { syncAvailability(); toggleNotify(true); }
+      const input = $('#notify-contact');
+      if (input && !isGuest()) { const form = $('#notify-form'); input.hidden = true; $$('label[for="notify-contact"]', form).forEach((l) => { l.hidden = true; }); }
+      updateBundleTotal();
+    } finally {
+      finishHydration();
+    }
+
+    if (!Page.p) return;
+    await whenSallaReady();
+    await Meta.loadRegistry();
+    await Promise.all([renderBundle(), renderAlternatives()]);
+  }
+
+  /* ======================================================================
+   * Global UI wiring (event delegation, as in the prototype)
+   * ==================================================================== */
+  function openHashDetails() {
+    const id = decodeURIComponent((root.location.hash || '').slice(1));
+    if (!id) return;
+    const target = doc.getElementById(id);
+    if (target && target.tagName === 'DETAILS') { target.open = true; target.scrollIntoView({ behavior: 'smooth' }); }
+  }
+
+  function bindUI() {
+    doc.addEventListener('click', (e) => {
+      const link = e.target.closest && e.target.closest('a[href^="#"]');
+      if (link) { const t = doc.getElementById(decodeURIComponent(link.getAttribute('href').slice(1))); if (t && t.tagName === 'DETAILS') { e.preventDefault(); t.open = true; t.scrollIntoView({ behavior: 'smooth' }); return; } }
+
+      const button = e.target.closest && e.target.closest('button');
+      if (!button) return;
+      const d = button.dataset;
+
+      if (d.sort) {
+        $$('[data-sort]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        applySort(d.sort);
+        return;
+      }
+      if (d.scroll) {
+        const strip = $('#' + d.scroll + ' .product-strip');
+        if (strip) strip.scrollBy({ left: Number(d.dir) * strip.clientWidth * 0.8, behavior: 'smooth' });
+        return;
+      }
+      if (d.size !== undefined && button.closest('fieldset.sizes')) { setPick(button); return; }
+      if (d.imageMode) {
+        const photo = $('.primary-photo');
+        if (!photo) return;
+        photo.classList.toggle('detail', d.imageMode === 'detail');
+        $$('[data-image-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        const zoom = $('[data-action="zoom"]');
+        if (zoom) zoom.setAttribute('aria-pressed', String(d.imageMode === 'detail'));
+        return;
+      }
+      if (d.quick) { quickAdd(d.quick, button); return; }
+      if (d.quantity !== undefined) {
+        const line = Cart.state.items.find((l) => l.id === d.quantity);
+        if (!line) return;
+        const next = line.qty + Number(d.delta);
+        if (next < 1) mutateLine(button, () => Cart.remove(line.id));
+        else if (next > MAX_QTY) Toast.show('الحد الأقصى ' + MAX_QTY + ' قطع لكل منتج.');
+        else mutateLine(button, () => Cart.update(line.id, next));
+        return;
+      }
+      if (d.remove !== undefined) { mutateLine(button, () => Cart.remove(d.remove)); return; }
+
+      switch (d.action) {
+        case 'cart': openCart(); break;
+        case 'close-cart': closeCart(); break;
+        case 'browse': {
+          closeCart();
+          if ($('#knit')) root.location.hash = 'knit';
+          else root.location.href = CFG.homeUrl.replace(/#.*$/, '') + '#knit';
+          break;
+        }
+        case 'review': renderCart('review'); { const dlg = dialogEl(); if (dlg) dlg.scrollTop = 0; } break;
+        case 'checkout': {
+          setBusy(button, true);
+          Cart.checkout().catch((err) => Toast.show(errorMessage(err, 'تعذّر الانتقال إلى الدفع. حاول مرة أخرى.'))).then(() => setBusy(button, false));
+          break;
+        }
+        case 'add-product': addCurrent(false); break;
+        case 'add-bundle': addCurrent(true); break;
+        case 'zoom': {
+          const photo = $('.primary-photo');
+          if (!photo) break;
+          const on = photo.classList.toggle('detail');
+          button.setAttribute('aria-pressed', String(on));
+          $$('[data-image-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.imageMode === (on ? 'detail' : 'full'))));
+          break;
+        }
+        case 'notify': toggleNotify(); break;
+        default: break;
+      }
+    });
+
+    doc.addEventListener('submit', (e) => {
+      if (e.target && e.target.id === 'notify-form') { e.preventDefault(); submitNotify(); }
+    });
+
+    // Bundle calculator + upper/lower size & quantity synchronisation.
+    doc.addEventListener('change', (e) => {
+      const t = e.target;
+      if (t.matches('#bundle-base-size')) setBaseSizeByLabel(t.value);
+      if (t.matches('.bundle-check,.match-size-select,#product-qty,#bundle-base-qty')) updateBundleTotal();
+    });
+    doc.addEventListener('input', (e) => {
+      const t = e.target;
+      if (t.matches('#product-qty,#bundle-base-qty')) {
+        const other = $(t.id === 'product-qty' ? '#bundle-base-qty' : '#product-qty');
+        if (other) other.value = t.value;
+        updateBundleTotal();
+      }
+    });
+
+    const dialog = dialogEl();
+    if (dialog) dialog.addEventListener('close', () => { if (lastTrigger && lastTrigger.isConnected) lastTrigger.focus({ preventScroll: true }); });
+    root.addEventListener('hashchange', () => { closeCart(); openHashDetails(); });
+  }
+
+  /* ======================================================================
+   * Boot
+   * ==================================================================== */
+  Cart.onChange(() => {
+    updateCartCount();
+    const dialog = dialogEl();
+    if (dialog && dialog.open) renderCart();
+    updateBundleTotal();
+  });
+
+  async function boot() {
+    if (root.__terazBooted) return;
+    root.__terazBooted = true;
+    bindUI();
+    openHashDetails();
+    const product = initProduct();   // hydrates from the Twig JSON immediately; bundle/alternatives wait for the SDK
+    const home = (async () => { tagCardsWithTeraz(doc); if ($('#home-view')) { applySort('thobe'); wireHeroPeek(); } await whenSallaReady(); await initHome(); })();
+    const s = await whenSallaReady();
+    if (s) { Cart.bindEvents(); await Cart.refresh(); }
+    await Promise.all([product, home]);
+  }
+
+  root.TerazController = Object.freeze({ Cart, Commerce, Page, openCart, closeCart, renderCart, applySort, boot });
+
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', boot); else boot();
+})(typeof window !== 'undefined' ? window : globalThis);

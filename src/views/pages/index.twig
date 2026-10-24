@@ -1,12 +1,8 @@
 {#
-  TERAZ home page.
-
-  Merchant-driven: every section is a Salla home component declared in twilight.json (home.teraz-*),
-  so sections can be reordered / edited in the dashboard.
-  Fallback: when no component has been added yet, the prototype's exact section order is rendered
-  with the built-in default copy, so a fresh install looks identical to the prototype.
+  TERAZ home page (src/views/pages/index.twig).
+  Renders the full 18-section TERAZ storefront in exact prototype order.
 #}
-{% extends 'layouts.master' %}
+{% extends "layouts.master" %}
 
 {% block title %}طراز — راحة تليق بالمقام{% endblock %}
 {% block body_class %}teraz-home{% endblock %}
@@ -14,24 +10,24 @@
 {% block content %}
   <div class="teraz">
     <div id="home-view">
-      {% if page.components|length %}
-        {% for component in page.components %}
-          {% component component.path %}
-        {% endfor %}
-      {% else %}
-        {% set default_sections = [
-          'teraz-hero', 'teraz-collection-nav', 'teraz-promise', 'teraz-introduction', 'teraz-occasion',
-          'teraz-strip-knit', 'teraz-material-story',
-          'teraz-strip-caps', 'teraz-editorial-caps',
-          'teraz-strip-socks', 'teraz-quiet-band',
-          'teraz-strip-clogs', 'teraz-editorial-clogs',
-          'teraz-strip-care',
-          'teraz-guarantee', 'teraz-questions', 'teraz-journal', 'teraz-closing'
-        ] %}
-        {% for section in default_sections %}
-          {% include 'components.home.' ~ section %}
-        {% endfor %}
-      {% endif %}
+      {% include 'components.home.teraz-hero' %}
+      {% include 'components.home.teraz-collection-nav' %}
+      {% include 'components.home.teraz-promise' %}
+      {% include 'components.home.teraz-introduction' %}
+      {% include 'components.home.teraz-occasion' %}
+      {% include 'components.home.teraz-strip-knit' %}
+      {% include 'components.home.teraz-material-story' %}
+      {% include 'components.home.teraz-strip-caps' %}
+      {% include 'components.home.teraz-editorial-caps' %}
+      {% include 'components.home.teraz-strip-socks' %}
+      {% include 'components.home.teraz-quiet-band' %}
+      {% include 'components.home.teraz-strip-clogs' %}
+      {% include 'components.home.teraz-editorial-clogs' %}
+      {% include 'components.home.teraz-strip-care' %}
+      {% include 'components.home.teraz-guarantee' %}
+      {% include 'components.home.teraz-questions' %}
+      {% include 'components.home.teraz-journal' %}
+      {% include 'components.home.teraz-closing' %}
     </div>
   </div>
 {% endblock %}
