@@ -1,6 +1,6 @@
 {#
   TERAZ home page (src/views/pages/index.twig).
-  Renders the full 18-section TERAZ storefront in exact prototype order.
+  Self-contained 18-section TERAZ storefront.
 #}
 {% extends "layouts.master" %}
 
@@ -10,24 +10,935 @@
 {% block content %}
   <div class="teraz">
     <div id="home-view">
-      {% include 'components.home.teraz-hero' %}
-      {% include 'components.home.teraz-collection-nav' %}
-      {% include 'components.home.teraz-promise' %}
-      {% include 'components.home.teraz-introduction' %}
-      {% include 'components.home.teraz-occasion' %}
-      {% include 'components.home.teraz-strip-knit' %}
-      {% include 'components.home.teraz-material-story' %}
-      {% include 'components.home.teraz-strip-caps' %}
-      {% include 'components.home.teraz-editorial-caps' %}
-      {% include 'components.home.teraz-strip-socks' %}
-      {% include 'components.home.teraz-quiet-band' %}
-      {% include 'components.home.teraz-strip-clogs' %}
-      {% include 'components.home.teraz-editorial-clogs' %}
-      {% include 'components.home.teraz-strip-care' %}
-      {% include 'components.home.teraz-guarantee' %}
-      {% include 'components.home.teraz-questions' %}
-      {% include 'components.home.teraz-journal' %}
-      {% include 'components.home.teraz-closing' %}
+{# === teraz-hero === #}
+{% set component = {} %}
+{# Hero Atelier Stage — .hero / .atelier-stage with the 8 hero shoes on the stone stage (--column / --tier). #}
+{% set c = component|default({}) %}
+{% set stage = c.stage_image|default('images/atelier.webp'|asset) %}
+<section class="hero" id="home">
+  <div class="hero-wording">
+    <p class="eyebrow">{{ c.eyebrow|default('للرجل السعودي. ولكل يوم في حياته.') }}</p>
+    <h1>{{ c.title|default('راحة تليق بالمقام.') }}</h1>
+    <p>{{ c.text_line_1|default('أحذية محاكة بتفاصيل جلدية تكمل ثوبك وكاجوالك.') }}<br class="mobile-only"> {{ c.text_line_2|default('ومعها كل ما يكمّل كشختك، في مكان واحد.') }}</p>
+    <a class="primary" href="{{ c.button_link|default('#knit') }}">{{ c.button_label|default('اختر طرازك') }} <span>←</span></a>
+  </div>
+  <div class="atelier-stage" aria-label="مجموعة طراز الكاملة على منصات حجرية">
+    <img class="stage-bg" src="{{ stage }}" width="1536" height="1024" alt="">
+    {#
+      Exhibits come from the "hero_products" field (max 8, in the order picked).
+      If it is empty the controller fills #hero-shoes with the 8 TERAZ knit shoes found in the store.
+    #}
+    <div id="hero-shoes">
+      {% for product in c.hero_products|default([])|slice(0, 8) %}
+        <a href="{{ product.url }}" class="exhibit"
+          style="--column:{{ loop.index0 % 4 }};--tier:{{ (loop.index0 / 4)|round(0, 'floor') }}"
+          data-product-id="{{ product.id }}" data-sku="{{ product.sku }}" data-name="{{ product.name }}" data-url="{{ product.url }}"
+          data-price="{{ product.price }}" data-image="{{ product.image.url }}" data-available="{{ product.is_available ? 'true' : 'false' }}"
+          data-peek-img="{{ product.image.url }}" data-peek-name="{{ product.name }}"
+          aria-label="اكتشف {{ product.name }}">
+          <img src="{{ product.image.url }}" width="1200" height="900" alt="{{ product.name }}"><span>{{ product.name }} ↗</span>
+        </a>
+      {% endfor %}
+    </div>
+    <div id="hero-peek" aria-hidden="true"><img alt=""><span></span></div>
+  </div>
+  <div class="hero-bottom">
+    <span>{{ c.bottom_start|default('قماش محاك · تفاصيل جلدية · ألوان تشبهك') }}</span>
+    <span>{{ c.bottom_end|default('مرّر لتكتشف. اضغط لتختار.') }}</span>
+  </div>
+</section>
+
+
+{# === teraz-collection-nav === #}
+{% set component = {} %}
+{# Collection navigation (.collection-nav). Links are editable; defaults are the 5 prototype collections. #}
+{% set c = component|default({}) %}
+{% set defaults = [
+  { label: 'الأحذية المحاكة', hint: 'للثوب والكاجوال', link: '#knit' },
+  { label: 'الكابات', hint: 'كمّل إطلالتك', link: '#caps' },
+  { label: 'الشرابات', hint: 'تفاصيل تفرق', link: '#socks' },
+  { label: 'خفّ الكشخة', hint: 'للمشوار الخفيف', link: '#clogs' },
+  { label: 'العناية بالجزم', hint: 'نظافة وحماية', link: '#care' }
+] %}
+<nav class="collection-nav" aria-label="اختر مجموعتك">
+  {% for item in c.links|default(defaults) %}
+    <a href="{{ item.link }}">{{ item.label }} <span>{{ item.hint }}</span></a>
+  {% endfor %}
+</nav>
+
+
+{# === teraz-promise === #}
+{% set component = {} %}
+{# Promise bar (.promise). #}
+{% set c = component|default({}) %}
+<section class="promise">
+  <span>{{ c.item_1|default('طراز يبدأ من راحتك.') }}</span>
+  <span>{{ c.item_2|default('للثوب والكاجوال') }}</span>
+  <span>{{ c.item_3|default('استرجاع خلال 14 يومًا*') }}</span>
+  <a href="{{ c.link_url|default('#guarantee') }}">{{ c.link_label|default('تعرّف على الضمان الذهبي ↙') }}</a>
+</section>
+
+
+{# === teraz-introduction === #}
+{% set component = {} %}
+{# Introduction — "ليش طراز؟" (#why). Titles use real line breaks; nl2br turns them into <br>. #}
+{% set c = component|default({}) %}
+<section class="section introduction" id="why">
+  <div>
+    <span class="eyebrow">{{ c.eyebrow|default('ليش طراز؟') }}</span>
+    <h2>{{ c.title|default('لأنك تعرف قيمة
+التفاصيل.')|nl2br }}</h2>
+  </div>
+  <div>
+    <p class="lead">{{ c.lead|default('من دوامك إلى مجلسك، كشختك تسبق كلامك. طراز يجمع النسيج المحاك والتفاصيل الجلدية والألوان المتناسقة؛ عشان تختار جزمة تليق بثوبك، وتكمل بها يومك بالكاجوال.') }}</p>
+    <div class="reason-row">
+      <article>
+        <small>01</small>
+        <h3>{{ c.reason_1_title|default('الخامة لها حضور.') }}</h3>
+        <p>{{ c.reason_1_text|default('اختلاف الملمس بين القماش والجلد يعطي التصميم عمقًا، بعيدًا عن زحمة التفاصيل.') }}</p>
+      </article>
+      <article>
+        <small>02</small>
+        <h3>{{ c.reason_2_title|default('تلبسها على طرازك.') }}</h3>
+        <p>{{ c.reason_2_text|default('مع الثوب أو الكاجوال؛ اختَر ترتيب الاستخدام الأقرب ليومك، ثم اللون اللي يشبهك.') }}</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+{# === teraz-occasion === #}
+{% set component = {} %}
+{# Occasion section (.occasion-section): two editorial cards. Images default to the theme assets. #}
+{% set c = component|default({}) %}
+<section class="occasion-section">
+  <div>
+    <span class="eyebrow">{{ c.eyebrow|default('يومك له أكثر من طراز') }}</span>
+    <h2>{{ c.title|default('للدوام كشخة.
+وللمشوار كشخة.')|nl2br }}</h2>
+    <p>{{ c.text|default('ابدأ بالقطعة الأقرب ليومك، وكمّلها بألوان تنسجم معها.') }}</p>
+  </div>
+  <a href="{{ c.card_1_link|default('#knit') }}" class="occasion-card">
+    <img src="{{ c.card_1_image|default('images/black.webp'|asset) }}" alt="{{ c.card_1_alt|default('عتيم الليل بكامل اللون الأسود') }}" loading="lazy" width="1200" height="900">
+    <span>{{ c.card_1_title|default('للثوب والدوام') }} <b>{{ c.card_1_cta|default('اكتشف مجموعة الأناقة ←') }}</b></span>
+  </a>
+  <a href="{{ c.card_2_link|default('#clogs') }}" class="occasion-card">
+    <img src="{{ c.card_2_image|default('images/clogs-1.webp'|asset) }}" alt="{{ c.card_2_alt|default('خف الكشخة الجملي للمشاوير اليومية') }}" loading="lazy" width="1200" height="900">
+    <span>{{ c.card_2_title|default('للمشوار القريب') }} <b>{{ c.card_2_cta|default('اكتشف خفّ الكشخة ←') }}</b></span>
+  </a>
+</section>
+
+
+{# === teraz-strip-knit === #}
+{% set component = {} %}
+{% set group = 'knit' %}
+{#
+  Product strip (.product-strip) — shared by the 5 TERAZ collections. Expects `group`: knit | caps | socks | clogs | care.
+
+  Products: the "products" field (hand-picked, in that order) renders server-side as cards.
+  If empty and a "category" is chosen, the controller loads that category with salla.product.fetch()
+  and renders the same cards client-side.
+
+  knit  -> prev/next scroll controls + the 3-mode sort bar (data-sort="thobe" | "casual" | "walking").
+  care  -> .care-collection layout + the 2 care steps underneath.
+#}
+{% set c = component|default({}) %}
+{% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
+{% set all_copy = {
+  knit: {
+    eyebrow: '01 / TERAZ–KNIT',
+    title: 'مجموعة الأناقة',
+    text: 'كشخة الرجل السعودي تبدأ من التفاصيل. أحذية محاكة بتفاصيل جلدية وألوان تكمل الثوب والكاجوال؛ اختر طراز يومك.',
+    label: 'منتجات مجموعة الأناقة'
+  },
+  caps: {
+    eyebrow: '02 / تفصيلة ترافقك',
+    title: 'كابات طراز',
+    text: 'تطلع فيه، وتصفطه معك. ألوان تتناسق مع جزمتك وتكمل إطلالتك.',
+    label: 'كابات طراز'
+  },
+  socks: {
+    eyebrow: '03 / التفاصيل القريبة',
+    title: 'شرابات الأناقة',
+    text: 'خفيفة من ألياف البامبو، وألوان تكمل مجموعة الأناقة. 3 أزواج في كل باك، بمقاس واحد.',
+    label: 'شرابات الأناقة'
+  },
+  clogs: {
+    eyebrow: '04 / للمشوار الخفيف',
+    title: 'خفّ الكشخة',
+    text: 'لطلعة سريعة، أو لوقتك في البيت. تلبسه بسهولة وتبقى على طرازك.',
+    label: 'خف الكشخة'
+  },
+  care: {
+    eyebrow: '05 / الكشخة تستاهل العناية',
+    title: 'مجموعة العناية بالجزم',
+    text: 'نظّفها. احمِها. واطلع بكشختك.
+مجموعة تنظيف متكاملة وبخاخ عزل ماء؛ كل منتج بـ29 ر.س.',
+    label: 'منتجات العناية بالجزم'
+  }
+} %}
+{% set copy = all_copy[group] %}
+<section class="section collection{{ group == 'care' ? ' care-collection' : '' }}" id="{{ group }}">
+  <header class="section-heading">
+    <div>
+      <span class="eyebrow">{{ c.eyebrow|default(copy.eyebrow) }}</span>
+      <h2>{{ c.title|default(copy.title) }}</h2>
+      <p>{{ c.text|default(copy.text)|nl2br }}</p>
+    </div>
+    {% if group == 'knit' %}
+      <div class="strip-controls">
+        <button type="button" data-scroll="knit" data-dir="1" aria-label="المنتجات السابقة">→</button>
+        <button type="button" data-scroll="knit" data-dir="-1" aria-label="المنتجات التالية">←</button>
+      </div>
+    {% endif %}
+  </header>
+
+  {% if group == 'knit' %}
+    <div class="sort-bar" role="group" aria-label="رتّب حسب">
+      <span>رتّب حسب</span>
+      <button type="button" data-sort="thobe" aria-pressed="true">الثوب</button>
+      <button type="button" data-sort="casual" aria-pressed="false">الكاجوال</button>
+      <button type="button" data-sort="walking" aria-pressed="false">المشي</button>
+    </div>
+  {% endif %}
+
+  <div class="product-strip" data-group="{{ group }}" data-category="{{ c.category|default('')|json_encode|e('html_attr') }}" tabindex="0" aria-label="{{ copy.label }}">
+    {% for product in c.products|default([]) %}
+      {# Product card shared by every strip, the hero stage and server-rendered lists. Expects `product` (Salla product). #}
+{% set card_image = product.image.url|default('') %}
+<article class="product-card"
+  data-product-id="{{ product.id }}"
+  data-sku="{{ product.sku }}"
+  data-name="{{ product.name }}"
+  data-url="{{ product.url }}"
+  data-price="{{ product.price }}"
+  data-regular-price="{{ product.regular_price|default(product.price) }}"
+  data-image="{{ card_image }}"
+  data-available="{{ product.is_available ? 'true' : 'false' }}">
+  <a class="product-image" href="{{ product.url }}" aria-label="تفاصيل {{ product.name }}">
+    <img loading="lazy" src="{{ card_image }}" width="1200" height="900" alt="{{ product.image.alt|default(product.name) }}">
+  </a>
+  <div class="card-meta">
+    {# Colour line: Salla subtitle as a fallback, replaced by the TERAZ colour once the product resolves. #}
+    <span class="card-color">{{ product.subtitle|default('') }}</span>
+    <h3><a href="{{ product.url }}">{{ product.name }}</a></h3>
+    <div class="card-bottom">
+      <b>{{ product.price|money }}</b>
+      {% if product.is_on_sale %}<del class="card-regular">{{ product.regular_price|money }}</del>{% endif %}
+      {% if not product.is_available %}<span class="card-flag">غير متوفر</span>{% endif %}
+      <a href="{{ product.url }}">اكتشف التفاصيل ↗</a>
+    </div>
+  </div>
+</article>
+
+    {% endfor %}
+  </div>
+
+  {% if group == 'knit' %}
+    <p class="catalog-note">{{ c.note|default('كل الألوان أمامك، والترتيب يساعدك تبدأ من الأقرب لاستخدامك.') }}<span>اسحب لاكتشاف المجموعة ←</span></p>
+  {% endif %}
+
+  {% if group == 'care' %}
+    <div class="care-steps">
+      <article>
+        <span>01</span>
+        <h3>{{ c.step_1_title|default('ابدأ بالنظافة') }}</h3>
+        <p>{{ c.step_1_text|default('فوم تنظيف 100 مل، وفرشاة ومنشفة؛ أدوات العناية في مجموعة واحدة.') }}</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>{{ c.step_2_title|default('كمّلها بالحماية') }}</h3>
+        <p>{{ c.step_2_text|default('بخاخ عزل الماء 100 مل، لحماية تدوم حتى شهر حسب الاستخدام. اتبع تعليمات العبوة والخامات المناسبة.') }}</p>
+      </article>
+    </div>
+  {% endif %}
+</section>
+
+
+{# === teraz-material-story === #}
+{% set component = {} %}
+{# Material story (.material-story). The link resolves to the TERAZ "tuwaiq" product URL unless link_url is set. #}
+{% set c = component|default({}) %}
+<section class="material-story">
+  <div class="material-art"><img src="{{ c.image|default('images/beige-white.webp'|asset) }}" alt="{{ c.image_alt|default('تفاصيل النسيج والجلد في ثرى طويق') }}" loading="lazy"></div>
+  <div>
+    <span class="eyebrow">{{ c.eyebrow|default('القيمة في اللي تلبسه') }}</span>
+    <h2>{{ c.title|default('من النسيج
+إلى آخر خطوة.')|nl2br }}</h2>
+    <p>{{ c.text|default('في الموديلات الأصلية: نسيج بوليستر محاك، تفاصيل جلد طبيعي، قاعدة بولي يوريثان، وفرشة مغطاة بجلد الماعز. مكونات واضحة تعرفها قبل تختار.') }}</p>
+    {% if c.link_url %}
+      <a class="underlined" href="{{ c.link_url }}">{{ c.link_label|default('اكتشف ثرى طويق عن قرب ↗') }}</a>
+    {% else %}
+      <a class="underlined" href="#knit" data-teraz-link="tuwaiq">{{ c.link_label|default('اكتشف ثرى طويق عن قرب ↗') }}</a>
+    {% endif %}
+  </div>
+</section>
+
+
+{# === teraz-strip-caps === #}
+{% set component = {} %}
+{% set group = 'caps' %}
+{#
+  Product strip (.product-strip) — shared by the 5 TERAZ collections. Expects `group`: knit | caps | socks | clogs | care.
+
+  Products: the "products" field (hand-picked, in that order) renders server-side as cards.
+  If empty and a "category" is chosen, the controller loads that category with salla.product.fetch()
+  and renders the same cards client-side.
+
+  knit  -> prev/next scroll controls + the 3-mode sort bar (data-sort="thobe" | "casual" | "walking").
+  care  -> .care-collection layout + the 2 care steps underneath.
+#}
+{% set c = component|default({}) %}
+{% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
+{% set all_copy = {
+  knit: {
+    eyebrow: '01 / TERAZ–KNIT',
+    title: 'مجموعة الأناقة',
+    text: 'كشخة الرجل السعودي تبدأ من التفاصيل. أحذية محاكة بتفاصيل جلدية وألوان تكمل الثوب والكاجوال؛ اختر طراز يومك.',
+    label: 'منتجات مجموعة الأناقة'
+  },
+  caps: {
+    eyebrow: '02 / تفصيلة ترافقك',
+    title: 'كابات طراز',
+    text: 'تطلع فيه، وتصفطه معك. ألوان تتناسق مع جزمتك وتكمل إطلالتك.',
+    label: 'كابات طراز'
+  },
+  socks: {
+    eyebrow: '03 / التفاصيل القريبة',
+    title: 'شرابات الأناقة',
+    text: 'خفيفة من ألياف البامبو، وألوان تكمل مجموعة الأناقة. 3 أزواج في كل باك، بمقاس واحد.',
+    label: 'شرابات الأناقة'
+  },
+  clogs: {
+    eyebrow: '04 / للمشوار الخفيف',
+    title: 'خفّ الكشخة',
+    text: 'لطلعة سريعة، أو لوقتك في البيت. تلبسه بسهولة وتبقى على طرازك.',
+    label: 'خف الكشخة'
+  },
+  care: {
+    eyebrow: '05 / الكشخة تستاهل العناية',
+    title: 'مجموعة العناية بالجزم',
+    text: 'نظّفها. احمِها. واطلع بكشختك.
+مجموعة تنظيف متكاملة وبخاخ عزل ماء؛ كل منتج بـ29 ر.س.',
+    label: 'منتجات العناية بالجزم'
+  }
+} %}
+{% set copy = all_copy[group] %}
+<section class="section collection{{ group == 'care' ? ' care-collection' : '' }}" id="{{ group }}">
+  <header class="section-heading">
+    <div>
+      <span class="eyebrow">{{ c.eyebrow|default(copy.eyebrow) }}</span>
+      <h2>{{ c.title|default(copy.title) }}</h2>
+      <p>{{ c.text|default(copy.text)|nl2br }}</p>
+    </div>
+    {% if group == 'knit' %}
+      <div class="strip-controls">
+        <button type="button" data-scroll="knit" data-dir="1" aria-label="المنتجات السابقة">→</button>
+        <button type="button" data-scroll="knit" data-dir="-1" aria-label="المنتجات التالية">←</button>
+      </div>
+    {% endif %}
+  </header>
+
+  {% if group == 'knit' %}
+    <div class="sort-bar" role="group" aria-label="رتّب حسب">
+      <span>رتّب حسب</span>
+      <button type="button" data-sort="thobe" aria-pressed="true">الثوب</button>
+      <button type="button" data-sort="casual" aria-pressed="false">الكاجوال</button>
+      <button type="button" data-sort="walking" aria-pressed="false">المشي</button>
+    </div>
+  {% endif %}
+
+  <div class="product-strip" data-group="{{ group }}" data-category="{{ c.category|default('')|json_encode|e('html_attr') }}" tabindex="0" aria-label="{{ copy.label }}">
+    {% for product in c.products|default([]) %}
+      {# Product card shared by every strip, the hero stage and server-rendered lists. Expects `product` (Salla product). #}
+{% set card_image = product.image.url|default('') %}
+<article class="product-card"
+  data-product-id="{{ product.id }}"
+  data-sku="{{ product.sku }}"
+  data-name="{{ product.name }}"
+  data-url="{{ product.url }}"
+  data-price="{{ product.price }}"
+  data-regular-price="{{ product.regular_price|default(product.price) }}"
+  data-image="{{ card_image }}"
+  data-available="{{ product.is_available ? 'true' : 'false' }}">
+  <a class="product-image" href="{{ product.url }}" aria-label="تفاصيل {{ product.name }}">
+    <img loading="lazy" src="{{ card_image }}" width="1200" height="900" alt="{{ product.image.alt|default(product.name) }}">
+  </a>
+  <div class="card-meta">
+    {# Colour line: Salla subtitle as a fallback, replaced by the TERAZ colour once the product resolves. #}
+    <span class="card-color">{{ product.subtitle|default('') }}</span>
+    <h3><a href="{{ product.url }}">{{ product.name }}</a></h3>
+    <div class="card-bottom">
+      <b>{{ product.price|money }}</b>
+      {% if product.is_on_sale %}<del class="card-regular">{{ product.regular_price|money }}</del>{% endif %}
+      {% if not product.is_available %}<span class="card-flag">غير متوفر</span>{% endif %}
+      <a href="{{ product.url }}">اكتشف التفاصيل ↗</a>
+    </div>
+  </div>
+</article>
+
+    {% endfor %}
+  </div>
+
+  {% if group == 'knit' %}
+    <p class="catalog-note">{{ c.note|default('كل الألوان أمامك، والترتيب يساعدك تبدأ من الأقرب لاستخدامك.') }}<span>اسحب لاكتشاف المجموعة ←</span></p>
+  {% endif %}
+
+  {% if group == 'care' %}
+    <div class="care-steps">
+      <article>
+        <span>01</span>
+        <h3>{{ c.step_1_title|default('ابدأ بالنظافة') }}</h3>
+        <p>{{ c.step_1_text|default('فوم تنظيف 100 مل، وفرشاة ومنشفة؛ أدوات العناية في مجموعة واحدة.') }}</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>{{ c.step_2_title|default('كمّلها بالحماية') }}</h3>
+        <p>{{ c.step_2_text|default('بخاخ عزل الماء 100 مل، لحماية تدوم حتى شهر حسب الاستخدام. اتبع تعليمات العبوة والخامات المناسبة.') }}</p>
+      </article>
+    </div>
+  {% endif %}
+</section>
+
+
+{# === teraz-editorial-caps === #}
+{% set component = {} %}
+{% set variant = 'caps' %}
+{# Editorial note (.editorial-note). Expects `variant`: caps | clogs (clogs adds .clogs-note). #}
+{% set c = component|default({}) %}
+{% set variants = {
+  caps: {
+    css: '',
+    eyebrow: 'ليش يكمّل كشختك؟',
+    title: 'لون واحد يتكرر.
+وإطلالة تترابط.',
+    text: 'خذ درجة من جزمتك وكررها في الكاب. بني مع رملي، زيتي مع زيتي، أو أسود متصل. تصميم قابل للطي يسهّل حمله معك، وتفاصيل هادئة تترك حضورك يتكلم.'
+  },
+  clogs: {
+    css: ' clogs-note',
+    eyebrow: 'على مهلك',
+    title: 'مو كل مشوار
+يحتاج تجهيز.',
+    text: 'مقدمة مغلقة وخلف مفتوح، وإبزيم يحدد شكل التصميم. خفّ الكشخة خيارك للأوقات البسيطة؛ من قهوتك القريبة إلى جلستك في البيت.'
+  }
+} %}
+{% set v = variants[variant] %}
+<section class="editorial-note{{ v.css }}">
+  <span class="eyebrow">{{ c.eyebrow|default(v.eyebrow) }}</span>
+  <h2>{{ c.title|default(v.title)|nl2br }}</h2>
+  <p>{{ c.text|default(v.text) }}</p>
+</section>
+
+
+{# === teraz-strip-socks === #}
+{% set component = {} %}
+{% set group = 'socks' %}
+{#
+  Product strip (.product-strip) — shared by the 5 TERAZ collections. Expects `group`: knit | caps | socks | clogs | care.
+
+  Products: the "products" field (hand-picked, in that order) renders server-side as cards.
+  If empty and a "category" is chosen, the controller loads that category with salla.product.fetch()
+  and renders the same cards client-side.
+
+  knit  -> prev/next scroll controls + the 3-mode sort bar (data-sort="thobe" | "casual" | "walking").
+  care  -> .care-collection layout + the 2 care steps underneath.
+#}
+{% set c = component|default({}) %}
+{% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
+{% set all_copy = {
+  knit: {
+    eyebrow: '01 / TERAZ–KNIT',
+    title: 'مجموعة الأناقة',
+    text: 'كشخة الرجل السعودي تبدأ من التفاصيل. أحذية محاكة بتفاصيل جلدية وألوان تكمل الثوب والكاجوال؛ اختر طراز يومك.',
+    label: 'منتجات مجموعة الأناقة'
+  },
+  caps: {
+    eyebrow: '02 / تفصيلة ترافقك',
+    title: 'كابات طراز',
+    text: 'تطلع فيه، وتصفطه معك. ألوان تتناسق مع جزمتك وتكمل إطلالتك.',
+    label: 'كابات طراز'
+  },
+  socks: {
+    eyebrow: '03 / التفاصيل القريبة',
+    title: 'شرابات الأناقة',
+    text: 'خفيفة من ألياف البامبو، وألوان تكمل مجموعة الأناقة. 3 أزواج في كل باك، بمقاس واحد.',
+    label: 'شرابات الأناقة'
+  },
+  clogs: {
+    eyebrow: '04 / للمشوار الخفيف',
+    title: 'خفّ الكشخة',
+    text: 'لطلعة سريعة، أو لوقتك في البيت. تلبسه بسهولة وتبقى على طرازك.',
+    label: 'خف الكشخة'
+  },
+  care: {
+    eyebrow: '05 / الكشخة تستاهل العناية',
+    title: 'مجموعة العناية بالجزم',
+    text: 'نظّفها. احمِها. واطلع بكشختك.
+مجموعة تنظيف متكاملة وبخاخ عزل ماء؛ كل منتج بـ29 ر.س.',
+    label: 'منتجات العناية بالجزم'
+  }
+} %}
+{% set copy = all_copy[group] %}
+<section class="section collection{{ group == 'care' ? ' care-collection' : '' }}" id="{{ group }}">
+  <header class="section-heading">
+    <div>
+      <span class="eyebrow">{{ c.eyebrow|default(copy.eyebrow) }}</span>
+      <h2>{{ c.title|default(copy.title) }}</h2>
+      <p>{{ c.text|default(copy.text)|nl2br }}</p>
+    </div>
+    {% if group == 'knit' %}
+      <div class="strip-controls">
+        <button type="button" data-scroll="knit" data-dir="1" aria-label="المنتجات السابقة">→</button>
+        <button type="button" data-scroll="knit" data-dir="-1" aria-label="المنتجات التالية">←</button>
+      </div>
+    {% endif %}
+  </header>
+
+  {% if group == 'knit' %}
+    <div class="sort-bar" role="group" aria-label="رتّب حسب">
+      <span>رتّب حسب</span>
+      <button type="button" data-sort="thobe" aria-pressed="true">الثوب</button>
+      <button type="button" data-sort="casual" aria-pressed="false">الكاجوال</button>
+      <button type="button" data-sort="walking" aria-pressed="false">المشي</button>
+    </div>
+  {% endif %}
+
+  <div class="product-strip" data-group="{{ group }}" data-category="{{ c.category|default('')|json_encode|e('html_attr') }}" tabindex="0" aria-label="{{ copy.label }}">
+    {% for product in c.products|default([]) %}
+      {# Product card shared by every strip, the hero stage and server-rendered lists. Expects `product` (Salla product). #}
+{% set card_image = product.image.url|default('') %}
+<article class="product-card"
+  data-product-id="{{ product.id }}"
+  data-sku="{{ product.sku }}"
+  data-name="{{ product.name }}"
+  data-url="{{ product.url }}"
+  data-price="{{ product.price }}"
+  data-regular-price="{{ product.regular_price|default(product.price) }}"
+  data-image="{{ card_image }}"
+  data-available="{{ product.is_available ? 'true' : 'false' }}">
+  <a class="product-image" href="{{ product.url }}" aria-label="تفاصيل {{ product.name }}">
+    <img loading="lazy" src="{{ card_image }}" width="1200" height="900" alt="{{ product.image.alt|default(product.name) }}">
+  </a>
+  <div class="card-meta">
+    {# Colour line: Salla subtitle as a fallback, replaced by the TERAZ colour once the product resolves. #}
+    <span class="card-color">{{ product.subtitle|default('') }}</span>
+    <h3><a href="{{ product.url }}">{{ product.name }}</a></h3>
+    <div class="card-bottom">
+      <b>{{ product.price|money }}</b>
+      {% if product.is_on_sale %}<del class="card-regular">{{ product.regular_price|money }}</del>{% endif %}
+      {% if not product.is_available %}<span class="card-flag">غير متوفر</span>{% endif %}
+      <a href="{{ product.url }}">اكتشف التفاصيل ↗</a>
+    </div>
+  </div>
+</article>
+
+    {% endfor %}
+  </div>
+
+  {% if group == 'knit' %}
+    <p class="catalog-note">{{ c.note|default('كل الألوان أمامك، والترتيب يساعدك تبدأ من الأقرب لاستخدامك.') }}<span>اسحب لاكتشاف المجموعة ←</span></p>
+  {% endif %}
+
+  {% if group == 'care' %}
+    <div class="care-steps">
+      <article>
+        <span>01</span>
+        <h3>{{ c.step_1_title|default('ابدأ بالنظافة') }}</h3>
+        <p>{{ c.step_1_text|default('فوم تنظيف 100 مل، وفرشاة ومنشفة؛ أدوات العناية في مجموعة واحدة.') }}</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>{{ c.step_2_title|default('كمّلها بالحماية') }}</h3>
+        <p>{{ c.step_2_text|default('بخاخ عزل الماء 100 مل، لحماية تدوم حتى شهر حسب الاستخدام. اتبع تعليمات العبوة والخامات المناسبة.') }}</p>
+      </article>
+    </div>
+  {% endif %}
+</section>
+
+
+{# === teraz-quiet-band === #}
+{% set component = {} %}
+{# Quiet band (.quiet-band) shown after the socks strip. #}
+{% set c = component|default({}) %}
+<section class="quiet-band">
+  <h3>{{ c.title|default('حتى التفاصيل اللي ما تبان كثير، تفرق.') }}</h3>
+  <p>{{ c.text|default('قرّب لون الشراب من الجزمة أو البنطلون، وخلّ الإطلالة تمتد بهدوء.') }}</p>
+</section>
+
+
+{# === teraz-strip-clogs === #}
+{% set component = {} %}
+{% set group = 'clogs' %}
+{#
+  Product strip (.product-strip) — shared by the 5 TERAZ collections. Expects `group`: knit | caps | socks | clogs | care.
+
+  Products: the "products" field (hand-picked, in that order) renders server-side as cards.
+  If empty and a "category" is chosen, the controller loads that category with salla.product.fetch()
+  and renders the same cards client-side.
+
+  knit  -> prev/next scroll controls + the 3-mode sort bar (data-sort="thobe" | "casual" | "walking").
+  care  -> .care-collection layout + the 2 care steps underneath.
+#}
+{% set c = component|default({}) %}
+{% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
+{% set all_copy = {
+  knit: {
+    eyebrow: '01 / TERAZ–KNIT',
+    title: 'مجموعة الأناقة',
+    text: 'كشخة الرجل السعودي تبدأ من التفاصيل. أحذية محاكة بتفاصيل جلدية وألوان تكمل الثوب والكاجوال؛ اختر طراز يومك.',
+    label: 'منتجات مجموعة الأناقة'
+  },
+  caps: {
+    eyebrow: '02 / تفصيلة ترافقك',
+    title: 'كابات طراز',
+    text: 'تطلع فيه، وتصفطه معك. ألوان تتناسق مع جزمتك وتكمل إطلالتك.',
+    label: 'كابات طراز'
+  },
+  socks: {
+    eyebrow: '03 / التفاصيل القريبة',
+    title: 'شرابات الأناقة',
+    text: 'خفيفة من ألياف البامبو، وألوان تكمل مجموعة الأناقة. 3 أزواج في كل باك، بمقاس واحد.',
+    label: 'شرابات الأناقة'
+  },
+  clogs: {
+    eyebrow: '04 / للمشوار الخفيف',
+    title: 'خفّ الكشخة',
+    text: 'لطلعة سريعة، أو لوقتك في البيت. تلبسه بسهولة وتبقى على طرازك.',
+    label: 'خف الكشخة'
+  },
+  care: {
+    eyebrow: '05 / الكشخة تستاهل العناية',
+    title: 'مجموعة العناية بالجزم',
+    text: 'نظّفها. احمِها. واطلع بكشختك.
+مجموعة تنظيف متكاملة وبخاخ عزل ماء؛ كل منتج بـ29 ر.س.',
+    label: 'منتجات العناية بالجزم'
+  }
+} %}
+{% set copy = all_copy[group] %}
+<section class="section collection{{ group == 'care' ? ' care-collection' : '' }}" id="{{ group }}">
+  <header class="section-heading">
+    <div>
+      <span class="eyebrow">{{ c.eyebrow|default(copy.eyebrow) }}</span>
+      <h2>{{ c.title|default(copy.title) }}</h2>
+      <p>{{ c.text|default(copy.text)|nl2br }}</p>
+    </div>
+    {% if group == 'knit' %}
+      <div class="strip-controls">
+        <button type="button" data-scroll="knit" data-dir="1" aria-label="المنتجات السابقة">→</button>
+        <button type="button" data-scroll="knit" data-dir="-1" aria-label="المنتجات التالية">←</button>
+      </div>
+    {% endif %}
+  </header>
+
+  {% if group == 'knit' %}
+    <div class="sort-bar" role="group" aria-label="رتّب حسب">
+      <span>رتّب حسب</span>
+      <button type="button" data-sort="thobe" aria-pressed="true">الثوب</button>
+      <button type="button" data-sort="casual" aria-pressed="false">الكاجوال</button>
+      <button type="button" data-sort="walking" aria-pressed="false">المشي</button>
+    </div>
+  {% endif %}
+
+  <div class="product-strip" data-group="{{ group }}" data-category="{{ c.category|default('')|json_encode|e('html_attr') }}" tabindex="0" aria-label="{{ copy.label }}">
+    {% for product in c.products|default([]) %}
+      {# Product card shared by every strip, the hero stage and server-rendered lists. Expects `product` (Salla product). #}
+{% set card_image = product.image.url|default('') %}
+<article class="product-card"
+  data-product-id="{{ product.id }}"
+  data-sku="{{ product.sku }}"
+  data-name="{{ product.name }}"
+  data-url="{{ product.url }}"
+  data-price="{{ product.price }}"
+  data-regular-price="{{ product.regular_price|default(product.price) }}"
+  data-image="{{ card_image }}"
+  data-available="{{ product.is_available ? 'true' : 'false' }}">
+  <a class="product-image" href="{{ product.url }}" aria-label="تفاصيل {{ product.name }}">
+    <img loading="lazy" src="{{ card_image }}" width="1200" height="900" alt="{{ product.image.alt|default(product.name) }}">
+  </a>
+  <div class="card-meta">
+    {# Colour line: Salla subtitle as a fallback, replaced by the TERAZ colour once the product resolves. #}
+    <span class="card-color">{{ product.subtitle|default('') }}</span>
+    <h3><a href="{{ product.url }}">{{ product.name }}</a></h3>
+    <div class="card-bottom">
+      <b>{{ product.price|money }}</b>
+      {% if product.is_on_sale %}<del class="card-regular">{{ product.regular_price|money }}</del>{% endif %}
+      {% if not product.is_available %}<span class="card-flag">غير متوفر</span>{% endif %}
+      <a href="{{ product.url }}">اكتشف التفاصيل ↗</a>
+    </div>
+  </div>
+</article>
+
+    {% endfor %}
+  </div>
+
+  {% if group == 'knit' %}
+    <p class="catalog-note">{{ c.note|default('كل الألوان أمامك، والترتيب يساعدك تبدأ من الأقرب لاستخدامك.') }}<span>اسحب لاكتشاف المجموعة ←</span></p>
+  {% endif %}
+
+  {% if group == 'care' %}
+    <div class="care-steps">
+      <article>
+        <span>01</span>
+        <h3>{{ c.step_1_title|default('ابدأ بالنظافة') }}</h3>
+        <p>{{ c.step_1_text|default('فوم تنظيف 100 مل، وفرشاة ومنشفة؛ أدوات العناية في مجموعة واحدة.') }}</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>{{ c.step_2_title|default('كمّلها بالحماية') }}</h3>
+        <p>{{ c.step_2_text|default('بخاخ عزل الماء 100 مل، لحماية تدوم حتى شهر حسب الاستخدام. اتبع تعليمات العبوة والخامات المناسبة.') }}</p>
+      </article>
+    </div>
+  {% endif %}
+</section>
+
+
+{# === teraz-editorial-clogs === #}
+{% set component = {} %}
+{% set variant = 'clogs' %}
+{# Editorial note (.editorial-note). Expects `variant`: caps | clogs (clogs adds .clogs-note). #}
+{% set c = component|default({}) %}
+{% set variants = {
+  caps: {
+    css: '',
+    eyebrow: 'ليش يكمّل كشختك؟',
+    title: 'لون واحد يتكرر.
+وإطلالة تترابط.',
+    text: 'خذ درجة من جزمتك وكررها في الكاب. بني مع رملي، زيتي مع زيتي، أو أسود متصل. تصميم قابل للطي يسهّل حمله معك، وتفاصيل هادئة تترك حضورك يتكلم.'
+  },
+  clogs: {
+    css: ' clogs-note',
+    eyebrow: 'على مهلك',
+    title: 'مو كل مشوار
+يحتاج تجهيز.',
+    text: 'مقدمة مغلقة وخلف مفتوح، وإبزيم يحدد شكل التصميم. خفّ الكشخة خيارك للأوقات البسيطة؛ من قهوتك القريبة إلى جلستك في البيت.'
+  }
+} %}
+{% set v = variants[variant] %}
+<section class="editorial-note{{ v.css }}">
+  <span class="eyebrow">{{ c.eyebrow|default(v.eyebrow) }}</span>
+  <h2>{{ c.title|default(v.title)|nl2br }}</h2>
+  <p>{{ c.text|default(v.text) }}</p>
+</section>
+
+
+{# === teraz-strip-care === #}
+{% set component = {} %}
+{% set group = 'care' %}
+{#
+  Product strip (.product-strip) — shared by the 5 TERAZ collections. Expects `group`: knit | caps | socks | clogs | care.
+
+  Products: the "products" field (hand-picked, in that order) renders server-side as cards.
+  If empty and a "category" is chosen, the controller loads that category with salla.product.fetch()
+  and renders the same cards client-side.
+
+  knit  -> prev/next scroll controls + the 3-mode sort bar (data-sort="thobe" | "casual" | "walking").
+  care  -> .care-collection layout + the 2 care steps underneath.
+#}
+{% set c = component|default({}) %}
+{% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
+{% set all_copy = {
+  knit: {
+    eyebrow: '01 / TERAZ–KNIT',
+    title: 'مجموعة الأناقة',
+    text: 'كشخة الرجل السعودي تبدأ من التفاصيل. أحذية محاكة بتفاصيل جلدية وألوان تكمل الثوب والكاجوال؛ اختر طراز يومك.',
+    label: 'منتجات مجموعة الأناقة'
+  },
+  caps: {
+    eyebrow: '02 / تفصيلة ترافقك',
+    title: 'كابات طراز',
+    text: 'تطلع فيه، وتصفطه معك. ألوان تتناسق مع جزمتك وتكمل إطلالتك.',
+    label: 'كابات طراز'
+  },
+  socks: {
+    eyebrow: '03 / التفاصيل القريبة',
+    title: 'شرابات الأناقة',
+    text: 'خفيفة من ألياف البامبو، وألوان تكمل مجموعة الأناقة. 3 أزواج في كل باك، بمقاس واحد.',
+    label: 'شرابات الأناقة'
+  },
+  clogs: {
+    eyebrow: '04 / للمشوار الخفيف',
+    title: 'خفّ الكشخة',
+    text: 'لطلعة سريعة، أو لوقتك في البيت. تلبسه بسهولة وتبقى على طرازك.',
+    label: 'خف الكشخة'
+  },
+  care: {
+    eyebrow: '05 / الكشخة تستاهل العناية',
+    title: 'مجموعة العناية بالجزم',
+    text: 'نظّفها. احمِها. واطلع بكشختك.
+مجموعة تنظيف متكاملة وبخاخ عزل ماء؛ كل منتج بـ29 ر.س.',
+    label: 'منتجات العناية بالجزم'
+  }
+} %}
+{% set copy = all_copy[group] %}
+<section class="section collection{{ group == 'care' ? ' care-collection' : '' }}" id="{{ group }}">
+  <header class="section-heading">
+    <div>
+      <span class="eyebrow">{{ c.eyebrow|default(copy.eyebrow) }}</span>
+      <h2>{{ c.title|default(copy.title) }}</h2>
+      <p>{{ c.text|default(copy.text)|nl2br }}</p>
+    </div>
+    {% if group == 'knit' %}
+      <div class="strip-controls">
+        <button type="button" data-scroll="knit" data-dir="1" aria-label="المنتجات السابقة">→</button>
+        <button type="button" data-scroll="knit" data-dir="-1" aria-label="المنتجات التالية">←</button>
+      </div>
+    {% endif %}
+  </header>
+
+  {% if group == 'knit' %}
+    <div class="sort-bar" role="group" aria-label="رتّب حسب">
+      <span>رتّب حسب</span>
+      <button type="button" data-sort="thobe" aria-pressed="true">الثوب</button>
+      <button type="button" data-sort="casual" aria-pressed="false">الكاجوال</button>
+      <button type="button" data-sort="walking" aria-pressed="false">المشي</button>
+    </div>
+  {% endif %}
+
+  <div class="product-strip" data-group="{{ group }}" data-category="{{ c.category|default('')|json_encode|e('html_attr') }}" tabindex="0" aria-label="{{ copy.label }}">
+    {% for product in c.products|default([]) %}
+      {# Product card shared by every strip, the hero stage and server-rendered lists. Expects `product` (Salla product). #}
+{% set card_image = product.image.url|default('') %}
+<article class="product-card"
+  data-product-id="{{ product.id }}"
+  data-sku="{{ product.sku }}"
+  data-name="{{ product.name }}"
+  data-url="{{ product.url }}"
+  data-price="{{ product.price }}"
+  data-regular-price="{{ product.regular_price|default(product.price) }}"
+  data-image="{{ card_image }}"
+  data-available="{{ product.is_available ? 'true' : 'false' }}">
+  <a class="product-image" href="{{ product.url }}" aria-label="تفاصيل {{ product.name }}">
+    <img loading="lazy" src="{{ card_image }}" width="1200" height="900" alt="{{ product.image.alt|default(product.name) }}">
+  </a>
+  <div class="card-meta">
+    {# Colour line: Salla subtitle as a fallback, replaced by the TERAZ colour once the product resolves. #}
+    <span class="card-color">{{ product.subtitle|default('') }}</span>
+    <h3><a href="{{ product.url }}">{{ product.name }}</a></h3>
+    <div class="card-bottom">
+      <b>{{ product.price|money }}</b>
+      {% if product.is_on_sale %}<del class="card-regular">{{ product.regular_price|money }}</del>{% endif %}
+      {% if not product.is_available %}<span class="card-flag">غير متوفر</span>{% endif %}
+      <a href="{{ product.url }}">اكتشف التفاصيل ↗</a>
+    </div>
+  </div>
+</article>
+
+    {% endfor %}
+  </div>
+
+  {% if group == 'knit' %}
+    <p class="catalog-note">{{ c.note|default('كل الألوان أمامك، والترتيب يساعدك تبدأ من الأقرب لاستخدامك.') }}<span>اسحب لاكتشاف المجموعة ←</span></p>
+  {% endif %}
+
+  {% if group == 'care' %}
+    <div class="care-steps">
+      <article>
+        <span>01</span>
+        <h3>{{ c.step_1_title|default('ابدأ بالنظافة') }}</h3>
+        <p>{{ c.step_1_text|default('فوم تنظيف 100 مل، وفرشاة ومنشفة؛ أدوات العناية في مجموعة واحدة.') }}</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>{{ c.step_2_title|default('كمّلها بالحماية') }}</h3>
+        <p>{{ c.step_2_text|default('بخاخ عزل الماء 100 مل، لحماية تدوم حتى شهر حسب الاستخدام. اتبع تعليمات العبوة والخامات المناسبة.') }}</p>
+      </article>
+    </div>
+  {% endif %}
+</section>
+
+
+{# === teraz-guarantee === #}
+{% set component = {} %}
+{# Golden guarantee (#guarantee): 14-day return / 20-day exchange. #}
+{% set c = component|default({}) %}
+<section class="section guarantee" id="guarantee">
+  <div>
+    <span class="eyebrow">{{ c.eyebrow|default('الضمان الذهبي') }}</span>
+    <h2>{{ c.title|default('اختَر وأنت
+عارف حقك.')|nl2br }}</h2>
+    <p>{{ c.text|default('جرّب الحذاء داخل المنزل أو في مكان نظيف، وحافظ على حالته وتغليفه. تأكد من المقاس والراحة قبل الاستخدام الخارجي.') }}</p>
+  </div>
+  <div class="guarantee-facts">
+    <article>
+      <strong>{{ c.return_days|default(14) }} <small>يومًا</small></strong>
+      <h3>{{ c.return_title|default('لطلب الاسترجاع') }}</h3>
+      <p>{{ c.return_text|default('من الاستلام، مع بقاء المنتج بحالته الأصلية.') }}</p>
+    </article>
+    <article>
+      <strong>{{ c.exchange_days|default(20) }} <small>يومًا</small></strong>
+      <h3>{{ c.exchange_title|default('لطلب الاستبدال') }}</h3>
+      <p>{{ c.exchange_text|default('للمقاس أو اللون، حسب توفر المطلوب.') }}</p>
+    </article>
+    <p class="fine-print">{{ c.fine_print|default('*تكاليف شحن تغيير الرأي أو المقاس على العميل. طراز يتحملها عند الخطأ أو العيب المصنعي بعد التحقق. تطبق شروط الاسترجاع والاستبدال الخاصة بكل منتج.') }}</p>
+  </div>
+</section>
+
+
+{# === teraz-questions === #}
+{% set component = {} %}
+{# FAQ accordions (#questions). Native <details>; the first one is open. Merchant "faqs" collection overrides the defaults. #}
+{% set c = component|default({}) %}
+{% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
+{% set defaults = [
+  { question: 'ليش أختار طراز؟', answer: 'لأن يومك ما يوقف عند مناسبة واحدة. جزمة تليق بالثوب، ألوان تضبط الكاجوال، وكاب وشراب وخفّ يكمّلون اختياراتك. طراز يجمع لك تفاصيل كشخة الرجل السعودي من أول مشوار لآخر لقاء.' },
+  { question: 'كيف أختار المقاس؟', answer: 'راجع إرشادات المقاس في صفحة جزمتك. الكابات والشرابات بمقاس واحد محدد تلقائيًا. جرّب الأحذية داخل المنزل، وحافظ على حالتها وتغليفها حتى تتأكد من المقاس.' },
+  { question: 'أقدر أضيف الكاب والشراب مع الجزمة؟', answer: 'إيه، افتح المنتج وشوف «كمّل كشختك». اختر القطع اللي تعجبك وأضفها مع الجزمة، أو أضف كل قطعة لحالها. تقدر تعدل الكميات في الحقيبة.' },
+  { question: 'كيف يعمل الشحن المجاني هنا؟', answer: 'الشحن مجاني عند وصول مجموع منتجاتك إلى ' ~ threshold ~ ' ر.س. يظهر المتبقي بعد الإضافة وفي مراجعة الحقيبة قبل الإتمام. تظهر لك تكلفة الشحن مع إجمالي حقيبتك قبل الإكمال.' },
+  { question: 'وش يميّز شرابات الأناقة؟', answer: 'خفة تكمل لبسك الرسمي واليومي، وألوان تنسجم مع جزمك. 3 أزواج في كل باك، بمقاس واحد؛ تفصيلة صغيرة تكمل كشختك.' },
+  { question: 'إذا ما كان مقاسي متوفرًا؟', answer: 'اضغط «نبّهني عند التوفر» داخل صفحة المنتج، وسنرسل لك إشعارًا عند توفر المقاس أو المنتج.' }
+] %}
+<section class="section questions" id="questions">
+  <div>
+    <span class="eyebrow">{{ c.eyebrow|default('قبل تختار') }}</span>
+    <h2>{{ c.title|default('كل سؤال،
+له جواب.')|nl2br }}</h2>
+  </div>
+  <div>
+    {% for faq in c.faqs|default(defaults) %}
+      <details{{ loop.first ? ' open' : '' }}>
+        <summary>{{ faq.question }}</summary>
+        <p>{{ faq.answer }}</p>
+      </details>
+    {% endfor %}
+  </div>
+</section>
+
+
+{# === teraz-journal === #}
+{% set component = {} %}
+{# Journal grid (.journal) — 3 expandable guides. Merchant "articles" collection overrides the defaults. #}
+{% set c = component|default({}) %}
+{% set defaults = [
+  { tag: '01 / تنسيق', title: 'كيف تختار جزمتك مع الثوب؟', text: 'ابدأ بالألوان الموجودة في لبسك. مع الثوب الأبيض، تعطي القاعدة البيضاء تباينًا أخف، والقاعدة الداكنة حضورًا أهدأ. إذا كانت بقية تفاصيلك بنية، قرّب درجة الجزمة منها. لا تحتاج تكرار اللون في كل شيء؛ يكفي رابط واحد بين الجزمة والكاب أو الشراب.' },
+  { tag: '02 / اختيار', title: 'قبل تطلب جزمة أونلاين', text: 'راجع صور الموديل ومكوناته وإرشادات مقاسه تحديدًا. المقاس المعتاد قد يختلف بين القصّات. بعد الاستلام، جربه داخل البيت مع الشراب الذي تنوي لبسه، وحافظ على التغليف حتى تتأكد من اختيارك.' },
+  { tag: '03 / عناية', title: 'كيف تعتني بالنسيج والجلد؟', text: 'أزل الغبار بفرشاة ناعمة واتبع تعليمات العناية الخاصة بالموديل. اختبر المنظف على جزء مخفي، وتجنب الغمر بالماء والحرارة المباشرة. لا تستخدم معالج الجلد على النسيج المحاك دون توصية مناسبة.' }
+] %}
+<section class="section journal">
+  <span class="eyebrow">{{ c.eyebrow|default('دليل طراز') }}</span>
+  <h2>{{ c.title|default('تفاصيل تعرفها.
+واختيار تطمئن له.')|nl2br }}</h2>
+  <div class="journal-grid">
+    {% for article in c.articles|default(defaults) %}
+      <details>
+        <summary><small>{{ article.tag }}</small>{{ article.title }}</summary>
+        <p>{{ article.text }}</p>
+      </details>
+    {% endfor %}
+  </div>
+</section>
+
+
+{# === teraz-closing === #}
+{% set component = {} %}
+{# Closing call to action (.closing). #}
+{% set c = component|default({}) %}
+<section class="closing">
+  <span class="eyebrow">{{ c.eyebrow|default('ملبوس العافية') }}</span>
+  <h2>{{ c.title|default('يومك يتغيّر.
+طرازك يرافقك.')|nl2br }}</h2>
+  <a class="primary" href="{{ c.button_link|default('#knit') }}">{{ c.button_label|default('اختر بداية إطلالتك ←') }}</a>
+</section>
+
     </div>
   </div>
 {% endblock %}

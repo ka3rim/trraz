@@ -1,1 +1,25 @@
-{% include 'components.home.teraz-editorial' with { variant: 'clogs' } %}
+{% set variant = 'clogs' %}
+{# Editorial note (.editorial-note). Expects `variant`: caps | clogs (clogs adds .clogs-note). #}
+{% set c = component|default({}) %}
+{% set variants = {
+  caps: {
+    css: '',
+    eyebrow: 'ليش يكمّل كشختك؟',
+    title: 'لون واحد يتكرر.
+وإطلالة تترابط.',
+    text: 'خذ درجة من جزمتك وكررها في الكاب. بني مع رملي، زيتي مع زيتي، أو أسود متصل. تصميم قابل للطي يسهّل حمله معك، وتفاصيل هادئة تترك حضورك يتكلم.'
+  },
+  clogs: {
+    css: ' clogs-note',
+    eyebrow: 'على مهلك',
+    title: 'مو كل مشوار
+يحتاج تجهيز.',
+    text: 'مقدمة مغلقة وخلف مفتوح، وإبزيم يحدد شكل التصميم. خفّ الكشخة خيارك للأوقات البسيطة؛ من قهوتك القريبة إلى جلستك في البيت.'
+  }
+} %}
+{% set v = variants[variant] %}
+<section class="editorial-note{{ v.css }}">
+  <span class="eyebrow">{{ c.eyebrow|default(v.eyebrow) }}</span>
+  <h2>{{ c.title|default(v.title)|nl2br }}</h2>
+  <p>{{ c.text|default(v.text) }}</p>
+</section>
