@@ -1019,7 +1019,7 @@
    * Helpers
    * ==================================================================== */
   const $ = (selector, scope) => (scope || doc).querySelector(selector);
-  const $ = (selector, scope) => Array.from((scope || doc).querySelectorAll(selector));
+  const $$ = (selector, scope) => Array.from((scope || doc).querySelectorAll(selector));
   const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const numberFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
   const money = (n) => (Number.isFinite(n) ? numberFormat.format(n) : '—') + ' ر.س';
@@ -1525,7 +1525,7 @@
     const dialog = dialogEl();
     const key = focusKeyOf(button);
     const line = button.closest('.cart-line');
-    $('button', line).forEach((b) => { b.disabled = true; });
+    $$('button', line).forEach((b) => { b.disabled = true; });
     if (line) line.setAttribute('aria-busy', 'true');
     try {
       await action();
@@ -1575,7 +1575,7 @@
    * Home: hero peek, sort bar, strips
    * ==================================================================== */
   function tagCardsWithTeraz(scope) {
-    $('.product-card, .exhibit', scope).forEach((el) => {
+    $$('.product-card, .exhibit', scope).forEach((el) => {
       if (el.dataset.terazId) return;
       const known = Meta.forSalla(el.dataset.productId);
       const p = (known && known.teraz) || Meta.resolve({ id: el.dataset.productId, sku: el.dataset.sku, url: el.dataset.url, name: el.dataset.name });
@@ -1589,7 +1589,7 @@
   function wireHeroPeek() {
     const peek = $('#hero-peek');
     if (!peek) return;
-    $('.exhibit').forEach((el) => {
+    $$('.exhibit').forEach((el) => {
       if (el.dataset.peekWired) return;
       el.dataset.peekWired = '1';
       const show = () => {
@@ -1635,7 +1635,7 @@
   function applySort(key) {
     const strip = $('.product-strip[data-group="knit"]');
     if (!strip) return;
-    const cards = $('.product-card', strip);
+    const cards = $$('.product-card', strip);
     M.ordered(cards, key, (c) => c.dataset.terazId).forEach((card) => strip.appendChild(card));
     strip.scrollLeft = 0;
   }
@@ -1674,11 +1674,11 @@
     applySort('thobe');
     wireHeroPeek();
     await Meta.loadRegistry();
-    await Promise.all($('.product-strip[data-group]').map(fillStrip));
+    await Promise.all($$('.product-strip[data-group]').map(fillStrip));
     tagCardsWithTeraz(doc);
     applySort(($('.sort-bar [aria-pressed="true"]') || { dataset: {} }).dataset.sort || 'thobe');
     fillHeroStage();
-    $('[data-teraz-link]').forEach((a) => {
+    $$('[data-teraz-link]').forEach((a) => {
       const entry = Meta.forTeraz(a.dataset.terazLink);
       a.setAttribute('href', (entry && entry.url) || ('#p/' + a.dataset.terazLink));
     });
@@ -1696,7 +1696,7 @@
     priceTimer: null
   };
 
-  const fieldsets = () => $('#sizes-host fieldset.sizes');
+  const fieldsets = () => $$('#sizes-host fieldset.sizes');
   const baseSizeLabel = () => {
     if (!Page.sizeFieldset) return Page.auto ? M.optionLabel(Page.p) : '';
     const pick = Page.picks[Page.sizeFieldset.dataset.optionId];
@@ -1770,7 +1770,7 @@
     const set = button.closest('fieldset.sizes');
     if (!set) return;
     const optionId = set.dataset.optionId || '';
-    $('button[data-size]', set).forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+    $$('button[data-size]', set).forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
     Page.picks[optionId] = { valueId: button.dataset.valueId || '', label: button.dataset.size, out: button.dataset.out === 'true' };
     if (set === Page.sizeFieldset) {
       const select = $('#bundle-base-size');
@@ -1787,9 +1787,9 @@
 
   function setBaseSizeByLabel(label) {
     if (!Page.sizeFieldset) return;
-    const button = $('button[data-size]', Page.sizeFieldset).find((b) => b.dataset.size === label);
+    const button = $$('button[data-size]', Page.sizeFieldset).find((b) => b.dataset.size === label);
     if (button) { setPick(button); return; }
-    $('button[data-size]', Page.sizeFieldset).forEach((b) => b.setAttribute('aria-pressed', 'false'));
+    $$('button[data-size]', Page.sizeFieldset).forEach((b) => b.setAttribute('aria-pressed', 'false'));
     delete Page.picks[Page.sizeFieldset.dataset.optionId];
     const msg = $('#bundle-message');
     if (msg) msg.textContent = 'اختر مقاس المنتج الأساسي هنا.';
@@ -1828,7 +1828,7 @@
     if (!Page.root || !$('#bundle-total')) return;
     const qty = currentQty();
     if (!qty) { $('#bundle-message').textContent = 'اختر كمية من 1 إلى 10.'; return; }
-    const checks = $('.bundle-check:checked');
+    const checks = $$('.bundle-check:checked');
     const extras = checks.reduce((n, c) => { const p = M.get(c.value); const e = Meta.forTeraz(c.value) || (p ? fallbackEntry(p) : null); return n + (e ? priceOf(e, p) : 0); }, 0);
     const addition = (Number.isFinite(Page.unit) ? Page.unit : 0) * qty + extras;
     $('#bundle-total').textContent = money(addition);
@@ -1863,7 +1863,7 @@
     // Validate every extra first, so a bad choice never leaves the bag half-filled.
     const extras = [];
     if (bundle) {
-      for (const input of $('.bundle-check:checked')) {
+      for (const input of $$('.bundle-check:checked')) {
         const card = input.closest('[data-match]');
         const p = M.get(input.value);
         const entry = Meta.forTeraz(input.value) || (p && Meta.list().length <= 1 ? fallbackEntry(p) : null);
@@ -1962,7 +1962,7 @@
     const p = Page.p;
     const options = Page.entry.options || [];
     // A fieldset without selectable values (text / date options) cannot be driven by buttons.
-    $('fieldset.sizes', host).forEach((set) => { if (!$('button[data-size]', set)) set.remove(); });
+    $$('fieldset.sizes', host).forEach((set) => { if (!$('button[data-size]', set)) set.remove(); });
 
     if (p && M.variantKind(p) !== 'footwear') {
       host.innerHTML = `<div class="sizes one-size"><strong>${esc(M.sizeNote(p))}</strong><p>أضف اختيارك مباشرة.</p></div>`;
@@ -1984,14 +1984,14 @@
     // Single-value groups (e.g. one colour) are pre-selected; the size group is never pre-selected.
     fieldsets().forEach((set) => {
       if (set === Page.sizeFieldset) return;
-      const buttons = $('button[data-size]', set);
+      const buttons = $$('button[data-size]', set);
       if (buttons.length === 1 && buttons[0].dataset.out !== 'true') setPick(buttons[0]);
     });
     // Bundle "base size" select mirrors the size buttons.
     const select = $('#bundle-base-size');
     const label = $('#bundle-base-size-label');
     if (select && Page.sizeFieldset) {
-      $('button[data-size]', Page.sizeFieldset).forEach((b) => {
+      $$('button[data-size]', Page.sizeFieldset).forEach((b) => {
         const o = doc.createElement('option');
         o.value = b.dataset.size;
         o.textContent = b.dataset.size + (b.dataset.out === 'true' ? ' — غير متوفر' : '');
@@ -2100,10 +2100,10 @@
 
       hydrateSizes();
       if (Page.p) hydrateCopy();
-      else $('[data-role="headline"]', rootEl).forEach((el) => { el.hidden = !el.textContent.trim(); });
+      else $$('[data-role="headline"]', rootEl).forEach((el) => { el.hidden = !el.textContent.trim(); });
       if (!Page.available) { syncAvailability(); toggleNotify(true); }
       const input = $('#notify-contact');
-      if (input && !isGuest()) { const form = $('#notify-form'); input.hidden = true; $('label[for="notify-contact"]', form).forEach((l) => { l.hidden = true; }); }
+      if (input && !isGuest()) { const form = $('#notify-form'); input.hidden = true; $$('label[for="notify-contact"]', form).forEach((l) => { l.hidden = true; }); }
       updateBundleTotal();
     } finally {
       finishHydration();
@@ -2149,7 +2149,7 @@
     if (!view) return false;
     const homeView = $('#home-view');
     if (homeView) homeView.hidden = true;
-    $('.teraz-category-page > :not(#product-view)').forEach((el) => { el.hidden = true; });
+    $$('.teraz-category-page > :not(#product-view)').forEach((el) => { el.hidden = true; });
     view.hidden = false;
     Page.root = view;
     doc.body.classList.remove('teraz-home');
@@ -2179,7 +2179,7 @@
     if (img2) { img2.src = liveEntry.image; img2.alt = p.name; }
     const photo = $('.primary-photo', view);
     if (photo) photo.classList.remove('detail');
-    $('[data-image-mode]', view).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.imageMode === 'full')));
+    $$('[data-image-mode]', view).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.imageMode === 'full')));
     const zoom = $('[data-action="zoom"]', view);
     if (zoom) zoom.setAttribute('aria-pressed', 'false');
     const sizesHost = $('#sizes-host', view);
@@ -2212,7 +2212,7 @@
     if (!view || view.hidden || (!homeView && !catPage)) return false;
     view.hidden = true;
     if (homeView) homeView.hidden = false;
-    if (catPage) $('.teraz-category-page > :not(#product-view)').forEach((el) => { el.hidden = false; });
+    if (catPage) $$('.teraz-category-page > :not(#product-view)').forEach((el) => { el.hidden = false; });
     doc.body.classList.add('teraz-home');
     doc.body.classList.remove('teraz-product');
     const cleanHash = String(targetHash || '').replace(/^.*#/, '');
@@ -2317,7 +2317,7 @@
       const d = button.dataset;
 
       if (d.sort) {
-        $('[data-sort]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        $$('[data-sort]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
         applySort(d.sort);
         return;
       }
@@ -2331,7 +2331,7 @@
         const photo = $('.primary-photo');
         if (!photo) return;
         photo.classList.toggle('detail', d.imageMode === 'detail');
-        $('[data-image-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+        $$('[data-image-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
         const zoom = $('[data-action="zoom"]');
         if (zoom) zoom.setAttribute('aria-pressed', String(d.imageMode === 'detail'));
         return;
@@ -2370,7 +2370,7 @@
           if (!photo) break;
           const on = photo.classList.toggle('detail');
           button.setAttribute('aria-pressed', String(on));
-          $('[data-image-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.imageMode === (on ? 'detail' : 'full'))));
+          $$('[data-image-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.imageMode === (on ? 'detail' : 'full'))));
           break;
         }
         case 'notify': toggleNotify(); break;
@@ -2425,7 +2425,7 @@
     await Promise.all([product, home]);
     await handleHashRoute();
     await initCartPageAddons();
-    await Promise.all($('#category-teraz-grid[data-group]').map(fillStrip));
+    await Promise.all($$('#category-teraz-grid[data-group]').map(fillStrip));
   }
 
   root.TerazController = Object.freeze({ Cart, Commerce, Page, openCart, closeCart, renderCart, applySort, openProductById, closeSpaProductView, boot });
