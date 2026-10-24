@@ -8,6 +8,7 @@
 #}
 {% extends "layouts.master" %}
 {% block content %}
+<div class="teraz teraz-subpage"><div class="section">
     <div class="container mb-20">
 
         {# add breadcumbs container in pages to make a space in case breadcrumbs is off #}
@@ -73,6 +74,7 @@
             </div>
         {% endif %}
     </div>
+</div></div>
 {% endblock %}
 {% block scripts %}
     <script defer src="{{ 'pages.js' | asset }}"></script>

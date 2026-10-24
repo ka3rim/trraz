@@ -1,22 +1,16 @@
 {#
   TERAZ single product page (theme-raed: src/views/pages/product/single.twig).
-
-  Server side  : Salla's own product data — name, price, image, stock, option groups (sizes) — so the
-                 page is complete and indexable without JavaScript.
-  Client side  : teraz-salla-controller.js resolves this product to its TERAZ record
-                 (teraz-catalog-map.js, matched by SKU / slug / name / theme map) and hydrates:
-                 category eyebrow, headline, intro, size/one-size/care behaviour, trust badges,
-                 category-specific accordions, story, "complete the look" bundle, alternatives.
-  Elements marked data-hydrate stay hidden (html.teraz-js only) until hydration finishes.
+  Includes complete server-side TERAZ defaults so even generic Salla demo products in Theme Editor
+  render the full TERAZ Atelier product page (gallery, sizes, badges, accordions, bundle, story, alternatives).
 #}
 {% extends 'layouts.master' %}
 
 {% set home_url = store.url|default('/') %}
 {% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
 {% set shipping_fee = theme.settings.get('teraz_shipping_fee')|default(29) %}
-{% set product_image = product.image.url|default('') %}
+{% set product_image = product.image.url|default('images/beige-white.webp'|asset) %}
 
-{% block title %}{{ product.name }} | {{ store.name|default('طراز') }}{% endblock %}
+{% block title %}{{ product.name|default('ثرى طويق') }} | {{ store.name|default('طراز') }}{% endblock %}
 {% block body_class %}teraz-product{% endblock %}
 
 {% block content %}
@@ -27,17 +21,17 @@
     sku: product.sku,
     name: product.name,
     url: product.url,
-    price: product.price,
-    regular_price: product.regular_price|default(product.price),
+    price: product.price|default(319),
+    regular_price: product.regular_price|default(product.price|default(319)),
     is_on_sale: product.is_on_sale ? true : false,
-    is_available: product.is_available ? true : false,
+    is_available: product.is_available is defined ? (product.is_available ? true : false) : true,
     image: product_image,
     options: product.options|default([])
   }|json_encode|raw }}</script>
 
   <div class="product-breadcrumb">
-    <a href="{{ home_url }}" data-role="back-link">→ العودة إلى المجموعة</a>
-    <span>طراز / {{ product.name }}</span>
+    <a href="{{ home_url }}#knit" data-role="back-link">→ العودة إلى المجموعة</a>
+    <span>طراز / <b data-role="crumb-name">{{ product.name|default('ثرى طويق') }}</b></span>
   </div>
 
   <div class="product-layout">
@@ -45,26 +39,26 @@
     {# ----- Sticky gallery ------------------------------------------------ #}
     <div class="product-gallery">
       <div class="primary-photo">
-        <img fetchpriority="high" src="{{ product_image }}" width="1200" height="900" alt="{{ product.image.alt|default(product.name) }}">
-        <span class="photo-caption" data-role="color"></span>
+        <img fetchpriority="high" data-role="primary-img" src="{{ product_image }}" width="1200" height="900" alt="{{ product.image.alt|default(product.name|default('طراز')) }}">
+        <span class="photo-caption" data-role="color">بيج دافئ، بني، وأبيض</span>
         <button type="button" class="zoom-button" data-action="zoom" aria-label="تكبير صورة المنتج" aria-pressed="false">↗</button>
       </div>
       <div class="gallery-choices">
         <button type="button" aria-pressed="true" data-image-mode="full">التصميم كاملًا</button>
-        <button type="button" aria-pressed="false" data-image-mode="detail" data-role="detail-label">تفاصيل التصميم</button>
+        <button type="button" aria-pressed="false" data-image-mode="detail" data-role="detail-label">تفاصيل الحياكة والجلد</button>
       </div>
-      <p class="gallery-note" data-role="gallery-note">كل تفصيلة تكمل كشختك.</p>
+      <p class="gallery-note" data-role="gallery-note">نسيج محاك بتفاصيل من الجلد الطبيعي وقاعدة مريحة ليومك.</p>
     </div>
 
     {# ----- Purchase panel ------------------------------------------------ #}
     <div class="purchase-panel">
-      <span class="eyebrow" data-role="eyebrow" data-hydrate>{{ product.category.name|default('طراز') }}</span>
-      <h1>{{ product.name }}</h1>
-      <p class="product-headline" data-role="headline" data-hydrate>{{ product.subtitle|default('') }}</p>
-      <p class="product-intro" data-role="intro" data-hydrate>{{ product.description|striptags|slice(0, 320) }}</p>
+      <span class="eyebrow" data-role="eyebrow" data-hydrate>{{ product.category.name|default('TERAZ–KNIT / مجموعة الأناقة') }}</span>
+      <h1 data-role="product-title">{{ product.name|default('ثرى طويق') }}</h1>
+      <p class="product-headline" data-role="headline" data-hydrate>{{ product.subtitle|default('هدوء الرمل. وحضورك واضح.') }}</p>
+      <p class="product-intro" data-role="intro" data-hydrate>{{ product.description ? (product.description|striptags|slice(0, 320)) : 'لون بيج دافئ يخفف حدة الإطلالة، وتفاصيل بنية تعطي النسيج عمقًا. يناسبك إذا تبي جزمة سهلة التنسيق، بطابع مرتب مع الثوب أو لبس نهاية الأسبوع.' }}</p>
 
       <div class="price-line">
-        <strong data-role="price">{{ product.price|money }}</strong>
+        <strong data-role="price">{{ product.price ? (product.price|money) : '319 ر.س' }}</strong>
         {% if product.is_on_sale %}<del data-role="regular">{{ product.regular_price|money }}</del>{% endif %}
       </div>
       <p class="shipping-info">الشحن {{ shipping_fee }} ر.س · مجاني عند {{ threshold }} ر.س<br>موعد التوصيل الفعلي يُحدّد حسب العنوان قبل الدفع.</p>
@@ -79,25 +73,29 @@
                 <button type="button" data-size="{{ value.name }}" data-option-id="{{ option.id }}" data-value-id="{{ value.id }}" aria-pressed="false"{% if value.is_out_of_stock %} data-out="true"{% endif %}>{{ value.name }}</button>
               {% endfor %}
             </div>
-            <p data-role="fit-note"></p>
+            <p data-role="fit-note">اطلب مقاسك المعتاد، وإذا كنت بين مقاسين اختر الأصغر.</p>
           </fieldset>
         {% endfor %}
       </div>
 
       <div class="buy-row">
         <label class="qty-input">الكمية <input id="product-qty" type="number" value="1" min="1" max="10" inputmode="numeric"></label>
-        <button type="button" class="primary" data-action="add-product"{% if not product.is_available %} disabled{% endif %}>
-          <span data-role="add-label">{{ product.is_available ? 'أضف للحقيبة' : 'غير متوفر حاليًا' }}</span> <span>+</span>
+        <button type="button" class="primary" data-action="add-product"{% if product.is_available is defined and not product.is_available %} disabled{% endif %}>
+          <span data-role="add-label">{{ (product.is_available is defined and not product.is_available) ? 'غير متوفر حاليًا' : 'أضف للحقيبة' }}</span> <span>+</span>
         </button>
       </div>
       <p id="size-error" class="validation" role="alert"></p>
 
-      <div class="trust-badges" data-role="badges" data-hydrate></div>
+      <div class="trust-badges" data-role="badges" data-hydrate>
+        <span>نسيج محاك بتفاصيل جلد طبيعي</span>
+        <span>فرشة مغطاة بجلد الماعز الطبيعي</span>
+        <a href="#product-guarantee">ضمان ذهبي بشروطه</a>
+      </div>
 
       {# ----- Availability notification (Salla stock subscription) -------- #}
       <button type="button" class="notify-link" data-action="notify" aria-expanded="false" aria-controls="notify-panel" data-role="notify-link">نبّهني عند التوفر</button>
       <div id="notify-panel" hidden>
-        <p data-role="notify-copy"></p>
+        <p data-role="notify-copy">سجّل بريدك أو رقم جوالك وسنرسل لك إشعارًا فور توفر مقاسك.</p>
         <form id="notify-form" class="notify-form" novalidate>
           <label class="visually-hidden" for="notify-contact">البريد الإلكتروني أو رقم الجوال</label>
           <input id="notify-contact" name="contact" type="text" inputmode="email" autocomplete="email" placeholder="البريد الإلكتروني أو رقم الجوال" data-guest-only>
@@ -106,32 +104,37 @@
         <p id="notify-message" role="status"></p>
       </div>
 
-      <div class="product-accordions" data-role="accordions" data-hydrate></div>
+      <div class="product-accordions" data-role="accordions" data-hydrate>
+        <details open><summary>كيف تنسّقه مع إطلالتك</summary><p>ينسجم مع الثوب الأبيض والألوان الترابية، ومع لبس الكاجوال اليومي.</p></details>
+        <details><summary>الخامات والتفاصيل</summary><p>نسيج من خيوط البوليستر 100% مع تفاصيل من الجلد الطبيعي، وفرشة مريحة مغطاة بجلد الماعز الطبيعي.</p></details>
+        <details><summary>المقاس واللبس</summary><p>اطلب مقاسك المعتاد، وإذا كنت بين مقاسين اختر الأصغر.</p></details>
+        <details id="product-guarantee"><summary>الضمان الذهبي (14 يوم استرجاع / 20 يوم استبدال)</summary><p>14 يومًا للاسترجاع و20 يومًا للاستبدال من تاريخ الاستلام، مع بقاء المنتج بحالته الأصلية وتغليفه.</p></details>
+      </div>
     </div>
   </div>
 
   {# ----- Complete the look ------------------------------------------------ #}
   <section class="section complete-look" id="complete-look" data-hydrate hidden>
     <div class="look-heading">
-      <span class="eyebrow" data-role="look-eyebrow"></span>
-      <h2 data-role="look-title"></h2>
-      <p data-role="look-text"></p>
+      <span class="eyebrow" data-role="look-eyebrow">كمّل كشختك</span>
+      <h2 data-role="look-title">تنسيق جاهز على طرازك.</h2>
+      <p data-role="look-text">اخترنا لك القطع الأقرب للون جزمتك مع مجموعة العناية، لتصل لحد الشحن المجاني بسهولة.</p>
     </div>
-    <p class="look-guide" data-role="look-guide"></p>
+    <p class="look-guide" data-role="look-guide">حدّد المقاس والقطع اللي تبي تضيفها، وشاهد الإجمالي والتقدم نحو الشحن المجاني مباشرة.</p>
     <div class="bundle-picker">
       <div id="bundle-items" aria-busy="true"></div>
       <div class="bundle-total">
         <div class="bundle-base">
-          <strong id="bundle-base-name">{{ product.name }}</strong>
+          <strong id="bundle-base-name">{{ product.name|default('ثرى طويق') }}</strong>
           <p id="bundle-base-note" hidden></p>
           <label id="bundle-base-size-label" hidden>مقاس المنتج الأساسي
-            <select id="bundle-base-size" aria-label="مقاس المنتج الأساسي {{ product.name }}"><option value="">اختر مقاسك</option></select>
+            <select id="bundle-base-size" aria-label="مقاس المنتج الأساسي {{ product.name|default('ثرى طويق') }}"><option value="">اختر مقاسك</option></select>
           </label>
           <label>كمية المنتج الأساسي <input id="bundle-base-qty" type="number" min="1" max="10" value="1" inputmode="numeric"></label>
         </div>
         <div id="bundle-shipping" aria-live="polite"></div>
         <span>منتجك + القطع المختارة</span>
-        <strong id="bundle-total">{{ product.price|money }}</strong>
+        <strong id="bundle-total">{{ product.price ? (product.price|money) : '319 ر.س' }}</strong>
         <small>المنتج الأساسي + الإضافات التي تختارها</small>
         <button type="button" class="primary" data-action="add-bundle">أضف اختياراتي للحقيبة +</button>
         <p id="bundle-message" role="status"></p>
@@ -142,12 +145,12 @@
   {# ----- Story ------------------------------------------------------------- #}
   <section class="product-story section" data-hydrate hidden>
     <div>
-      <span class="eyebrow" data-role="story-label"></span>
-      <h2 data-role="story-title"></h2>
-      <p data-role="story-text"></p>
-      <p data-role="story-extra"></p>
+      <span class="eyebrow" data-role="story-label">عن التصميم والخامة</span>
+      <h2 data-role="story-title">حياكة تتنفس. وجلد يكمل الوقار.</h2>
+      <p data-role="story-text">صُمّم ليجمع خفة الحذاء المحاك مع حضور التفاصيل الجلدية التي تليق بالثوب السعودي وإطلالاتك اليومية.</p>
+      <p data-role="story-extra">قاعدة مريحة وفرشة داخلية مغطاة بجلد الماعز الطبيعي لخطوة هادئة طوال اليوم.</p>
     </div>
-    <div class="story-image"><img loading="lazy" src="{{ product_image }}" width="1200" height="900" alt="{{ product.name }}"></div>
+    <div class="story-image"><img loading="lazy" data-role="story-img" src="{{ product_image }}" width="1200" height="900" alt="{{ product.name|default('طراز') }}"></div>
   </section>
 
   {# ----- Alternatives ------------------------------------------------------ #}

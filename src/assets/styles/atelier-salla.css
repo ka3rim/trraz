@@ -2903,3 +2903,144 @@ html.teraz-js .teraz[data-pending] [data-hydrate] {
 .teraz .look-guide:empty {
   display: none;
 }
+
+
+/* ==========================================================================
+ * TERAZ Multi-Page Salla Views (Cart, Category, Customer, Static, Thank You)
+ * ========================================================================== */
+.teraz-cart-page .teraz-cart-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 36px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.teraz-cart-page .cart-summary {
+  position: sticky;
+  top: 96px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  padding: 28px;
+}
+
+.teraz-cart-page .teraz-coupon-box {
+  margin: 18px 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.teraz-cart-page .teraz-coupon-box label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.teraz-cart-page .teraz-coupon-row {
+  display: flex;
+  gap: 8px;
+}
+
+.teraz-cart-page .teraz-coupon-row input {
+  flex: 1;
+  min-height: 42px;
+  padding: 6px 12px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-family: inherit;
+}
+
+.teraz-cart-page .teraz-checkout-cta {
+  margin: 18px 0 10px;
+}
+
+.teraz-category-page .teraz-category-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  margin-top: 24px;
+}
+
+.teraz-category-page .teraz-filters-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  padding: 20px;
+}
+
+.teraz-category-page .teraz-category-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.teraz-category-page .teraz-sort-select,
+.teraz-subpage .teraz-sort-select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.teraz-category-page .teraz-sort-select select,
+.teraz-subpage .teraz-sort-select select {
+  min-height: 42px;
+  padding: 6px 16px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-family: inherit;
+}
+
+.teraz .product-strip.teraz-grid-mode {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+  overflow: visible;
+}
+
+.teraz-subpage .teraz-panel {
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: clamp(24px, 4vw, 44px);
+}
+
+.teraz-subpage .teraz-prose-card {
+  max-width: 860px;
+  line-height: 1.9;
+  font-size: 18px;
+}
+
+.teraz-customer-layout .teraz-customer-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.teraz-customer-layout .teraz-customer-sidebar {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  padding: 24px;
+}
+
+.teraz salla-button {
+  --s-button-bg: var(--ink);
+  --s-button-color: var(--ivory);
+  font-family: Fatimah, serif;
+}
+
+@media (max-width: 900px) {
+  .teraz-cart-page .teraz-cart-grid,
+  .teraz-customer-layout .teraz-customer-grid {
+    grid-template-columns: 1fr;
+  }
+  .teraz-category-page .teraz-category-layout {
+    flex-direction: column;
+  }
+  .teraz-category-page .teraz-filters-sidebar {
+    width: 100%;
+  }
+}

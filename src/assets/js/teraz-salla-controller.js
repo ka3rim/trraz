@@ -561,7 +561,7 @@
       id: p.id,
       sku: p.id,
       name: p.name,
-      url: '#' + p.group,
+      url: '#p/' + p.id,
       price: p.price,
       regularPrice: p.price,
       image: p.image ? base + p.image : '',
@@ -773,7 +773,7 @@
     const qty = currentQty();
     if (!qty) { $('#bundle-message').textContent = 'اختر كمية من 1 إلى 10.'; return; }
     const checks = $$('.bundle-check:checked');
-    const extras = checks.reduce((n, c) => { const e = Meta.forTeraz(c.value); return n + (e ? priceOf(e, M.get(c.value)) : 0); }, 0);
+    const extras = checks.reduce((n, c) => { const p = M.get(c.value); const e = Meta.forTeraz(c.value) || (p ? fallbackEntry(p) : null); return n + (e ? priceOf(e, p) : 0); }, 0);
     const addition = (Number.isFinite(Page.unit) ? Page.unit : 0) * qty + extras;
     $('#bundle-total').textContent = money(addition);
     const current = Cart.state.subtotal;
@@ -988,7 +988,10 @@
     const host = $('#bundle-items');
     const section = $('#complete-look');
     if (!host || !section) return;
-    const recs = M.recommendations(Page.p).map((r) => Meta.forTeraz(r.id)).filter((e) => e && e.available !== false);
+    let recs = M.recommendations(Page.p).map((r) => Meta.forTeraz(r.id)).filter((e) => e && e.available !== false);
+    if (!recs.length && Meta.list().length <= 1) {
+      recs = M.recommendations(Page.p).map((r) => fallbackEntry(r));
+    }
     await Promise.all(recs.map((e) => Meta.ensureOptions(e)));
     host.innerHTML = recs.map((e) => matchItemHTML(e, true)).join('');
     host.setAttribute('aria-busy', 'false');
@@ -1010,6 +1013,9 @@
         entries = ((res && (res.data || res.products)) || []).map((raw) => Meta.register(raw)).filter((e) => e && e.id !== Page.entry.id);
       } catch (e) { entries = []; }
     }
+    if (!entries.length && Meta.list().length <= 1) {
+      entries = M.inGroup(Page.p.group).filter((x) => x.id !== Page.p.id).map(fallbackEntry);
+    }
     entries = entries.slice(0, 4);
     if (!entries.length) return;
     strip.innerHTML = entries.map(cardHTML).join('');
@@ -1030,7 +1036,7 @@
       const data = parseJson(blob.textContent, null);
       if (!data) return;
       Page.entry = Meta.register(data);
-      Page.p = Page.entry.teraz;
+      Page.p = Page.entry.teraz || (data.sku !== 'XYZ-1' ? M.get('tuwaiq') : null);
       Page.unit = Page.entry.price;
       Page.regular = Page.entry.regularPrice;
       Page.available = Page.entry.available !== false;
@@ -1056,6 +1062,98 @@
   /* ======================================================================
    * Global UI wiring (event delegation, as in the prototype)
    * ==================================================================== */
+
+  function ensureSpaProductView() {
+    let view = $('#product-view');
+    if (view) return view;
+    const homeWrap = $('#home-view') && $('#home-view').parentElement;
+    if (!homeWrap) return null;
+    view = doc.createElement('div');
+    view.id = 'product-view';
+    view.hidden = true;
+    view.innerHTML = '<script type="application/json" id="teraz-product-data">{}</script>'
+      + '<div class="product-breadcrumb"><a href="#knit" data-role="back-link">→ العودة إلى المجموعة</a><span>طراز / <b data-role="crumb-name"></b></span></div>'
+      + '<div class="product-layout"><div class="product-gallery"><div class="primary-photo"><img fetchpriority="high" data-role="primary-img" src="" width="1200" height="900" alt=""><span class="photo-caption" data-role="color"></span><button type="button" class="zoom-button" data-action="zoom" aria-label="تكبير صورة المنتج" aria-pressed="false">↗</button></div><div class="gallery-choices"><button type="button" aria-pressed="true" data-image-mode="full">التصميم كاملًا</button><button type="button" aria-pressed="false" data-image-mode="detail" data-role="detail-label">تفاصيل التصميم</button></div><p class="gallery-note" data-role="gallery-note">كل تفصيلة تكمل كشختك.</p></div>'
+      + '<div class="purchase-panel"><span class="eyebrow" data-role="eyebrow"></span><h1 data-role="product-title"></h1><p class="product-headline" data-role="headline"></p><p class="product-intro" data-role="intro"></p><div class="price-line"><strong data-role="price"></strong></div><p class="shipping-info">الشحن ' + CFG.shippingFee + ' ر.س · مجاني عند ' + CFG.threshold + ' ر.س<br>موعد التوصيل الفعلي يُحدّد حسب العنوان قبل الدفع.</p><div id="sizes-host"></div><div class="buy-row"><label class="qty-input">الكمية <input id="product-qty" type="number" value="1" min="1" max="10" inputmode="numeric"></label><button type="button" class="primary" data-action="add-product"><span data-role="add-label">أضف للحقيبة</span> <span>+</span></button></div><p id="size-error" class="validation" role="alert"></p><div class="trust-badges" data-role="badges"></div><button type="button" class="notify-link" data-action="notify" aria-expanded="false" aria-controls="notify-panel" data-role="notify-link">نبّهني عند التوفر</button><div id="notify-panel" hidden><p data-role="notify-copy"></p><form id="notify-form" class="notify-form" novalidate><label class="visually-hidden" for="notify-contact">البريد الإلكتروني أو رقم الجوال</label><input id="notify-contact" name="contact" type="text" inputmode="email" autocomplete="email" placeholder="البريد الإلكتروني أو رقم الجوال" data-guest-only><button type="submit" class="secondary" data-action="save-notify">نبّهني عند التوفر</button></form><p id="notify-message" role="status"></p></div><div class="product-accordions" data-role="accordions"></div></div></div>'
+      + '<section class="section complete-look" id="complete-look" hidden><div class="look-heading"><span class="eyebrow" data-role="look-eyebrow"></span><h2 data-role="look-title"></h2><p data-role="look-text"></p></div><p class="look-guide" data-role="look-guide"></p><div class="bundle-picker"><div id="bundle-items" aria-busy="true"></div><div class="bundle-total"><div class="bundle-base"><strong id="bundle-base-name"></strong><p id="bundle-base-note" hidden></p><label id="bundle-base-size-label" hidden>مقاس المنتج الأساسي <select id="bundle-base-size"><option value="">اختر مقاسك</option></select></label><label>كمية المنتج الأساسي <input id="bundle-base-qty" type="number" min="1" max="10" value="1" inputmode="numeric"></label></div><div id="bundle-shipping" aria-live="polite"></div><span>منتجك + القطع المختارة</span><strong id="bundle-total"></strong><small>المنتج الأساسي + الإضافات التي تختارها</small><button type="button" class="primary" data-action="add-bundle">أضف اختياراتي للحقيبة +</button><p id="bundle-message" role="status"></p></div></div></section>'
+      + '<section class="product-story section" hidden><div><span class="eyebrow" data-role="story-label"></span><h2 data-role="story-title"></h2><p data-role="story-text"></p><p data-role="story-extra"></p></div><div class="story-image"><img loading="lazy" data-role="story-img" src="" width="1200" height="900" alt=""></div></section>'
+      + '<section class="section alternatives" hidden><span class="eyebrow" data-role="alt-eyebrow">من نفس المجموعة</span><h2 data-role="alt-title">اختَر اللون اللي يشبهك.</h2><div class="product-strip" data-role="alternatives"></div></section>';
+    homeWrap.appendChild(view);
+    return view;
+  }
+
+  async function handleHashRoute() {
+    const rawHash = decodeURIComponent((root.location.hash || '').slice(1));
+    if (rawHash.startsWith('p/')) {
+      const id = rawHash.slice(2);
+      const p = M.get(id);
+      if (!p) return;
+      const view = ensureSpaProductView();
+      if (!view) return;
+      const homeView = $('#home-view');
+      if (homeView) homeView.hidden = true;
+      view.hidden = false;
+      doc.body.classList.remove('teraz-home');
+      doc.body.classList.add('teraz-product');
+      const liveEntry = Meta.forTeraz(id) || fallbackEntry(p);
+      const blob = $('#teraz-product-data', view);
+      if (blob) {
+        blob.textContent = JSON.stringify({
+          id: liveEntry.id,
+          sku: p.id,
+          name: p.name,
+          url: liveEntry.url,
+          price: liveEntry.price,
+          regular_price: liveEntry.regularPrice || liveEntry.price,
+          is_on_sale: false,
+          is_available: liveEntry.available !== false,
+          image: liveEntry.image,
+          options: liveEntry.options || []
+        });
+      }
+      setText('[data-role="product-title"]', p.name);
+      setText('[data-role="crumb-name"]', p.name);
+      setText('#bundle-base-name', p.name);
+      const img1 = $('[data-role="primary-img"]', view);
+      const img2 = $('[data-role="story-img"]', view);
+      if (img1) { img1.src = liveEntry.image; img1.alt = p.name; }
+      if (img2) { img2.src = liveEntry.image; img2.alt = p.name; }
+      const sizesHost = $('#sizes-host', view);
+      if (sizesHost) sizesHost.innerHTML = '';
+      const baseSelect = $('#bundle-base-size', view);
+      if (baseSelect) baseSelect.innerHTML = '<option value="">اختر مقاسك</option>';
+      Page.picks = {};
+      Page.sizeFieldset = null;
+      showPrice(liveEntry.price, liveEntry.regularPrice);
+      await initProduct();
+      const back = $('[data-role="back-link"]', view);
+      if (back) back.setAttribute('href', '#' + p.group);
+      root.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    const homeView = $('#home-view');
+    const view = $('#product-view');
+    if (homeView && view && !view.hidden) {
+      view.hidden = true;
+      homeView.hidden = false;
+      doc.body.classList.add('teraz-home');
+      doc.body.classList.remove('teraz-product');
+      if (rawHash && doc.getElementById(rawHash)) {
+        doc.getElementById(rawHash).scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }
+
+  async function initCartPageAddons() {
+    const host = $('#cart-page-addons');
+    if (!host) return;
+    let entries = cartSuggestions();
+    if (!entries.length) {
+      entries = M.recommendations(M.get('tuwaiq')).slice(0, 4).map((r) => Meta.forTeraz(r.id) || fallbackEntry(r));
+    }
+    host.innerHTML = entries.map(checkoutCardHTML).join('');
+  }
+
   function openHashDetails() {
     const id = decodeURIComponent((root.location.hash || '').slice(1));
     if (!id) return;
@@ -1155,7 +1253,7 @@
 
     const dialog = dialogEl();
     if (dialog) dialog.addEventListener('close', () => { if (lastTrigger && lastTrigger.isConnected) lastTrigger.focus({ preventScroll: true }); });
-    root.addEventListener('hashchange', () => { closeCart(); openHashDetails(); });
+    root.addEventListener('hashchange', () => { closeCart(); openHashDetails(); handleHashRoute(); });
   }
 
   /* ======================================================================
@@ -1178,6 +1276,9 @@
     const s = await whenSallaReady();
     if (s) { Cart.bindEvents(); await Cart.refresh(); }
     await Promise.all([product, home]);
+    await handleHashRoute();
+    await initCartPageAddons();
+    await Promise.all($$('#category-teraz-grid[data-group]').map(fillStrip));
   }
 
   root.TerazController = Object.freeze({ Cart, Commerce, Page, openCart, closeCart, renderCart, applySort, boot });

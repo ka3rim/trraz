@@ -1,235 +1,181 @@
 {#
-| Variable                                          | Type                | Description                                                    |
-|---------------------------------------------------|---------------------|----------------------------------------------------------------|
-| page                                              | object              |                                                                |
-| page.title                                        | string              |                                                                |
-| page.slug                                         | string              |                                                                |
-| cart                                              | Cart                |                                                                |
-| cart.id                                           | string              | Unique string for current cart                                 |
-| cart.is_require_shipping                          | bool                | Does one of cart items require shipping?                       |
-| cart.has_shipping                                 | bool                | Does shipping company selected?                                |
-| cart.real_shipping_cost                           | float               | Shipping cost can become free by an offer, coupon              |
-| cart.sub_total                                    | float               | The sum of items price without shipping or other costs         |
-| cart.discount                                     | float               | final discount                                                 |
-| cart.coupon                                       | ?string             |                                                                |
-| cart.total                                        | float               |                                                                |
-| cart.tax_amount                                   | float               | Calculate Tax amount                                                               |
-| cart.free_shipping_bar                            | ?object             |                                                                |
-| cart.free_shipping_bar.minimum_amount             | float               | how much cart total should be to apply free shipping ex: 1000  |
-| cart.free_shipping_bar.has_free_shipping          | bool                | true when `cart.free_shipping_bar.percent==100`                |
-| cart.free_shipping_bar.percent                    | float               | `0 - 100`                                                      |
-| cart.free_shipping_bar.remaining                  | float               | `830`                                                          |
-| cart.items                                        | CartItem[]          |                                                                |
-| cart.options                                      | CartOptions[]       | array of options                                               |
-| cart.items[].id                                   | int                 |                                                                |
-| cart.items[].is_hidden_quantity                   | bool                |                                                                |
-| cart.items[].url                                  | string              | Product url                                                    |
-| cart.items[].quantity                             | int                 |                                                                |
-| cart.items[].type                                 | string              | product type                                                   |
-| cart.items[].product_price                        | MoneyTaxable        |                                                                |
-| cart.items[].price                                | Money\|MoneyTaxable |                                                                |
-| cart.items[].total                                | Money               |                                                                |
-| cart.items[].product_id                           | int                 |                                                                |
-| cart.items[].notes                                | string              |                                                                |
-| cart.items[].can_add_note                         | bool                |                                                                |
-| cart.items[].can_upload_file                      | bool                |                                                                |
-| cart.items[].is_available                         | bool                |                                                                |
-| cart.items[].offer                                | ?object             |                                                                |
-| cart.items[].offer.discount                       | float               |                                                                |
-| cart.items[].offer.is_free                        | bool                |                                                                |
-| cart.items[].offer.names                          | ?string             | ex: `Buy 3 and the 4th on us, National Day`                    |
-| cart.items[].donation                             | ?object             |                                                                |
-| cart.items[].attachments                          | ?array              |                                                                |
-| cart.items[].attachments[].id                     | int                 | image id, to be attache with the formData                      |
-| cart.items[].attachments[].url                    | string              | image url                                                      |
-| cart.items[].attachments[].product_id             | int                 |                                                                |
-| cart.items[].attachments[].item_id                | int                 |                                                                |
-| cart.items[].attachments[].name                   | int                 | image file name                                                |
+  TERAZ Cart & Review Page (src/views/pages/cart.twig).
+  Matches the exact TERAZ Atelier bag & review aesthetic while supporting full Salla cart operations,
+  coupons, conditional offers, and Complete-the-Look cross-sell recommendations.
 #}
-
 {% extends "layouts.master" %}
+
+{% set home_url = store.url|default('/') %}
+{% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
+{% set shipping_fee = theme.settings.get('teraz_shipping_fee')|default(29) %}
+{% set sub_num = cart.sub_total|default(0) %}
+{% set remaining = sub_num >= threshold ? 0 : (threshold - sub_num) %}
+{% set progress = threshold > 0 ? ((sub_num / threshold) * 100) : 0 %}
+{% if progress > 100 %}{% set progress = 100 %}{% endif %}
+
+{% block title %}{{ page.title|default('حقيبتك') }} | {{ store.name|default('طراز') }}{% endblock %}
+{% block body_class %}teraz-cart{% endblock %}
+
 {% block content %}
-    <div class="container">
-        {# add breadcumbs container in pages to make a space in case breadcrumbs is off #}
-        <nav class="breadcrumbs w-full py-5">
-            <salla-breadcrumb></salla-breadcrumb>
-        </nav>
-        <h1 class="sr-only">{{ trans('blocks.header.cart') }}</h1>
-        <salla-conditional-offer data-testid="store-cart-conditional-offer"></salla-conditional-offer>
-        <div class="pt-5 flex flex-col items-start lg:flex-row pb-32 lg:pb-20">
-            <div class="main-content w-full lg:w-[calc(100%-384px)]">
-                {% hook 'cart:items.start' %}
+<div class="teraz teraz-cart-page">
+  <div class="product-breadcrumb">
+    <a href="{{ home_url }}#knit">→ العودة إلى المجموعة</a>
+    <span>طراز / حقيبتك</span>
+  </div>
 
-                {% for item in cart.items %}
-                    <form onchange="salla.form.onChange('cart.updateItem', event)" id="item-{{ item.id }}">
-                        <section data-testid="store-cart-item-{{ item.id }}" class="cart-item bg-white p-5 xs:p-7 rounded-md mb-5 relative">
-                            <input type="hidden" name="id" value="{{ item.id }}">
-                                <!-- product -->
-                                <div class="md:flex rtl:space-x-reverse md:space-x-12 items-start justify-between mb-8 last:mb-0">
-                                    <div class="flex flex-1 rtl:space-x-reverse space-x-4">
-                                        <a href="{{ item.url }}" class="relative overflow-hidden shrink-0">
-                                            {% if loop.first %}
-												<img src="{{ item.product_image }}"
-													alt="{{ item.product_name }}"
-                                                    loading="eager"
-													class="flex-none w-24 h-20 border border-gray-200 bg-gray-100 rounded-md object-center object-cover">
-											{% else %}
-												<img src="{{ item.product_image }}"
-													alt="{{ item.product_name }}"
-                                                    loading="lazy"
-													class="flex-none w-24 h-20 border border-gray-200 bg-gray-100 rounded-md object-center object-cover">
-											{% endif %}
+  <section class="section teraz-cart-section">
+    <header class="section-heading">
+      <div>
+        <span class="eyebrow">على طرازك</span>
+        <h1>حقيبتك ومراجعة طلبك</h1>
+        <p>راجع المقاسات والكميات، أو أضف ما يكمل كشختك قبل إتمام الطلب.</p>
+      </div>
+    </header>
 
-                                            <!-- free product ribbon -->
-                                            <div class="free-ribbon absolute top-[11px] right-[-38px] w-32 bg-red-600 text-white text-xs font-bold text-center py-1 rotate-45 shadow-md {{ (item.price.getMoney().amount == 0 and item.has_discount) ? '' : 'hidden' }}">
-                                                {{ trans('pages.loyalty_program.free_product') }}
-                                            </div>
-                                            <!-- end free product ribbon -->
-                                            
-                                        </a>
-                                        <div class="space-y-1">
-                                            <h1 class="text-gray-900 leading-6 text-lg">
-                                                <a href="{{ item.url }}" class="text-base">{{ item.product_name }}</a>
-                                            </h1>
+    <salla-conditional-offer data-testid="store-cart-conditional-offer"></salla-conditional-offer>
 
-                                            <span class="text-sm text-gray-500 line-through item-regular-price {{ item.offer ? '' : 'hidden' }}" >{{ item.product_price|money }}</span>
-                                            <span class="inline-flex gap-1 leading-4 text-sm text-gray-500 line-through item-original-price {{ item.is_on_sale ? '' : 'hidden' }}" id="original_price">{{ item.original_price|money }}</span>
-                                            <span data-testid="store-cart-item-price" class="inline-flex gap-1 leading-4 item-price {{ item.has_discount ?  'text-red-800' : 'text-sm text-gray-500' }}" id="has_discount">{{ item.price|money }}</span>
-                                            
-                                            <p class="text-sm text-gray-500 item-weight-row {{ item.weight_label ? '' : 'hidden' }}"> {{ trans('pages.products.weight') }}
-                                             <span class="item-weight">{{ item.weight_label }}</span>
-                                            </p>
-                                            <span class="old-offers flex items-center gap-1 mx-1.5  {{ item.detailed_offers ? 'hidden' : '' }}">
-                                                <i class="sicon-discount-calculator text-gray-500 offer-icon {{ item.offer?'':'hidden' }}"></i>
-                                                <span class="text-sm text-gray-500 offer-name {{ item.offer ?  '' : 'hidden' }}">{{ item.offer.names }}</span>
-                                            </span>
-                                            {# Cart Item Offers #}
-                                            <salla-cart-item-offers
-                                                quantity="{{ item.quantity }}"
-                                                item-id="{{ item.id }}"
-                                                product-price="{{ item.product_price }}"
-                                                offers="{{ item.detailed_offers|json_encode }}"></salla-cart-item-offers>
-                                            {# End Cart Item offers #}
-
-                                        </div>
-                                    </div>
-
-                                    <div class="border-t border-b border-gray-200 py-3 md:p-0 md:border-none mt-5 md:mt-0 flex gap-8 justify-between items-center md:items-start">
-                                        {% if item.type == 'donating' %}
-                                            <span></span>
-                                        {% elseif item.is_hidden_quantity %}
-                                            <input type="hidden" value="{{ item.quantity }}" name="quantity" aria-label="Quantity"/>
-                                            <span class="w-10 text-center">{{ item.quantity }}</span>
-                                        {% else %}
-                                            <salla-quantity-input cart-item-id="{{ item.id }}"  max="{{ item.max_quantity }}"
-                                                class="transtion transition-color duration-300"
-												aria-label="Quantity"
-                                                value="{{ item.quantity }}" name="quantity">
-                                            </salla-quantity-input>
-                                        {% endif %}
-                                        {% set item_total = item.detailed_offers|length > 0 ? item.total_special_price|money : item.total|money%}
-                                        <p class="text-primary flex-none font-bold text-sm rtl:md:pl-12 ltr:md:pr-12">
-                                            <span>{{ trans('pages.cart.total') }}:</span>
-                                            <span data-testid="store-cart-item-total" class="inline-block item-total">{{ item.is_available?item_total: trans('pages.cart.out_of_stock') }}</span>
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {% include 'pages.partials.product.options' with {product:item} %}
-                            <span class="absolute top-1.5 rtl:left-1.5 ltr:right-1.5 rtl:xs:left-5 ltr:xs:right-5 xs:top-5">
-                                <salla-button data-testid="store-cart-delete-item" type="button" shape="icon" size="small" color="danger" class="btn--delete" aria-label="Remove from the cart"
-                                        onclick="salla.cart.deleteItem('{{ item.id }}').then(() => document.querySelector('#item-{{ item.id }}').remove())">
-                                    <i class="sicon-cancel"></i>
-                                </salla-button>
-                            </span>
-                        </section>
-                    </form>
-                {% else %}
-                    <div data-testid="store-cart-empty" class="no-content-placeholder">
-                        <i class="sicon-shopping-bag icon"></i>
-                        <p>{{ trans('pages.cart.empty_cart') }}</p>
-                        <a data-testid="store-cart-back-home" href="{{ link('/') }}"
-                           class="btn btn--outline-primary btn--rounded-full">{{ trans('common.elements.back_home') }}</a>
-                    </div>
-                {% endfor %}
-
-                {% if cart.options|length %}
-                  <div class="cart-options">
-                    {% for product_option in cart.options %}
-                      <form class="first:pt-5 relative" onchange="salla.form.onChange('cart.updateItem', event)" id="item-{{ product_option.id }}">
-                        <input type="hidden" name="id" value="{{ product_option.id }}">
-                        <input type="hidden" name="quantity" value="{{ product_option.quantity }}">
-                        {% include 'pages.partials.product.options' with { product: product_option } %}
-                      </form>                   
-                    {% endfor %}
-                  </div>
-                {% endif %}
-                    
-                <salla-offer data-testid="store-cart-offer"></salla-offer>
-                
-                {% hook 'cart:items.end' %}
+    <div id="cart-page-host" class="teraz-cart-grid">
+      <div class="checkout-main">
+        <div id="cart-page-shipping">
+          <div class="shipping-progress">
+            <div>
+              <span>{{ remaining > 0 ? ('باقي ' ~ remaining ~ ' ر.س للشحن المجاني') : 'وصلت للشحن المجاني' }}</span>
+              <small>شحن مجاني من {{ threshold }} ر.س</small>
             </div>
-
-            {% hook 'cart:summary.start' %}
-
-            <!-- sidebar -->
-            {% if cart.items|length %}
-                <div class="sticky top-24 w-full lg:w-96 rtl:lg:mr-8 ltr:lg:ml-8">
-                    <div class="shadow-default bg-white p-5 xs:p-7 rounded-md mb-5 relative {{ cart.free_shipping_bar ? '' : 'hidden' }}" id="free-shipping">
-                        <div class="flex rtl:space-x-reverse space-x-3 items-center">
-                            <i class="bg-primary text-white rounded-icon sicon-shipping-fast {{ theme.is_rtl ? 'flip-x':'' }}"></i>
-                            {% set is_free=cart.free_shipping_bar.has_free_shipping %}
-                            <div class="flex-1">
-                                <h4 class="shipping-item font-bold text-sm mb-1.5">{{ trans('pages.cart.free_shipping') }}</h4>
-                                <p class="shipping-item text-sm font- text-gray-500">
-                                        <span id="free-shipping-msg">{{ (is_free
-                                            ?trans('pages.cart.has_free_shipping')
-                                            :trans('pages.cart.free_shipping_alert', {'amount': cart.free_shipping_bar.remaining|money}))
-                                            | raw }}</span>
-                                    <span class="emoji {{ is_free?'':'hidden' }}" id="free-shipping-applied">🎉</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="mt-8 bg-border-color bg-gray-100 rounded-full {{ is_free ? ' hidden' : '' }}" id="free-shipping-bar">
-                            <div class="progress-bg transition-all duration-500 h-2.5 bg-primary relative rounded-full flex justify-end"
-                                 style="width:{{ cart.free_shipping_bar.percent }}%">
-                                <i class="inline-block sicon-shipping-fast absolute -top-5 rtl:left-0 ltr:right-0 {{ theme.is_rtl ? 'flip-x':'' }}"></i>
-                            </div>
-                        </div>
-                    </div>
-                    {% if loyalty %}
-                        <salla-loyalty-panel
-                            data-testid="store-cart-loyalty"
-                            prize-points='{{ loyalty.prize.points }}'
-                            prize-title='{{ loyalty.prize.title }}'>
-                        </salla-loyalty-panel>
-                    {% endif %}
-
-                    <div id="cart-gifting" class="shadow-default bg-white xs:p-2 rounded-md mb-5 relative  {{gift.enabled ? '' : 'hidden' }}">
-                        <salla-gifting data-testid="store-cart-gifting" id="salla-gifting" class="mt-5" widget-title="{{ trans("pages.cart.gift_widget_title") }}"  widget-subtitle="{{ gift.text }}" class="mt-5" {{gift.type}}-products  vertical></salla-gifting>
-                    </div>
-
-                    {% if store.settings.cart.apply_coupon_enabled %}
-                        <div class="shadow-default bg-white px-5 xs:px-7 rounded-md mt-5 lg:mt-0 mb-5 relative">
-                            {% hook 'cart:coupon.start' %}
-                            <salla-cart-coupons data-testid="store-cart-coupons"></salla-cart-coupons>
-                            {% hook 'cart:coupon.end' %}
-                        </div>
-                    {% endif %}
-
-                    {% hook 'cart:summary-card.start' %}
-                    <salla-cart-summary-card data-testid="store-cart-summary"></salla-cart-summary-card>
-                    {% hook 'cart:summary-card.end' %}
-                    {% hook 'cart:summary.end' %}
-
-                     <!-- Tiered Offer Component -->
-                    <salla-tiered-offer data-testid="store-cart-tiered-offer"></salla-tiered-offer>
-                </div>
-            {% endif %}
+            <progress value="{{ progress }}" max="100" aria-label="التقدم نحو حد الشحن المجاني">{{ progress|round }}%</progress>
+          </div>
         </div>
+
+        {% hook 'cart:items.start' %}
+
+        <div id="cart-page-lines" class="cart-lines">
+          {% for item in cart.items|default([]) %}
+            <form onchange="salla.form.onChange('cart.updateItem', event)" id="item-{{ item.id }}">
+              <article data-testid="store-cart-item-{{ item.id }}" class="cart-line" data-line="{{ item.id }}">
+                <input type="hidden" name="id" value="{{ item.id }}">
+                <a href="{{ item.url }}">
+                  <img src="{{ item.product_image }}" width="1200" height="900" alt="{{ item.product_name }}" loading="{{ loop.first ? 'eager' : 'lazy' }}">
+                </a>
+                <div>
+                  <h3><a href="{{ item.url }}">{{ item.product_name }}</a></h3>
+                  <p>
+                    <span data-testid="store-cart-item-price" class="item-price">{{ item.price|money }}</span>
+                    {% if item.weight_label %} · {{ trans('pages.products.weight') }} {{ item.weight_label }}{% endif %}
+                  </p>
+                  {% include 'pages.partials.product.options' with { product: item } %}
+                  <salla-cart-item-offers
+                    quantity="{{ item.quantity }}"
+                    item-id="{{ item.id }}"
+                    product-price="{{ item.product_price }}"
+                    offers="{{ item.detailed_offers|json_encode }}"></salla-cart-item-offers>
+                  <strong class="item-total">{{ item.total|money }}</strong>
+                  <div class="qty-control">
+                    {% if item.type != 'donating' and not item.is_hidden_quantity %}
+                      <salla-quantity-input cart-item-id="{{ item.id }}" max="{{ item.max_quantity }}"
+                        class="teraz-salla-qty"
+                        aria-label="Quantity"
+                        value="{{ item.quantity }}" name="quantity">
+                      </salla-quantity-input>
+                    {% endif %}
+                    <salla-button type="button" shape="icon" size="small" color="danger" class="remove-item"
+                      data-testid="store-cart-item-delete-{{ item.id }}"
+                      onclick="salla.cart.deleteItem('{{ item.id }}').then(() => document.querySelector('#item-{{ item.id }}').remove())">
+                      إزالة
+                    </salla-button>
+                  </div>
+                </div>
+              </article>
+            </form>
+          {% else %}
+            <div class="empty-bag" id="cart-page-empty">
+              <span>طرازك يبدأ باختيار.</span>
+              <h3>حقيبتك تنتظر ذوقك.</h3>
+              <p>اكتشف مجموعة الأحذية المحاكة والكابات والشرابات وخفّ الكشخة.</p>
+              <a href="{{ home_url }}#knit" class="primary">اكتشف المجموعة ←</a>
+            </div>
+          {% endfor %}
+        </div>
+
+        {% hook 'cart:items.end' %}
+
+        <details class="cart-recommend" open>
+          <summary>
+            <span>كمّل كشختك <small>قطع تتناسق مع اختيارك · اختياري</small></span>
+            <b>+</b>
+          </summary>
+          <div class="checkout-addons" id="cart-page-addons"></div>
+        </details>
+      </div>
+
+      <aside class="cart-summary" id="cart-page-summary">
+        <h3>ملخص طلبك</h3>
+
+        {% hook 'cart:summary.start' %}
+
+        <p><span>مجموع المنتجات</span><strong id="sub-total">{{ cart.sub_total|money }}</strong></p>
+
+        {% if cart.options|default([])|length %}
+          <div class="teraz-cart-options">
+            {% for product_option in cart.options %}
+              <form onchange="salla.form.onChange('cart.updateItem', event)" id="item-{{ product_option.id }}">
+                <input type="hidden" name="id" value="{{ product_option.id }}">
+                <input type="hidden" name="quantity" value="{{ product_option.quantity }}">
+                {% include 'pages.partials.product.options' with { product: product_option } %}
+              </form>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <p id="shipping-cost" class="{{ cart.has_shipping ? '' : '' }}">
+          <span>الشحن المتوقع</span>
+          <strong>{{ (sub_num > 0 and sub_num < threshold) ? (shipping_fee ~ ' ر.س') : 'مجاني' }}</strong>
+        </p>
+
+        {% if store.settings.cart.apply_coupon_enabled %}
+          <div class="teraz-coupon-box">
+            <label for="coupon-input">كود الخصم</label>
+            <div class="teraz-coupon-row">
+              <input type="text" data-testid="store-cart-coupon-input" id="coupon-input" value="{{ cart.coupon }}" placeholder="أدخل كود الخصم" {{ cart.coupon ? 'disabled' : '' }}>
+              <salla-button class="teraz-coupon-btn {{ cart.coupon ? 'has-coupon' : '' }}" data-testid="store-cart-coupon-btn" id="coupon-btn">
+                <span class="coupon-text">{{ cart.coupon ? 'إلغاء' : 'تطبيق' }}</span>
+              </salla-button>
+            </div>
+            <span class=" validation" id="coupon-error"></span>
+          </div>
+        {% endif %}
+
+        <p id="total-discount" class="{{ cart.discount ? '' : 'hidden' }}">
+          <span>الخصم</span>
+          <strong>- {{ cart.discount|money }}</strong>
+        </p>
+
+        {% if cart.tax_amount %}
+          <p><span>ضريبة القيمة المضافة</span><strong id="tax-amount">{{ cart.tax_amount|money }}</strong></p>
+        {% endif %}
+
+        <p class="grand-total">
+          <span>الإجمالي المتوقع</span>
+          <strong data-testid="store-cart-total" id="cart-total">{{ cart.total|money }}</strong>
+        </p>
+
+        <small>التكلفة النهائية للشحن وأي خصومات تظهر لك في صفحة الدفع. 14 يومًا للاسترجاع · 20 يومًا للاستبدال.</small>
+
+        <div class="teraz-checkout-cta">
+          {% hook 'cart:submit.start' %}
+          <salla-button id="cart-submit" data-testid="store-cart-submit" loader-position="end" width="wide">
+            إتمام الطلب ←
+          </salla-button>
+          {% hook 'cart:submit.end' %}
+        </div>
+
+        <a href="{{ home_url }}#knit" class="text-button">أكمل التصفح</a>
+        {% hook 'cart:summary.end' %}
+      </aside>
     </div>
+  </section>
+</div>
 {% endblock %}
 
 {% block scripts %}
-    <script defer src="{{ 'checkout.js' | asset }}"></script>
+  <script defer src="{{ 'checkout.js' | asset }}"></script>
 {% endblock %}
