@@ -162,9 +162,9 @@
 
         <div class="teraz-checkout-cta">
           {% hook 'cart:submit.start' %}
-          <salla-button id="cart-submit" data-testid="store-cart-submit" loader-position="end" width="wide">
+          <button type="button" class="primary" id="cart-submit" data-action="checkout" data-testid="store-cart-submit" style="width:100%">
             إتمام الطلب ←
-          </salla-button>
+          </button>
           {% hook 'cart:submit.end' %}
         </div>
 
@@ -174,8 +174,4 @@
     </div>
   </section>
 </div>
-{% endblock %}
-
-{% block scripts %}
-  <script defer src="{{ 'checkout.js' | asset }}"></script>
 {% endblock %}

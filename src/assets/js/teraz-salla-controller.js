@@ -212,6 +212,39 @@
 
     onChange(fn) { this._listeners.push(fn); },
 
+    _saveStorage() {
+      try {
+        if (root.localStorage) {
+          root.localStorage.setItem('teraz_demo_cart_v1', JSON.stringify({
+            items: this._localItems,
+            seq: this._localSeq,
+            coupon: this.coupon,
+            paymentMethod: this.paymentMethod,
+            customerInfo: this.customerInfo
+          }));
+        }
+      } catch (e) { /* storage disabled */ }
+    },
+
+    _loadStorage() {
+      try {
+        if (!root.localStorage) return;
+        const raw = root.localStorage.getItem('teraz_demo_cart_v1');
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.items) && parsed.items.length && !this._localItems.length) {
+          this._localItems = parsed.items.map((it) => Object.assign({}, it, { teraz: M.get(it.productId) || it.teraz }));
+          this._localSeq = Number(parsed.seq) || (this._localItems.length + 1);
+          if (parsed.coupon) this.coupon = parsed.coupon;
+          if (parsed.paymentMethod) this.paymentMethod = parsed.paymentMethod;
+          if (parsed.customerInfo) this.customerInfo = Object.assign(this.customerInfo, parsed.customerInfo);
+          const subtotal = this._localItems.reduce((sum, l) => sum + (Number.isFinite(l.total) ? l.total : 0), 0);
+          const count = this._localItems.reduce((sum, l) => sum + l.qty, 0);
+          this.state = { id: 'local', items: this._localItems.slice(), count, subtotal };
+        }
+      } catch (e) { /* ignore */ }
+    },
+
     _emit() {
       root.clearTimeout(this._renderTimer);
       this._renderTimer = root.setTimeout(() => this._listeners.forEach((fn) => fn(this.state)), 0);
@@ -221,6 +254,7 @@
       const subtotal = this._localItems.reduce((sum, l) => sum + (Number.isFinite(l.total) ? l.total : 0), 0);
       const count = this._localItems.reduce((sum, l) => sum + l.qty, 0);
       this.state = { id: 'local', items: this._localItems.slice(), count, subtotal };
+      this._saveStorage();
       this._emit();
       return this.state;
     },
@@ -347,7 +381,8 @@
     /** Native Salla checkout (salla.cart.submit), with integrated Salla Payment step fallback for demo/customizer. */
     async checkout() {
       const s = sallaOrNull();
-      if (s && typeof s.cart.submit === 'function') {
+      const isDemoHost = /demostore\.salla\.sa|s\.salla\.sa/i.test((root.location && root.location.hostname) || '');
+      if (s && typeof s.cart.submit === 'function' && !this._localItems.length && !isDemoHost) {
         try { await s.cart.submit(); } catch (e) { /* fall through to inline Salla payment step */ }
       }
       renderCart('payment');
@@ -362,28 +397,33 @@
       const code = String(rawCode || '').trim().toUpperCase();
       if (!code) {
         this.coupon = null;
+        this._saveStorage();
         this._emit();
         return { ok: false, message: 'أدخل كود الخصم أولًا.' };
       }
       const s = sallaOrNull();
-      if (s && s.cart && typeof s.cart.addCoupon === 'function' && !this._localItems.length) {
+      const isDemoHost = /demostore\.salla\.sa|s\.salla\.sa/i.test((root.location && root.location.hostname) || '');
+      if (s && s.cart && typeof s.cart.addCoupon === 'function' && !this._localItems.length && !isDemoHost) {
         try { await s.cart.addCoupon(code); await this.refresh(); } catch (e) { /* fallback to TERAZ coupon rules */ }
       }
       const rate = (code === 'TERAZ15' || code === 'EID15' || code === 'VIP') ? 0.15 : 0.10;
       const freeShip = code === 'FREESHIP';
       this.coupon = { code, rate: freeShip ? 0 : rate, freeShip, label: freeShip ? 'شحن مجاني' : ('خصم ' + Math.round(rate * 100) + '%') };
+      this._saveStorage();
       this._emit();
       return { ok: true, message: 'تم تطبيق كود الخصم ' + code + ' (' + this.coupon.label + ') بنجاح ✓' };
     },
 
     removeCoupon() {
       this.coupon = null;
+      this._saveStorage();
       this._emit();
     },
 
     async completePayment() {
       const s = sallaOrNull();
-      if (s && typeof s.cart.submit === 'function' && !this._localItems.length) {
+      const isDemoHost = /demostore\.salla\.sa|s\.salla\.sa/i.test((root.location && root.location.hostname) || '');
+      if (s && typeof s.cart.submit === 'function' && !this._localItems.length && !isDemoHost) {
         try { await s.cart.submit(); } catch (e) { /* continue */ }
       }
       const t = calcCartTotals(this.state.subtotal);
@@ -398,12 +438,16 @@
       };
       this._localItems = [];
       this.coupon = null;
+      this._saveStorage();
       this.state = { id: null, items: [], count: 0, subtotal: 0 };
       updateCartCount();
       renderCart('confirmed');
       syncCartPage();
       const dlg = dialogEl();
-      if (dlg) dlg.scrollTop = 0;
+      if (dlg) {
+        if (!dlg.open && typeof dlg.showModal === 'function') dlg.showModal();
+        dlg.scrollTop = 0;
+      }
       Toast.show('تم إتمام الدفع وتأكيد طلبك عبر سلة بنجاح ✓');
       return this.lastOrder;
     },
@@ -1542,6 +1586,24 @@
         }
       }
 
+      // Intercept #cart-submit and #coupon-btn on /cart in capture phase so checkout.js never reloads or redirects
+      const sallaSubmit = target.closest('#cart-submit');
+      if (sallaSubmit) {
+        e.preventDefault();
+        e.stopPropagation();
+        Cart.checkout();
+        return;
+      }
+      const sallaCoupon = target.closest('#coupon-btn');
+      if (sallaCoupon) {
+        e.preventDefault();
+        e.stopPropagation();
+        const inp = $('#coupon-input');
+        if (Cart.coupon) { Cart.removeCoupon(); if (inp) { inp.disabled = false; inp.value = ''; } Toast.show('تم إلغاء كود الخصم.'); }
+        else { Cart.applyCoupon(inp ? inp.value : '').then((res) => Toast.show(res.message)); }
+        return;
+      }
+
       // Open product view when clicking any product card, hero shoe, or product link
       const clickedTerazId = resolveClickedProductId(target);
       if (clickedTerazId) {
@@ -1710,6 +1772,9 @@
   async function boot() {
     if (root.__terazBooted) return;
     root.__terazBooted = true;
+    Cart._loadStorage();
+    updateCartCount();
+    syncCartPage();
     bindUI();
     openHashDetails();
     handleHashRoute();
