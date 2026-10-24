@@ -1,0 +1,26 @@
+{# Product card shared by every strip, the hero stage and server-rendered lists. Expects `product` (Salla product). #}
+{% set card_image = product.image.url|default('') %}
+<article class="product-card"
+  data-product-id="{{ product.id }}"
+  data-sku="{{ product.sku }}"
+  data-name="{{ product.name }}"
+  data-url="{{ product.url }}"
+  data-price="{{ product.price }}"
+  data-regular-price="{{ product.regular_price|default(product.price) }}"
+  data-image="{{ card_image }}"
+  data-available="{{ product.is_available ? 'true' : 'false' }}">
+  <a class="product-image" href="{{ product.url }}" aria-label="تفاصيل {{ product.name }}">
+    <img loading="lazy" src="{{ card_image }}" width="1200" height="900" alt="{{ product.image.alt|default(product.name) }}">
+  </a>
+  <div class="card-meta">
+    {# Colour line: Salla subtitle as a fallback, replaced by the TERAZ colour once the product resolves. #}
+    <span class="card-color">{{ product.subtitle|default('') }}</span>
+    <h3><a href="{{ product.url }}">{{ product.name }}</a></h3>
+    <div class="card-bottom">
+      <b>{{ product.price|money }}</b>
+      {% if product.is_on_sale %}<del class="card-regular">{{ product.regular_price|money }}</del>{% endif %}
+      {% if not product.is_available %}<span class="card-flag">غير متوفر</span>{% endif %}
+      <a href="{{ product.url }}">اكتشف التفاصيل ↗</a>
+    </div>
+  </div>
+</article>

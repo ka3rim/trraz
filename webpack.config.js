@@ -60,7 +60,16 @@ module.exports = {
     plugins: [
         new ThemeWatcher(),
         new MiniCssExtractPlugin(),
-        new CopyPlugin({patterns: [{from: asset('images'), to: public('images')}]}),
+        new CopyPlugin({
+            patterns: [
+                {from: asset('images'), to: public('images')},
+                {from: asset('fonts'), to: public('fonts')},
+                {from: asset('styles/atelier-salla.css'), to: public('atelier-salla.css')},
+                {from: asset('js/teraz-catalog-map.js'), to: public('teraz-catalog-map.js')},
+                {from: asset('js/salla-metadata-config.js'), to: public('salla-metadata-config.js')},
+                {from: asset('js/teraz-salla-controller.js'), to: public('teraz-salla-controller.js')},
+            ]
+        }),
     ],
     optimization: {
         minimizer: [

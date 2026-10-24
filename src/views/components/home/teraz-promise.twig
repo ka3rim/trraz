@@ -1,0 +1,8 @@
+{# Promise bar (.promise). #}
+{% set c = component|default({}) %}
+<section class="promise">
+  <span>{{ c.item_1|default('طراز يبدأ من راحتك.') }}</span>
+  <span>{{ c.item_2|default('للثوب والكاجوال') }}</span>
+  <span>{{ c.item_3|default('استرجاع خلال 14 يومًا*') }}</span>
+  <a href="{{ c.link_url|default('#guarantee') }}">{{ c.link_label|default('تعرّف على الضمان الذهبي ↙') }}</a>
+</section>

@@ -1,0 +1,23 @@
+{# TERAZ global header: logo, anchor/category navigation, cart trigger (#cart-count is driven by Salla cart events). #}
+{% set home_url = store.url|default('/') %}
+{% set logo = theme.settings.get('teraz_logo')|default('images/logo.webp'|asset) %}
+<div class="teraz">
+  <a class="skip" href="#main">انتقل إلى المحتوى</a>
+  <header class="site-header">
+    <a class="brand" href="{{ home_url }}" aria-label="{{ store.name|default('طراز') }} — الرئيسية">
+      <img src="{{ logo }}" width="42" height="32" alt="">
+      <span>طراز<small>TERAZ</small></span>
+    </a>
+    <nav aria-label="التنقل الرئيسي">
+      <a href="{{ home_url }}#knit">مجموعة الأناقة</a>
+      <a href="{{ home_url }}#caps">كمّل كشختك</a>
+      <a href="{{ home_url }}#care">العناية بالجزم</a>
+      <a href="{{ home_url }}#why">ليش طراز؟</a>
+    </nav>
+    <button type="button" class="cart-trigger" data-action="cart" aria-label="فتح حقيبتك" aria-haspopup="dialog" aria-controls="cart-dialog">
+      <svg width="22" height="24" viewBox="0 0 24 26" fill="none" aria-hidden="true"><path d="M4 8h16l1 16H3L4 8Z" stroke="currentColor"/><path d="M8 9V5a4 4 0 0 1 8 0v4" stroke="currentColor"/></svg>
+      <span>حقيبتك</span>
+      <b id="cart-count">0</b>
+    </button>
+  </header>
+</div>

@@ -1,0 +1,18 @@
+{# Occasion section (.occasion-section): two editorial cards. Images default to the theme assets. #}
+{% set c = component|default({}) %}
+<section class="occasion-section">
+  <div>
+    <span class="eyebrow">{{ c.eyebrow|default('يومك له أكثر من طراز') }}</span>
+    <h2>{{ c.title|default('للدوام كشخة.
+وللمشوار كشخة.')|nl2br }}</h2>
+    <p>{{ c.text|default('ابدأ بالقطعة الأقرب ليومك، وكمّلها بألوان تنسجم معها.') }}</p>
+  </div>
+  <a href="{{ c.card_1_link|default('#knit') }}" class="occasion-card">
+    <img src="{{ c.card_1_image|default('images/black.webp'|asset) }}" alt="{{ c.card_1_alt|default('عتيم الليل بكامل اللون الأسود') }}" loading="lazy" width="1200" height="900">
+    <span>{{ c.card_1_title|default('للثوب والدوام') }} <b>{{ c.card_1_cta|default('اكتشف مجموعة الأناقة ←') }}</b></span>
+  </a>
+  <a href="{{ c.card_2_link|default('#clogs') }}" class="occasion-card">
+    <img src="{{ c.card_2_image|default('images/clogs-1.webp'|asset) }}" alt="{{ c.card_2_alt|default('خف الكشخة الجملي للمشاوير اليومية') }}" loading="lazy" width="1200" height="900">
+    <span>{{ c.card_2_title|default('للمشوار القريب') }} <b>{{ c.card_2_cta|default('اكتشف خفّ الكشخة ←') }}</b></span>
+  </a>
+</section>

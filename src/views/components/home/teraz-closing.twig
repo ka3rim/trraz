@@ -1,0 +1,8 @@
+{# Closing call to action (.closing). #}
+{% set c = component|default({}) %}
+<section class="closing">
+  <span class="eyebrow">{{ c.eyebrow|default('ملبوس العافية') }}</span>
+  <h2>{{ c.title|default('يومك يتغيّر.
+طرازك يرافقك.')|nl2br }}</h2>
+  <a class="primary" href="{{ c.button_link|default('#knit') }}">{{ c.button_label|default('اختر بداية إطلالتك ←') }}</a>
+</section>

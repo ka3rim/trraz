@@ -1,0 +1,10 @@
+{# TERAZ global footer. The prototype's sandbox disclosure is intentionally gone: this theme runs on live Salla commerce. #}
+{% set home_url = store.url|default('/') %}
+<div class="teraz">
+  <footer class="site-footer">
+    <a class="brand" href="{{ home_url }}">طراز <small>TERAZ</small></a>
+    <p>{{ theme.settings.get('teraz_footer_tagline')|default('راحة تليق بالمقام.') }}</p>
+    <a href="{{ home_url }}#guarantee">الاسترجاع والاستبدال</a>
+    <a href="{{ home_url }}#questions">الشحن والأسئلة الشائعة</a>
+  </footer>
+</div>
