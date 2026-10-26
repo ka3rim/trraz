@@ -378,12 +378,12 @@
       return result;
     },
 
-    /** Native Salla checkout (salla.cart.submit), with integrated Salla Payment step fallback for demo/customizer. */
+    /** Native Salla checkout (salla.cart.submit) when real Salla products are in the cart; inline Salla payment step when testing coded demo products. */
     async checkout() {
       const s = sallaOrNull();
-      const isDemoHost = /demostore\.salla\.sa|s\.salla\.sa/i.test((root.location && root.location.hostname) || '');
-      if (s && typeof s.cart.submit === 'function' && !this._localItems.length && !isDemoHost) {
-        try { await s.cart.submit(); } catch (e) { /* fall through to inline Salla payment step */ }
+      const hasRealSallaItems = !this._localItems.length && this.state.id !== 'local' && this.state.items.length > 0;
+      if (s && typeof s.cart.submit === 'function' && hasRealSallaItems) {
+        try { await s.cart.submit(); } catch (e) { /* fall through to inline Salla payment step if blocked in iframe */ }
       }
       renderCart('payment');
       const dlg = dialogEl();
@@ -402,8 +402,8 @@
         return { ok: false, message: 'أدخل كود الخصم أولًا.' };
       }
       const s = sallaOrNull();
-      const isDemoHost = /demostore\.salla\.sa|s\.salla\.sa/i.test((root.location && root.location.hostname) || '');
-      if (s && s.cart && typeof s.cart.addCoupon === 'function' && !this._localItems.length && !isDemoHost) {
+      const hasRealSallaItems = !this._localItems.length && this.state.id !== 'local' && this.state.items.length > 0;
+      if (s && s.cart && typeof s.cart.addCoupon === 'function' && hasRealSallaItems) {
         try { await s.cart.addCoupon(code); await this.refresh(); } catch (e) { /* fallback to TERAZ coupon rules */ }
       }
       const rate = (code === 'TERAZ15' || code === 'EID15' || code === 'VIP') ? 0.15 : 0.10;
@@ -422,8 +422,8 @@
 
     async completePayment() {
       const s = sallaOrNull();
-      const isDemoHost = /demostore\.salla\.sa|s\.salla\.sa/i.test((root.location && root.location.hostname) || '');
-      if (s && typeof s.cart.submit === 'function' && !this._localItems.length && !isDemoHost) {
+      const hasRealSallaItems = !this._localItems.length && this.state.id !== 'local' && this.state.items.length > 0;
+      if (s && typeof s.cart.submit === 'function' && hasRealSallaItems) {
         try { await s.cart.submit(); } catch (e) { /* continue */ }
       }
       const t = calcCartTotals(this.state.subtotal);
