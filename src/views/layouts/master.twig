@@ -1380,9 +1380,14 @@
     async checkout() {
       const s = sallaOrNull();
       const hasRealSallaItems = !this._localItems.length && this.state.id !== 'local' && this.state.items.length > 0;
+      let loginOpened = false;
+      if (s && s.event && typeof s.event.once === 'function') {
+        s.event.once('login::open', () => { loginOpened = true; closeCart(); });
+      }
       if (s && typeof s.cart.submit === 'function' && hasRealSallaItems) {
         try { await s.cart.submit(); } catch (e) { /* fall through to inline Salla payment step if blocked in iframe */ }
       }
+      if (loginOpened) return;
       renderCart('payment');
       const dlg = dialogEl();
       if (dlg) {
@@ -1467,6 +1472,7 @@
       }
       if (s.event && typeof s.event.on === 'function') {
         ['cart::updated', 'cart::item.added', 'cart::item.deleted', 'cart::item.updated'].forEach((name) => s.event.on(name, handler));
+        s.event.on('login::open', () => closeCart());
       }
     }
   };
@@ -1653,6 +1659,7 @@
       + `<p class="grand-total"><span>الإجمالي شامل الضريبة</span><strong>${money(t.total)}</strong></p>`
       + `${couponBoxHTML()}`
       + `<small>دفع آمن ومشفّر 100% عبر بوابة سلة (Salla Pay) · شامل ضريبة القيمة المضافة 15%.</small>`
+      + `<p id="pay-error" class="validation" role="alert"></p>`
       + `<button type="button" class="primary" data-action="confirm-payment">تأكيد الدفع وإتمام الطلب (${money(t.total)}) ←</button>`
       + `<button type="button" class="text-button" data-action="review">→ العودة لمراجعة الطلب</button></div>`;
   }
@@ -2636,7 +2643,16 @@
       const d = button.dataset;
 
       if (d.paymentMethod) {
+        const nameEl = $('#pay-name');
+        const phoneEl = $('#pay-phone');
+        const cityEl = $('#pay-city');
+        const addrEl = $('#pay-address');
+        if (nameEl) Cart.customerInfo.name = nameEl.value;
+        if (phoneEl) Cart.customerInfo.phone = phoneEl.value;
+        if (cityEl) Cart.customerInfo.city = cityEl.value;
+        if (addrEl) Cart.customerInfo.address = addrEl.value;
         Cart.paymentMethod = d.paymentMethod;
+        Cart._saveStorage();
         const dlg = dialogEl();
         renderCart((dlg && dlg.dataset.stage) || 'review');
         return;
@@ -2708,10 +2724,29 @@
           const phoneEl = $('#pay-phone');
           const cityEl = $('#pay-city');
           const addrEl = $('#pay-address');
+          const errEl = $('#pay-error');
           if (nameEl) Cart.customerInfo.name = nameEl.value.trim();
-          if (phoneEl) Cart.customerInfo.phone = phoneEl.value.trim();
+          if (phoneEl) Cart.customerInfo.phone = Meta.toLatinDigits(phoneEl.value.trim());
           if (cityEl) Cart.customerInfo.city = cityEl.value;
           if (addrEl) Cart.customerInfo.address = addrEl.value.trim();
+          if (Cart.customerInfo.phone) {
+            const cleanPhone = Cart.customerInfo.phone.replace(/[\s-]/g, '');
+            if (!/^(?:\+?966|00966|0)?5\d{8}$/.test(cleanPhone) && !/^\+?\d{8,15}$/.test(cleanPhone)) {
+              if (errEl) errEl.textContent = 'يرجى إدخال رقم جوال صحيح (مثال: 0501234567).';
+              if (phoneEl) phoneEl.focus();
+              break;
+            }
+          }
+          if (Cart.paymentMethod === 'mada' || Cart.paymentMethod === 'cc') {
+            const cNum = $('#pay-card-num');
+            const cExp = $('#pay-card-exp');
+            const cCvv = $('#pay-card-cvv');
+            if ((cNum && !cNum.value.trim()) || (cExp && !cExp.value.trim()) || (cCvv && !cCvv.value.trim())) {
+              if (errEl) errEl.textContent = 'يرجى استكمال بيانات البطاقة لإتمام الدفع.';
+              break;
+            }
+          }
+          if (errEl) errEl.textContent = '';
           setBusy(button, true);
           Cart.completePayment().finally(() => setBusy(button, false));
           break;
