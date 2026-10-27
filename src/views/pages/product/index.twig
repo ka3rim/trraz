@@ -1,113 +1,115 @@
 {#
-  TERAZ Category & Products Listing Page (src/views/pages/product/index.twig).
-  Preserves Salla's <salla-products-list>, <salla-filters>, and hooks while styling the entire page
-  in the bespoke TERAZ Atelier aesthetic and providing a rich TERAZ catalog grid fallback.
+  TERAZ 2.0 Category / Collection Page (src/views/pages/product/index.twig)
 #}
 {% extends "layouts.master" %}
 
-{% set home_url = store.url|default('/') %}
-
-{% block title %}{{ page.title|striptags|default('مجموعة طراز') }} | {{ store.name|default('طراز') }}{% endblock %}
+{% block title %}{{ page.title|default('مجموعة طراز') }} | {{ store.name|default('طراز') }}{% endblock %}
 {% block body_class %}teraz-category{% endblock %}
 
 {% block content %}
-<div class="teraz teraz-category-page">
-  <div class="product-breadcrumb">
-    <a href="{{ home_url }}">→ العودة إلى الرئيسية</a>
-    <span>طراز / {{ page.title|raw }}</span>
-  </div>
+<script type="application/json" id="teraz-category-data">{{ {
+  id: category.id|default(''),
+  name: category.name|default(page.title|default('')),
+  slug: page.slug|default('')
+}|json_encode|raw }}</script>
+<div id="home-view">
 
-  <nav class="collection-nav" aria-label="اختر مجموعتك">
-    <a href="{{ home_url }}#knit">الأحذية المحاكة <span>للثوب والكاجوال</span></a>
-    <a href="{{ home_url }}#caps">الكابات <span>كمّل إطلالتك</span></a>
-    <a href="{{ home_url }}#socks">الشرابات <span>تفاصيل تفرق</span></a>
-    <a href="{{ home_url }}#clogs">خفّ الكشخة <span>للمشوار الخفيف</span></a>
-    <a href="{{ home_url }}#care">العناية بالجزم <span>نظافة وحماية</span></a>
+  <section class="hero" id="home">
+    <div class="hero-wording">
+      <p class="eyebrow">للرجل السعودي، ولكل مشاويره</p>
+      <h1>راحة تليق بالمقام.</h1>
+      <p class="hero-sub">جزمة وحدة تمشي مع ثوبك وكاجوالك. خفيفة على رجلك، وفيها من الجلد اللي يعطيها هيبة.</p>
+      <p class="hero-price">من <b>319 ريال</b> <span id="hero-rating"></span></p>
+      <div class="hero-actions"><a class="primary" href="#knit">اختر جزمتك <span>←</span></a><a class="secondary" href="#offers">وش العروض؟</a></div>
+    </div>
+    <div class="atelier-stage" aria-label="ألوان طراز الثمانية على درج حجري">
+      <img class="stage-bg" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/atelier.webp" width="1536" height="1024" alt="" fetchpriority="high">
+      <div id="hero-shoes"></div>
+      <div id="hero-peek" aria-hidden="true"><img alt=""><span></span></div>
+    </div>
+  </section>
+
+  <section class="trust-strip" id="trust" aria-label="ليش تطلب من طراز وانت مرتاح"></section>
+
+  <nav class="quick-nav" aria-label="الأقسام">
+    <a href="#knit">الأحذية</a><a href="#c/mule">لوفر الكشخة</a><a href="#c/clogs">الخف</a><a href="#c/caps">الكابات</a><a href="#c/socks">الشرابات</a><a href="#c/care">العناية</a><a href="#offers">العروض</a>
   </nav>
 
-  <div class="s-blocks-wrapper s-before-products-list">{% hook 'product.index.before_products_group_with_filter' %}</div>
+  <section class="section needs" id="needs">
+    <header class="section-heading"><div><h2>وش مشوارك اليوم؟</h2><p>كل مشوار له جزمته. شوف وش يناسبك.</p></div></header>
+    <div class="needs-grid" id="needs-grid"></div>
+  </section>
 
-  <section class="section collection">
+  <section class="section collection" id="knit">
     <header class="section-heading">
-      <div>
-        <span class="eyebrow">TERAZ COLLECTION / مجموعات طراز</span>
-        <h1 id="page-main-title">{{ page.title|raw }}</h1>
-        <p>كشخة الرجل السعودي تبدأ من التفاصيل. أحذية محاكة بتفاصيل جلدية وتنسيقات متكاملة ليومك.</p>
-      </div>
-      {% if sort_options|length %}
-        <div class="teraz-sort-select">
-          <label for="product-filter">{{ trans('pages.categories.sorting') }}</label>
-          <select id="product-filter" class="form-input">
-            {% for sort in sort_options %}
-              <option value="{{ sort.id }}" {{ sort.is_selected ? 'selected' : '' }}>{{ sort.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      {% endif %}
+      <div><h2>مجموعة الأناقة</h2><p>ثمان ألوان، وكل لون له مكانه. رتّبها على حسب لبسك.</p></div>
+      <div class="strip-controls"><button type="button" data-scroll="knit" data-dir="1" aria-label="السابق">→</button><button type="button" data-scroll="knit" data-dir="-1" aria-label="التالي">←</button></div>
     </header>
+    <div class="sort-bar" role="group" aria-label="رتّب حسب لبسك"><button type="button" data-sort="thobe" aria-pressed="true">مع الثوب</button><button type="button" data-sort="casual" aria-pressed="false">مع الكاجوال</button><button type="button" data-sort="walking" aria-pressed="false">للمشي</button></div>
+    <div class="product-strip" data-group="knit" tabindex="0" aria-label="ألوان مجموعة الأناقة"></div>
+  </section>
 
-    <div class="sort-bar" role="group" aria-label="رتّب حسب">
-      <span>رتّب حسب</span>
-      <button type="button" data-sort="thobe" aria-pressed="true">الثوب</button>
-      <button type="button" data-sort="casual" aria-pressed="false">الكاجوال</button>
-      <button type="button" data-sort="walking" aria-pressed="false">المشي</button>
+  <section class="section why" id="why">
+    <div class="why-copy">
+      <h2>ليش طراز؟</h2>
+      <p class="lead">كلنا مرّينا فيها: الرياضي مريح بس ما يركب مع الثوب، والكلاسيكي يركب بس يتعبك في الحر. طراز جات بين الاثنين.</p>
+      <ul class="why-facts">
+        <li><b>نسيج محاك يهوّي</b> خفيف ويريّح رجلك في أجوائنا.</li>
+        <li><b>جلد طبيعي حول الرباط والكعب</b> يعطيها شكل رسمي مع الثوب.</li>
+        <li><b>فرشة مغطاة بجلد ماعز</b> تحسها من أول لبسة.</li>
+      </ul>
+      <a class="underlined" href="#knit">اختر أي لون وشوف تفاصيله عن قرب</a>
     </div>
-
-    <div class="teraz-category-layout">
-      {% if filters %}
-        <aside class="teraz-filters-sidebar">
-          <button class="btn--close-sm close-filters sicon-cancel hidden"></button>
-          <salla-filters data-testid="store-products-filters" id="filters-menu"></salla-filters>
-        </aside>
-      {% endif %}
-
-      <div class="teraz-category-main">
-        {% hook 'product:index.items.start' %}
-
-        {% set sort_list = sort_options|default([]) %}
-        {% set first_sort = sort_list|first %}
-        {% set has_selected_sort = sort_list|filter(sort => sort.is_selected)|length %}
-        {% set fallback_sort = (sort_list|length and not has_selected_sort and first_sort.id != 'ourSuggest') ? first_sort.id : '' %}
-
-        <div class="teraz-salla-list-wrap">
-          <salla-products-list data-testid="store-products-list" class="flex-1 min-w-0" source="{{ page.slug }}" source-value="{{ page.id }}" sort-by="{{ fallback_sort }}" {{ filters ? 'filters-Results' : '' }}></salla-products-list>
-        </div>
-
-        {# Fallback / preview TERAZ grid when the demo store category has no live products yet #}
-        <div class="product-strip teraz-grid-mode" id="category-teraz-grid" data-group="knit" tabindex="0" aria-label="منتجات مجموعة طراز"></div>
-
-        {% hook 'product:index.items.end' %}
-      </div>
+    <div class="compare" role="table" aria-label="مقارنة طراز مع الرياضي والكلاسيكي">
+      <div class="compare-row compare-head" role="row"><span role="columnheader"></span><span role="columnheader">الرياضي</span><span role="columnheader">الكلاسيكي الجلد</span><span role="columnheader" class="ours">طراز</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">مع الثوب</span><span role="cell">شكله غريب</span><span role="cell">يركب</span><span role="cell" class="ours">يركب، وله هيبة</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">مع الجينز</span><span role="cell">يركب</span><span role="cell">رسمي زيادة</span><span role="cell" class="ours">يركب</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">في الحر</span><span role="cell">يهوّي</span><span role="cell">حار وثقيل</span><span role="cell" class="ours">يهوّي</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">من الصبح لليل</span><span role="cell">مريح</span><span role="cell">يتعب</span><span role="cell" class="ours">مريح</span></div>
     </div>
   </section>
 
-  <div class="s-blocks-wrapper s-after-products-list">{% hook 'product.index.after_products_group_with_filter' %}</div>
+  <section class="section accessories" id="accessories">
+    <header class="section-heading"><div><h2>كمّل كشختك</h2><p>التفاصيل الصغيرة هي اللي تفرق. كل قطعة هنا لونها مختار على ألوان جزمنا، عشان تطلع متناسق من راسك لرجلك.</p></div></header>
+    <div id="category-rows"></div>
+  </section>
+
+  <section class="section offers" id="offers">
+    <header class="section-heading"><div><h2>خذها لحالها، أو كمّلها وارتاح.</h2><p>كل ما زادت القطع، زاد اللي توفره.</p></div></header>
+    <div class="offer-grid" id="home-offers"></div>
+  </section>
+
+  <section class="section reviews" id="reviews" hidden></section>
 
   <section class="section guarantee" id="guarantee">
-    <div>
-      <span class="eyebrow">الضمان الذهبي</span>
-      <h2>اختَر وأنت<br>عارف حقك.</h2>
-      <p>جرّب الحذاء داخل المنزل أو في مكان نظيف، وحافظ على حالته وتغليفه. تأكد من المقاس والراحة قبل الاستخدام الخارجي.</p>
-    </div>
-    <div class="guarantee-facts">
-      <article>
-        <strong>14 <small>يومًا</small></strong>
-        <h3>لطلب الاسترجاع</h3>
-        <p>من الاستلام، مع بقاء المنتج بحالته الأصلية.</p>
-      </article>
-      <article>
-        <strong>20 <small>يومًا</small></strong>
-        <h3>لطلب الاستبدال</h3>
-        <p>للمقاس أو اللون، حسب توفر المطلوب.</p>
-      </article>
-      <p class="fine-print">*تكاليف شحن تغيير الرأي أو المقاس على العميل. طراز يتحملها عند الخطأ أو العيب المصنعي بعد التحقق.</p>
-    </div>
+    <div><h2>اطلب وانت مرتاح.</h2><p>جرّبها في البيت على راحتك. ما ضبط المقاس؟ نبدلها لك، وأول تبديل شحنه علينا.</p></div>
+    <div class="guarantee-facts" id="guarantee-facts"></div>
   </section>
 
-  <div class="s-blocks-wrapper s-after-testimonials">{% hook 'product.index.after_testimonials' %}</div>
-</div>
-{% endblock %}
+  <section class="section questions" id="questions">
+    <div><h2>عندك سؤال؟</h2><p class="side-help" id="faq-help"></p></div>
+    <div id="faq"></div>
+  </section>
 
-{% block scripts %}
-  <script defer src="{{ 'product.js' | asset }}"></script>
+  <section class="section journal"><h2>قبل تختار</h2><div class="journal-grid">
+    <details><summary><small>تنسيق</small>كيف تختار جزمتك مع الثوب؟</summary><p>ابدأ من ألوان لبسك. مع الثوب الأبيض، القاعدة البيضاء تعطي تباين خفيف، والقاعدة الداكنة حضورها أهدى. وإذا باقي تفاصيلك بنية، قرّب درجة الجزمة منها. ما يحتاج تكرر اللون في كل شي، يكفي رابط واحد بين الجزمة والكاب أو الشراب.</p></details>
+    <details><summary><small>قبل تطلب</small>تطلب جزمة أونلاين لأول مرة؟</summary><p>قِس رجلك بالسنتي وطابقها مع جدول المقاسات. لما توصلك، جرّبها في البيت بالشراب اللي بتلبسه معها، وخل الكرتون معك لين تتأكد.</p></details>
+    <details><summary><small>عناية</small>كيف تحافظ على النسيج والجلد؟</summary><p>امسح الغبار بفرشاة ناعمة، وجرّب المنظف على مكان ما يبين قبل. لا تغطسها في الموية ولا تنشفها على حرارة مباشرة.</p></details>
+  </div></section>
+
+  <section class="closing" id="join">
+    <h2>خلك أول من يدري.</h2>
+    <p>ننزل ألوان جديدة كل فترة، والمقاسات تخلص بسرعة. حط رقمك ونعلمك على الواتساب أول ما ينزل شي.</p>
+    <form class="lead-form" id="lead-form" novalidate>
+      <label class="visually-hidden" for="lead-phone">رقم الجوال</label>
+      <input id="lead-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX" dir="ltr">
+      <button class="primary" type="submit">علّمني</button>
+    </form>
+    <p class="lead-message" id="lead-message" role="status"></p>
+  </section>
+</div>
+
+<section id="product-view" hidden aria-label="صفحة المنتج"></section>
+<section id="lp-view" hidden aria-label="عرض طراز"></section>
+<section id="collection-view" hidden aria-label="المجموعة"></section>
 {% endblock %}

@@ -1,250 +1,122 @@
 {#
-  TERAZ single product page (theme-raed: src/views/pages/product/single.twig).
-  Includes complete server-side TERAZ defaults so even generic Salla demo products in Theme Editor
-  render the full TERAZ Atelier product page (gallery, sizes, badges, accordions, bundle, story, alternatives).
+  TERAZ 2.0 Single Product Page (src/views/pages/product/single.twig)
 #}
-{% extends 'layouts.master' %}
-
-{% set home_url = store.url|default('/') %}
-{% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
-{% set shipping_fee = theme.settings.get('teraz_shipping_fee')|default(29) %}
-{% set product_image = product.image.url|default('images/beige-white.webp'|asset) %}
+{% extends "layouts.master" %}
 
 {% block title %}{{ product.name|default('ثرى طويق') }} | {{ store.name|default('طراز') }}{% endblock %}
 {% block body_class %}teraz-product{% endblock %}
 
 {% block content %}
-<div class="teraz" id="product-view" data-pending="true" data-product-id="{{ product.id }}">
+<script type="application/json" id="teraz-product-data">{{ {
+  id: product.id,
+  sku: product.sku,
+  name: product.name,
+  url: product.url,
+  price: product.price ? (product.price|money) : 319,
+  regular_price: product.regular_price ? (product.regular_price|money) : 319,
+  is_on_sale: product.is_on_sale ? true : false,
+  is_available: product.is_available is defined ? (product.is_available ? true : false) : true,
+  image: product.image.url|default(''),
+  options: product.options|default([])
+}|json_encode|raw }}</script>
+<div id="home-view">
 
-  <script type="application/json" id="teraz-product-data">{{ {
-    id: product.id,
-    sku: product.sku,
-    name: product.name,
-    url: product.url,
-    price: product.price ? (product.price|money) : 319,
-    regular_price: product.regular_price ? (product.regular_price|money) : (product.price ? (product.price|money) : 319),
-    is_on_sale: product.is_on_sale ? true : false,
-    is_available: product.is_available is defined ? (product.is_available ? true : false) : true,
-    image: product_image,
-    options: product.options|default([])
-  }|json_encode|raw }}</script>
-
-  <div class="product-breadcrumb">
-    <a href="{{ home_url }}#knit" data-role="back-link">→ العودة إلى المجموعة</a>
-    <span>طراز / <b data-role="crumb-name">{{ product.name|default('ثرى طويق') }}</b></span>
-  </div>
-
-  <div class="product-layout">
-
-    {# ----- Sticky gallery ------------------------------------------------ #}
-    <div class="product-gallery">
-      <div class="primary-photo">
-        <img fetchpriority="high" data-role="primary-img" src="{{ product_image }}" width="1200" height="900" alt="{{ product.image.alt|default(product.name|default('طراز')) }}">
-        <span class="photo-caption" data-role="color">بيج دافئ، بني، وأبيض</span>
-        <button type="button" class="zoom-button" data-action="zoom" aria-label="تكبير صورة المنتج" aria-pressed="false">↗</button>
-      </div>
-      <div class="gallery-choices">
-        <button type="button" aria-pressed="true" data-image-mode="full">التصميم كاملًا</button>
-        <button type="button" aria-pressed="false" data-image-mode="detail" data-role="detail-label">تفاصيل الحياكة والجلد</button>
-      </div>
-      <p class="gallery-note" data-role="gallery-note">نسيج محاك بتفاصيل من الجلد الطبيعي وقاعدة مريحة ليومك.</p>
+  <section class="hero" id="home">
+    <div class="hero-wording">
+      <p class="eyebrow">للرجل السعودي، ولكل مشاويره</p>
+      <h1>راحة تليق بالمقام.</h1>
+      <p class="hero-sub">جزمة وحدة تمشي مع ثوبك وكاجوالك. خفيفة على رجلك، وفيها من الجلد اللي يعطيها هيبة.</p>
+      <p class="hero-price">من <b>319 ريال</b> <span id="hero-rating"></span></p>
+      <div class="hero-actions"><a class="primary" href="#knit">اختر جزمتك <span>←</span></a><a class="secondary" href="#offers">وش العروض؟</a></div>
     </div>
-
-    {# ----- Purchase panel ------------------------------------------------ #}
-    <div class="purchase-panel">
-      <span class="eyebrow" data-role="eyebrow" data-hydrate>{{ product.category.name|default('TERAZ–KNIT / مجموعة الأناقة') }}</span>
-      <h1 data-role="product-title">{{ product.name|default('ثرى طويق') }}</h1>
-      <p class="product-headline" data-role="headline" data-hydrate>{{ product.subtitle|default('هدوء الرمل. وحضورك واضح.') }}</p>
-      <p class="product-intro" data-role="intro" data-hydrate>{{ product.description ? (product.description|striptags|slice(0, 320)) : 'لون بيج دافئ يخفف حدة الإطلالة، وتفاصيل بنية تعطي النسيج عمقًا. يناسبك إذا تبي جزمة سهلة التنسيق، بطابع مرتب مع الثوب أو لبس نهاية الأسبوع.' }}</p>
-
-      <div class="price-line">
-        <strong data-role="price">{{ product.price ? (product.price|money) : '319 ر.س' }}</strong>
-        {% if product.is_on_sale %}<del data-role="regular">{{ product.regular_price|money }}</del>{% endif %}
-      </div>
-      <p class="installment-banner" data-role="installment-note">أو قسّمها على 4 دفعات بقيمة <strong>80 ر.س</strong> بدون فوائد عبر <b>تابي</b> أو <b>تمارا</b></p>
-      <p class="shipping-info">الشحن {{ shipping_fee }} ر.س · مجاني عند {{ threshold }} ر.س<br>موعد التوصيل الفعلي يُحدّد حسب العنوان قبل الدفع.</p>
-
-      {# Salla option groups -> TERAZ size buttons. data-option-id / data-value-id feed salla.cart.addItem({options}). #}
-      <div id="sizes-host" data-hydrate>
-        {% for option in product.options|default([]) %}
-          <fieldset class="sizes" data-option-id="{{ option.id }}" data-option-name="{{ option.name }}">
-            <legend>{{ option.name|default('اختر المقاس') }}</legend>
-            <div>
-              {% for value in option.details|default([]) %}
-                <button type="button" data-size="{{ value.name }}" data-option-id="{{ option.id }}" data-value-id="{{ value.id }}" aria-pressed="false"{% if value.is_out_of_stock %} data-out="true"{% endif %}>{{ value.name }}</button>
-              {% endfor %}
-            </div>
-            <p data-role="fit-note">اطلب مقاسك المعتاد، وإذا كنت بين مقاسين اختر الأصغر.</p>
-          </fieldset>
-        {% endfor %}
-      </div>
-
-      <div class="buy-row">
-        <label class="qty-input">الكمية <input id="product-qty" type="number" value="1" min="1" max="10" inputmode="numeric"></label>
-        <button type="button" class="primary" data-action="add-product"{% if product.is_available is defined and not product.is_available %} disabled{% endif %}>
-          <span data-role="add-label">{{ (product.is_available is defined and not product.is_available) ? 'غير متوفر حاليًا' : 'أضف للحقيبة' }}</span> <span>+</span>
-        </button>
-      </div>
-      <p id="size-error" class="validation" role="alert"></p>
-
-      <div class="trust-badges" data-role="badges" data-hydrate>
-        <span>نسيج محاك بتفاصيل جلد طبيعي</span>
-        <span>فرشة مغطاة بجلد الماعز الطبيعي</span>
-        <a href="#product-guarantee">ضمان ذهبي بشروطه</a>
-      </div>
-
-      {# ----- Availability notification (Salla stock subscription) -------- #}
-      <button type="button" class="notify-link" data-action="notify" aria-expanded="false" aria-controls="notify-panel" data-role="notify-link">نبّهني عند التوفر</button>
-      <div id="notify-panel" hidden>
-        <p data-role="notify-copy">سجّل بريدك أو رقم جوالك وسنرسل لك إشعارًا فور توفر مقاسك.</p>
-        <form id="notify-form" class="notify-form" novalidate>
-          <label class="visually-hidden" for="notify-contact">البريد الإلكتروني أو رقم الجوال</label>
-          <input id="notify-contact" name="contact" type="text" inputmode="email" autocomplete="email" placeholder="البريد الإلكتروني أو رقم الجوال" data-guest-only>
-          <button type="submit" class="secondary" data-action="save-notify">نبّهني عند التوفر</button>
-        </form>
-        <p id="notify-message" role="status"></p>
-      </div>
-
-      <div class="product-accordions" data-role="accordions" data-hydrate>
-        <details open><summary>كيف تنسّقه مع إطلالتك</summary><p>ينسجم مع الثوب الأبيض والألوان الترابية، ومع لبس الكاجوال اليومي.</p></details>
-        <details><summary>الخامات والتفاصيل</summary><p>نسيج من خيوط البوليستر 100% مع تفاصيل من الجلد الطبيعي، وفرشة مريحة مغطاة بجلد الماعز الطبيعي.</p></details>
-        <details><summary>المقاس واللبس</summary><p>اطلب مقاسك المعتاد، وإذا كنت بين مقاسين اختر الأصغر.</p></details>
-        <details id="product-guarantee"><summary>الضمان الذهبي (14 يوم استرجاع / 20 يوم استبدال)</summary><p>14 يومًا للاسترجاع و20 يومًا للاستبدال من تاريخ الاستلام، مع بقاء المنتج بحالته الأصلية وتغليفه.</p></details>
-      </div>
-    </div>
-  </div>
-
-  {# ----- Complete the look ------------------------------------------------ #}
-  <section class="section complete-look" id="complete-look" data-hydrate hidden>
-    <div class="look-heading">
-      <span class="eyebrow" data-role="look-eyebrow">كمّل كشختك</span>
-      <h2 data-role="look-title">تنسيق جاهز على طرازك.</h2>
-      <p data-role="look-text">اخترنا لك القطع الأقرب للون جزمتك مع مجموعة العناية، لتصل لحد الشحن المجاني بسهولة.</p>
-    </div>
-    <p class="look-guide" data-role="look-guide">حدّد المقاس والقطع اللي تبي تضيفها، وشاهد الإجمالي والتقدم نحو الشحن المجاني مباشرة.</p>
-    <div class="bundle-picker">
-      <div id="bundle-items" aria-busy="true"></div>
-      <div class="bundle-total">
-        <div class="bundle-base">
-          <strong id="bundle-base-name">{{ product.name|default('ثرى طويق') }}</strong>
-          <p id="bundle-base-note" hidden></p>
-          <label id="bundle-base-size-label" hidden>مقاس المنتج الأساسي
-            <select id="bundle-base-size" aria-label="مقاس المنتج الأساسي {{ product.name|default('ثرى طويق') }}"><option value="">اختر مقاسك</option></select>
-          </label>
-          <label>كمية المنتج الأساسي <input id="bundle-base-qty" type="number" min="1" max="10" value="1" inputmode="numeric"></label>
-        </div>
-        <div id="bundle-shipping" aria-live="polite"></div>
-        <span>منتجك + القطع المختارة</span>
-        <strong id="bundle-total">{{ product.price ? (product.price|money) : '319 ر.س' }}</strong>
-        <small>المنتج الأساسي + الإضافات التي تختارها</small>
-        <button type="button" class="primary" data-action="add-bundle">أضف اختياراتي للحقيبة +</button>
-        <p id="bundle-message" role="status"></p>
-      </div>
+    <div class="atelier-stage" aria-label="ألوان طراز الثمانية على درج حجري">
+      <img class="stage-bg" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/atelier.webp" width="1536" height="1024" alt="" fetchpriority="high">
+      <div id="hero-shoes"></div>
+      <div id="hero-peek" aria-hidden="true"><img alt=""><span></span></div>
     </div>
   </section>
 
-  {# ----- Story ------------------------------------------------------------- #}
-  <section class="product-story section" data-hydrate hidden>
-    <div>
-      <span class="eyebrow" data-role="story-label">عن التصميم والخامة</span>
-      <h2 data-role="story-title">حياكة تتنفس. وجلد يكمل الوقار.</h2>
-      <p data-role="story-text">صُمّم ليجمع خفة الحذاء المحاك مع حضور التفاصيل الجلدية التي تليق بالثوب السعودي وإطلالاتك اليومية.</p>
-      <p data-role="story-extra">قاعدة مريحة وفرشة داخلية مغطاة بجلد الماعز الطبيعي لخطوة هادئة طوال اليوم.</p>
+  <section class="trust-strip" id="trust" aria-label="ليش تطلب من طراز وانت مرتاح"></section>
+
+  <nav class="quick-nav" aria-label="الأقسام">
+    <a href="#knit">الأحذية</a><a href="#c/mule">لوفر الكشخة</a><a href="#c/clogs">الخف</a><a href="#c/caps">الكابات</a><a href="#c/socks">الشرابات</a><a href="#c/care">العناية</a><a href="#offers">العروض</a>
+  </nav>
+
+  <section class="section needs" id="needs">
+    <header class="section-heading"><div><h2>وش مشوارك اليوم؟</h2><p>كل مشوار له جزمته. شوف وش يناسبك.</p></div></header>
+    <div class="needs-grid" id="needs-grid"></div>
+  </section>
+
+  <section class="section collection" id="knit">
+    <header class="section-heading">
+      <div><h2>مجموعة الأناقة</h2><p>ثمان ألوان، وكل لون له مكانه. رتّبها على حسب لبسك.</p></div>
+      <div class="strip-controls"><button type="button" data-scroll="knit" data-dir="1" aria-label="السابق">→</button><button type="button" data-scroll="knit" data-dir="-1" aria-label="التالي">←</button></div>
+    </header>
+    <div class="sort-bar" role="group" aria-label="رتّب حسب لبسك"><button type="button" data-sort="thobe" aria-pressed="true">مع الثوب</button><button type="button" data-sort="casual" aria-pressed="false">مع الكاجوال</button><button type="button" data-sort="walking" aria-pressed="false">للمشي</button></div>
+    <div class="product-strip" data-group="knit" tabindex="0" aria-label="ألوان مجموعة الأناقة"></div>
+  </section>
+
+  <section class="section why" id="why">
+    <div class="why-copy">
+      <h2>ليش طراز؟</h2>
+      <p class="lead">كلنا مرّينا فيها: الرياضي مريح بس ما يركب مع الثوب، والكلاسيكي يركب بس يتعبك في الحر. طراز جات بين الاثنين.</p>
+      <ul class="why-facts">
+        <li><b>نسيج محاك يهوّي</b> خفيف ويريّح رجلك في أجوائنا.</li>
+        <li><b>جلد طبيعي حول الرباط والكعب</b> يعطيها شكل رسمي مع الثوب.</li>
+        <li><b>فرشة مغطاة بجلد ماعز</b> تحسها من أول لبسة.</li>
+      </ul>
+      <a class="underlined" href="#knit">اختر أي لون وشوف تفاصيله عن قرب</a>
     </div>
-    <div class="story-image"><img loading="lazy" data-role="story-img" src="{{ product_image }}" width="1200" height="900" alt="{{ product.name|default('طراز') }}"></div>
+    <div class="compare" role="table" aria-label="مقارنة طراز مع الرياضي والكلاسيكي">
+      <div class="compare-row compare-head" role="row"><span role="columnheader"></span><span role="columnheader">الرياضي</span><span role="columnheader">الكلاسيكي الجلد</span><span role="columnheader" class="ours">طراز</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">مع الثوب</span><span role="cell">شكله غريب</span><span role="cell">يركب</span><span role="cell" class="ours">يركب، وله هيبة</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">مع الجينز</span><span role="cell">يركب</span><span role="cell">رسمي زيادة</span><span role="cell" class="ours">يركب</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">في الحر</span><span role="cell">يهوّي</span><span role="cell">حار وثقيل</span><span role="cell" class="ours">يهوّي</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">من الصبح لليل</span><span role="cell">مريح</span><span role="cell">يتعب</span><span role="cell" class="ours">مريح</span></div>
+    </div>
   </section>
 
-  {# ----- Alternatives ------------------------------------------------------ #}
-  <section class="section alternatives" data-hydrate hidden>
-    <span class="eyebrow" data-role="alt-eyebrow">من نفس المجموعة</span>
-    <h2 data-role="alt-title">اختَر اللون اللي يشبهك.</h2>
-    <div class="product-strip" data-role="alternatives">
-    <article class="product-card" data-fallback="true"
-      data-sku="badr"
-      data-name="ظل البدر"
-      data-url="#p/badr"
-      data-price="319"
-      data-regular-price="319"
-      data-image="{{ 'images/black-white.webp'|asset }}"
-      data-available="true"
-      data-teraz-id="badr">
-      <a class="product-image" href="#p/badr" aria-label="تفاصيل ظل البدر">
-        <img loading="lazy" src="{{ 'images/black-white.webp'|asset }}" width="1200" height="900" alt="ظل البدر، أسود مع قاعدة بيضاء">
-      </a>
-      <div class="card-meta">
-        <span class="card-color">أسود مع قاعدة بيضاء</span>
-        <h3><a href="#p/badr">ظل البدر</a></h3>
-        <div class="card-bottom">
-          <b>319 ر.س</b>
-          <a href="#p/badr">اكتشف التفاصيل ↗</a>
-        </div>
-      </div>
-    </article>
-    <article class="product-card" data-fallback="true"
-      data-sku="night"
-      data-name="عتيم الليل"
-      data-url="#p/night"
-      data-price="319"
-      data-regular-price="319"
-      data-image="{{ 'images/black.webp'|asset }}"
-      data-available="true"
-      data-teraz-id="night">
-      <a class="product-image" href="#p/night" aria-label="تفاصيل عتيم الليل">
-        <img loading="lazy" src="{{ 'images/black.webp'|asset }}" width="1200" height="900" alt="عتيم الليل، أسود بالكامل">
-      </a>
-      <div class="card-meta">
-        <span class="card-color">أسود بالكامل</span>
-        <h3><a href="#p/night">عتيم الليل</a></h3>
-        <div class="card-bottom">
-          <b>319 ر.س</b>
-          <a href="#p/night">اكتشف التفاصيل ↗</a>
-        </div>
-      </div>
-    </article>
-    <article class="product-card" data-fallback="true"
-      data-sku="oud"
-      data-name="عتيق العود"
-      data-url="#p/oud"
-      data-price="319"
-      data-regular-price="319"
-      data-image="{{ 'images/brown-white.webp'|asset }}"
-      data-available="true"
-      data-teraz-id="oud">
-      <a class="product-image" href="#p/oud" aria-label="تفاصيل عتيق العود">
-        <img loading="lazy" src="{{ 'images/brown-white.webp'|asset }}" width="1200" height="900" alt="عتيق العود، بني غني مع قاعدة بيضاء">
-      </a>
-      <div class="card-meta">
-        <span class="card-color">بني غني مع قاعدة بيضاء</span>
-        <h3><a href="#p/oud">عتيق العود</a></h3>
-        <div class="card-bottom">
-          <b>319 ر.س</b>
-          <a href="#p/oud">اكتشف التفاصيل ↗</a>
-        </div>
-      </div>
-    </article>
-    <article class="product-card" data-fallback="true"
-      data-sku="ramth"
-      data-name="غصن الرمث"
-      data-url="#p/ramth"
-      data-price="319"
-      data-regular-price="319"
-      data-image="{{ 'images/olive.webp'|asset }}"
-      data-available="true"
-      data-teraz-id="ramth">
-      <a class="product-image" href="#p/ramth" aria-label="تفاصيل غصن الرمث">
-        <img loading="lazy" src="{{ 'images/olive.webp'|asset }}" width="1200" height="900" alt="غصن الرمث، زيتي، بني، وأبيض">
-      </a>
-      <div class="card-meta">
-        <span class="card-color">زيتي، بني، وأبيض</span>
-        <h3><a href="#p/ramth">غصن الرمث</a></h3>
-        <div class="card-bottom">
-          <b>319 ر.س</b>
-          <a href="#p/ramth">اكتشف التفاصيل ↗</a>
-        </div>
-      </div>
-    </article>
-      </div>
+  <section class="section accessories" id="accessories">
+    <header class="section-heading"><div><h2>كمّل كشختك</h2><p>التفاصيل الصغيرة هي اللي تفرق. كل قطعة هنا لونها مختار على ألوان جزمنا، عشان تطلع متناسق من راسك لرجلك.</p></div></header>
+    <div id="category-rows"></div>
   </section>
 
+  <section class="section offers" id="offers">
+    <header class="section-heading"><div><h2>خذها لحالها، أو كمّلها وارتاح.</h2><p>كل ما زادت القطع، زاد اللي توفره.</p></div></header>
+    <div class="offer-grid" id="home-offers"></div>
+  </section>
+
+  <section class="section reviews" id="reviews" hidden></section>
+
+  <section class="section guarantee" id="guarantee">
+    <div><h2>اطلب وانت مرتاح.</h2><p>جرّبها في البيت على راحتك. ما ضبط المقاس؟ نبدلها لك، وأول تبديل شحنه علينا.</p></div>
+    <div class="guarantee-facts" id="guarantee-facts"></div>
+  </section>
+
+  <section class="section questions" id="questions">
+    <div><h2>عندك سؤال؟</h2><p class="side-help" id="faq-help"></p></div>
+    <div id="faq"></div>
+  </section>
+
+  <section class="section journal"><h2>قبل تختار</h2><div class="journal-grid">
+    <details><summary><small>تنسيق</small>كيف تختار جزمتك مع الثوب؟</summary><p>ابدأ من ألوان لبسك. مع الثوب الأبيض، القاعدة البيضاء تعطي تباين خفيف، والقاعدة الداكنة حضورها أهدى. وإذا باقي تفاصيلك بنية، قرّب درجة الجزمة منها. ما يحتاج تكرر اللون في كل شي، يكفي رابط واحد بين الجزمة والكاب أو الشراب.</p></details>
+    <details><summary><small>قبل تطلب</small>تطلب جزمة أونلاين لأول مرة؟</summary><p>قِس رجلك بالسنتي وطابقها مع جدول المقاسات. لما توصلك، جرّبها في البيت بالشراب اللي بتلبسه معها، وخل الكرتون معك لين تتأكد.</p></details>
+    <details><summary><small>عناية</small>كيف تحافظ على النسيج والجلد؟</summary><p>امسح الغبار بفرشاة ناعمة، وجرّب المنظف على مكان ما يبين قبل. لا تغطسها في الموية ولا تنشفها على حرارة مباشرة.</p></details>
+  </div></section>
+
+  <section class="closing" id="join">
+    <h2>خلك أول من يدري.</h2>
+    <p>ننزل ألوان جديدة كل فترة، والمقاسات تخلص بسرعة. حط رقمك ونعلمك على الواتساب أول ما ينزل شي.</p>
+    <form class="lead-form" id="lead-form" novalidate>
+      <label class="visually-hidden" for="lead-phone">رقم الجوال</label>
+      <input id="lead-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX" dir="ltr">
+      <button class="primary" type="submit">علّمني</button>
+    </form>
+    <p class="lead-message" id="lead-message" role="status"></p>
+  </section>
 </div>
+
+<section id="product-view" hidden aria-label="صفحة المنتج"></section>
+<section id="lp-view" hidden aria-label="عرض طراز"></section>
+<section id="collection-view" hidden aria-label="المجموعة"></section>
 {% endblock %}

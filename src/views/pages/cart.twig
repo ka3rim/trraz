@@ -1,177 +1,115 @@
 {#
-  TERAZ Cart & Review Page (src/views/pages/cart.twig).
-  Matches the exact TERAZ Atelier bag & review aesthetic while supporting full Salla cart operations,
-  coupons, conditional offers, and Complete-the-Look cross-sell recommendations.
+  TERAZ 2.0 Cart Page (src/views/pages/cart.twig)
 #}
 {% extends "layouts.master" %}
 
-{% set home_url = store.url|default('/') %}
-{% set threshold = theme.settings.get('teraz_free_shipping_threshold')|default(479) %}
-{% set shipping_fee = theme.settings.get('teraz_shipping_fee')|default(29) %}
-{% set sub_num = cart.sub_total|default(0) %}
-{% set remaining = sub_num >= threshold ? 0 : (threshold - sub_num) %}
-{% set progress = threshold > 0 ? ((sub_num / threshold) * 100) : 0 %}
-{% if progress > 100 %}{% set progress = 100 %}{% endif %}
-
-{% block title %}{{ page.title|default('حقيبتك') }} | {{ store.name|default('طراز') }}{% endblock %}
-{% block body_class %}teraz-cart{% endblock %}
+{% block title %}حقيبتك | {{ store.name|default('طراز') }}{% endblock %}
+{% block body_class %}teraz-cart-page{% endblock %}
 
 {% block content %}
-<div class="teraz teraz-cart-page">
-  <div class="product-breadcrumb">
-    <a href="{{ home_url }}#knit">→ العودة إلى المجموعة</a>
-    <span>طراز / حقيبتك</span>
-  </div>
+<div id="home-view">
 
-  <section class="section teraz-cart-section">
-    <header class="section-heading">
-      <div>
-        <span class="eyebrow">على طرازك</span>
-        <h1>حقيبتك ومراجعة طلبك</h1>
-        <p>راجع المقاسات والكميات، أو أضف ما يكمل كشختك قبل إتمام الطلب.</p>
-      </div>
-    </header>
-
-    <salla-conditional-offer data-testid="store-cart-conditional-offer"></salla-conditional-offer>
-
-    <div id="cart-page-host" class="teraz-cart-grid">
-      <div class="checkout-main">
-        <div id="cart-page-shipping">
-          <div class="shipping-progress">
-            <div>
-              <span>{{ remaining > 0 ? ('باقي ' ~ remaining ~ ' ر.س للشحن المجاني') : 'وصلت للشحن المجاني' }}</span>
-              <small>شحن مجاني من {{ threshold }} ر.س</small>
-            </div>
-            <progress value="{{ progress }}" max="100" aria-label="التقدم نحو حد الشحن المجاني">{{ progress|round }}%</progress>
-          </div>
-        </div>
-
-        {% hook 'cart:items.start' %}
-
-        <div id="cart-page-lines" class="cart-lines">
-          {% for item in cart.items|default([]) %}
-            <form onchange="salla.form.onChange('cart.updateItem', event)" id="item-{{ item.id }}">
-              <article data-testid="store-cart-item-{{ item.id }}" class="cart-line" data-line="{{ item.id }}">
-                <input type="hidden" name="id" value="{{ item.id }}">
-                <a href="{{ item.url }}">
-                  <img src="{{ item.product_image }}" width="1200" height="900" alt="{{ item.product_name }}" loading="{{ loop.first ? 'eager' : 'lazy' }}">
-                </a>
-                <div>
-                  <h3><a href="{{ item.url }}">{{ item.product_name }}</a></h3>
-                  <p>
-                    <span data-testid="store-cart-item-price" class="item-price">{{ item.price|money }}</span>
-                    {% if item.weight_label %} · {{ trans('pages.products.weight') }} {{ item.weight_label }}{% endif %}
-                  </p>
-                  {% include 'pages.partials.product.options' with { product: item } %}
-                  <salla-cart-item-offers
-                    quantity="{{ item.quantity }}"
-                    item-id="{{ item.id }}"
-                    product-price="{{ item.product_price }}"
-                    offers="{{ item.detailed_offers|json_encode }}"></salla-cart-item-offers>
-                  <strong class="item-total">{{ item.total|money }}</strong>
-                  <div class="qty-control">
-                    {% if item.type != 'donating' and not item.is_hidden_quantity %}
-                      <salla-quantity-input cart-item-id="{{ item.id }}" max="{{ item.max_quantity }}"
-                        class="teraz-salla-qty"
-                        aria-label="Quantity"
-                        value="{{ item.quantity }}" name="quantity">
-                      </salla-quantity-input>
-                    {% endif %}
-                    <salla-button type="button" shape="icon" size="small" color="danger" class="remove-item"
-                      data-testid="store-cart-item-delete-{{ item.id }}"
-                      onclick="salla.cart.deleteItem('{{ item.id }}').then(() => document.querySelector('#item-{{ item.id }}').remove())">
-                      إزالة
-                    </salla-button>
-                  </div>
-                </div>
-              </article>
-            </form>
-          {% else %}
-            <div class="empty-bag" id="cart-page-empty">
-              <span>طرازك يبدأ باختيار.</span>
-              <h3>حقيبتك تنتظر ذوقك.</h3>
-              <p>اكتشف مجموعة الأحذية المحاكة والكابات والشرابات وخفّ الكشخة.</p>
-              <a href="{{ home_url }}#knit" class="primary">اكتشف المجموعة ←</a>
-            </div>
-          {% endfor %}
-        </div>
-
-        {% hook 'cart:items.end' %}
-
-        <details class="cart-recommend" open>
-          <summary>
-            <span>كمّل كشختك <small>قطع تتناسق مع اختيارك · اختياري</small></span>
-            <b>+</b>
-          </summary>
-          <div class="checkout-addons" id="cart-page-addons"></div>
-        </details>
-      </div>
-
-      <aside class="cart-summary" id="cart-page-summary">
-        <h3>ملخص طلبك</h3>
-
-        {% hook 'cart:summary.start' %}
-
-        <p><span>مجموع المنتجات</span><strong id="sub-total">{{ cart.sub_total|money }}</strong></p>
-
-        {% if cart.options|default([])|length %}
-          <div class="teraz-cart-options">
-            {% for product_option in cart.options %}
-              <form onchange="salla.form.onChange('cart.updateItem', event)" id="item-{{ product_option.id }}">
-                <input type="hidden" name="id" value="{{ product_option.id }}">
-                <input type="hidden" name="quantity" value="{{ product_option.quantity }}">
-                {% include 'pages.partials.product.options' with { product: product_option } %}
-              </form>
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        <p id="shipping-cost" class="{{ cart.has_shipping ? '' : '' }}">
-          <span>الشحن المتوقع</span>
-          <strong>{{ (sub_num > 0 and sub_num < threshold) ? (shipping_fee ~ ' ر.س') : 'مجاني' }}</strong>
-        </p>
-
-        {% if store.settings.cart.apply_coupon_enabled %}
-          <div class="teraz-coupon-box">
-            <label for="coupon-input">كود الخصم</label>
-            <div class="teraz-coupon-row">
-              <input type="text" data-testid="store-cart-coupon-input" id="coupon-input" value="{{ cart.coupon }}" placeholder="أدخل كود الخصم" {{ cart.coupon ? 'disabled' : '' }}>
-              <salla-button class="teraz-coupon-btn {{ cart.coupon ? 'has-coupon' : '' }}" data-testid="store-cart-coupon-btn" id="coupon-btn">
-                <span class="coupon-text">{{ cart.coupon ? 'إلغاء' : 'تطبيق' }}</span>
-              </salla-button>
-            </div>
-            <span class=" validation" id="coupon-error"></span>
-          </div>
-        {% endif %}
-
-        <p id="total-discount" class="{{ cart.discount ? '' : 'hidden' }}">
-          <span>الخصم</span>
-          <strong>- {{ cart.discount|money }}</strong>
-        </p>
-
-        {% if cart.tax_amount %}
-          <p><span>ضريبة القيمة المضافة</span><strong id="tax-amount">{{ cart.tax_amount|money }}</strong></p>
-        {% endif %}
-
-        <p class="grand-total">
-          <span>الإجمالي المتوقع</span>
-          <strong data-testid="store-cart-total" id="cart-total">{{ cart.total|money }}</strong>
-        </p>
-
-        <small>التكلفة النهائية للشحن وأي خصومات تظهر لك في صفحة الدفع. 14 يومًا للاسترجاع · 20 يومًا للاستبدال.</small>
-
-        <div class="teraz-checkout-cta">
-          {% hook 'cart:submit.start' %}
-          <button type="button" class="primary" id="cart-submit" data-action="checkout" data-testid="store-cart-submit" style="width:100%">
-            إتمام الطلب ←
-          </button>
-          {% hook 'cart:submit.end' %}
-        </div>
-
-        <a href="{{ home_url }}#knit" class="text-button">أكمل التصفح</a>
-        {% hook 'cart:summary.end' %}
-      </aside>
+  <section class="hero" id="home">
+    <div class="hero-wording">
+      <p class="eyebrow">للرجل السعودي، ولكل مشاويره</p>
+      <h1>راحة تليق بالمقام.</h1>
+      <p class="hero-sub">جزمة وحدة تمشي مع ثوبك وكاجوالك. خفيفة على رجلك، وفيها من الجلد اللي يعطيها هيبة.</p>
+      <p class="hero-price">من <b>319 ريال</b> <span id="hero-rating"></span></p>
+      <div class="hero-actions"><a class="primary" href="#knit">اختر جزمتك <span>←</span></a><a class="secondary" href="#offers">وش العروض؟</a></div>
+    </div>
+    <div class="atelier-stage" aria-label="ألوان طراز الثمانية على درج حجري">
+      <img class="stage-bg" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/atelier.webp" width="1536" height="1024" alt="" fetchpriority="high">
+      <div id="hero-shoes"></div>
+      <div id="hero-peek" aria-hidden="true"><img alt=""><span></span></div>
     </div>
   </section>
+
+  <section class="trust-strip" id="trust" aria-label="ليش تطلب من طراز وانت مرتاح"></section>
+
+  <nav class="quick-nav" aria-label="الأقسام">
+    <a href="#knit">الأحذية</a><a href="#c/mule">لوفر الكشخة</a><a href="#c/clogs">الخف</a><a href="#c/caps">الكابات</a><a href="#c/socks">الشرابات</a><a href="#c/care">العناية</a><a href="#offers">العروض</a>
+  </nav>
+
+  <section class="section needs" id="needs">
+    <header class="section-heading"><div><h2>وش مشوارك اليوم؟</h2><p>كل مشوار له جزمته. شوف وش يناسبك.</p></div></header>
+    <div class="needs-grid" id="needs-grid"></div>
+  </section>
+
+  <section class="section collection" id="knit">
+    <header class="section-heading">
+      <div><h2>مجموعة الأناقة</h2><p>ثمان ألوان، وكل لون له مكانه. رتّبها على حسب لبسك.</p></div>
+      <div class="strip-controls"><button type="button" data-scroll="knit" data-dir="1" aria-label="السابق">→</button><button type="button" data-scroll="knit" data-dir="-1" aria-label="التالي">←</button></div>
+    </header>
+    <div class="sort-bar" role="group" aria-label="رتّب حسب لبسك"><button type="button" data-sort="thobe" aria-pressed="true">مع الثوب</button><button type="button" data-sort="casual" aria-pressed="false">مع الكاجوال</button><button type="button" data-sort="walking" aria-pressed="false">للمشي</button></div>
+    <div class="product-strip" data-group="knit" tabindex="0" aria-label="ألوان مجموعة الأناقة"></div>
+  </section>
+
+  <section class="section why" id="why">
+    <div class="why-copy">
+      <h2>ليش طراز؟</h2>
+      <p class="lead">كلنا مرّينا فيها: الرياضي مريح بس ما يركب مع الثوب، والكلاسيكي يركب بس يتعبك في الحر. طراز جات بين الاثنين.</p>
+      <ul class="why-facts">
+        <li><b>نسيج محاك يهوّي</b> خفيف ويريّح رجلك في أجوائنا.</li>
+        <li><b>جلد طبيعي حول الرباط والكعب</b> يعطيها شكل رسمي مع الثوب.</li>
+        <li><b>فرشة مغطاة بجلد ماعز</b> تحسها من أول لبسة.</li>
+      </ul>
+      <a class="underlined" href="#knit">اختر أي لون وشوف تفاصيله عن قرب</a>
+    </div>
+    <div class="compare" role="table" aria-label="مقارنة طراز مع الرياضي والكلاسيكي">
+      <div class="compare-row compare-head" role="row"><span role="columnheader"></span><span role="columnheader">الرياضي</span><span role="columnheader">الكلاسيكي الجلد</span><span role="columnheader" class="ours">طراز</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">مع الثوب</span><span role="cell">شكله غريب</span><span role="cell">يركب</span><span role="cell" class="ours">يركب، وله هيبة</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">مع الجينز</span><span role="cell">يركب</span><span role="cell">رسمي زيادة</span><span role="cell" class="ours">يركب</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">في الحر</span><span role="cell">يهوّي</span><span role="cell">حار وثقيل</span><span role="cell" class="ours">يهوّي</span></div>
+      <div class="compare-row" role="row"><span role="rowheader">من الصبح لليل</span><span role="cell">مريح</span><span role="cell">يتعب</span><span role="cell" class="ours">مريح</span></div>
+    </div>
+  </section>
+
+  <section class="section accessories" id="accessories">
+    <header class="section-heading"><div><h2>كمّل كشختك</h2><p>التفاصيل الصغيرة هي اللي تفرق. كل قطعة هنا لونها مختار على ألوان جزمنا، عشان تطلع متناسق من راسك لرجلك.</p></div></header>
+    <div id="category-rows"></div>
+  </section>
+
+  <section class="section offers" id="offers">
+    <header class="section-heading"><div><h2>خذها لحالها، أو كمّلها وارتاح.</h2><p>كل ما زادت القطع، زاد اللي توفره.</p></div></header>
+    <div class="offer-grid" id="home-offers"></div>
+  </section>
+
+  <section class="section reviews" id="reviews" hidden></section>
+
+  <section class="section guarantee" id="guarantee">
+    <div><h2>اطلب وانت مرتاح.</h2><p>جرّبها في البيت على راحتك. ما ضبط المقاس؟ نبدلها لك، وأول تبديل شحنه علينا.</p></div>
+    <div class="guarantee-facts" id="guarantee-facts"></div>
+  </section>
+
+  <section class="section questions" id="questions">
+    <div><h2>عندك سؤال؟</h2><p class="side-help" id="faq-help"></p></div>
+    <div id="faq"></div>
+  </section>
+
+  <section class="section journal"><h2>قبل تختار</h2><div class="journal-grid">
+    <details><summary><small>تنسيق</small>كيف تختار جزمتك مع الثوب؟</summary><p>ابدأ من ألوان لبسك. مع الثوب الأبيض، القاعدة البيضاء تعطي تباين خفيف، والقاعدة الداكنة حضورها أهدى. وإذا باقي تفاصيلك بنية، قرّب درجة الجزمة منها. ما يحتاج تكرر اللون في كل شي، يكفي رابط واحد بين الجزمة والكاب أو الشراب.</p></details>
+    <details><summary><small>قبل تطلب</small>تطلب جزمة أونلاين لأول مرة؟</summary><p>قِس رجلك بالسنتي وطابقها مع جدول المقاسات. لما توصلك، جرّبها في البيت بالشراب اللي بتلبسه معها، وخل الكرتون معك لين تتأكد.</p></details>
+    <details><summary><small>عناية</small>كيف تحافظ على النسيج والجلد؟</summary><p>امسح الغبار بفرشاة ناعمة، وجرّب المنظف على مكان ما يبين قبل. لا تغطسها في الموية ولا تنشفها على حرارة مباشرة.</p></details>
+  </div></section>
+
+  <section class="closing" id="join">
+    <h2>خلك أول من يدري.</h2>
+    <p>ننزل ألوان جديدة كل فترة، والمقاسات تخلص بسرعة. حط رقمك ونعلمك على الواتساب أول ما ينزل شي.</p>
+    <form class="lead-form" id="lead-form" novalidate>
+      <label class="visually-hidden" for="lead-phone">رقم الجوال</label>
+      <input id="lead-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05XXXXXXXX" dir="ltr">
+      <button class="primary" type="submit">علّمني</button>
+    </form>
+    <p class="lead-message" id="lead-message" role="status"></p>
+  </section>
 </div>
+
+<section id="product-view" hidden aria-label="صفحة المنتج"></section>
+<section id="lp-view" hidden aria-label="عرض طراز"></section>
+<section id="collection-view" hidden aria-label="المجموعة"></section>
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    if (typeof openCart === 'function') openCart('bag');
+  });
+</script>
 {% endblock %}
