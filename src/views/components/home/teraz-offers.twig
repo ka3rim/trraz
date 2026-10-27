@@ -1,0 +1,15 @@
+{#
+  TERAZ 2.0 — قسم العروض والباقات (home.teraz-offers)
+#}
+{% set c = component|default({}) %}
+<script>
+window.TERAZ_QUEUE_OVERRIDE({{ {
+  offersTitle: c.title|default(''),
+  offersSub: c.text|default(''),
+  offers: {
+    single: c.offer_single_image|default(''),
+    starter: c.offer_starter_image|default(''),
+    pair2: c.offer_pair2_image|default('')
+  }
+}|json_encode|raw }});
+</script>

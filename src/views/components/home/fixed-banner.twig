@@ -1,34 +1,15 @@
-{#
-| Variable        | Type    | Description                                                      |
-|-----------------|---------|------------------------------------------------------------------|
-| url             | string  |                                                                  |
-| image.url       | string  |                                                                  |
-| image.alt       | ?string |                                                                  |
-| image.small_url | ?string |                                                                  |
-| position        | Int     | Sorting number start from zero                                   |
-
-#}
-<section component-id="{{ componentId }}" data-testid="store-home-fixed-banner" class="s-block s-block--fixed-banner wide-placeholder">
-    <div class="container">
-        {% set alt_text = image.alt|trim ? image.alt : 'fixed banner' %}
-        <a href="{{ url }}" class="banner banner--fixed overflow-hidden" aria-label="Banner {{ alt_text }}">
-            <picture>
-                {% if image.small_url %}
-                    <source
-                        media="(max-width: 767px)"
-                        srcset="{{ image.small_url }}"
-                    />
-                {% endif %}
-                <img
-                    width="1200"
-                    height="300"
-                    src="{{ image.url }}"
-                    loading="lazy"
-                    alt="{{ alt_text }}"
-                    style="height:auto;max-width:100%;object-fit: contain;"
-                    fetchpriority="high"
-                />
-            </picture>
-        </a>
-    </div>
+{# TERAZ 2.0 — Fixed Banner (home.fixed-banner) #}
+{% set raed_dummies = ['MopzhoqpTkDObcKc8Q8n77AuydanfsGXdZO7iinH', '3gOhYSaIhaHxhH2IHWxJYDl9JHwxP6dGKiZFSq4K', 'D7bG3pgSit43TheOejBOZV7LIfG1y1Cj0hWLmgIh', 'pzOCEw10wCfXeVSpKnL0Ifd1O9ZkTfnZ17RkE14R', 'lkyDjYwvWJNmAQoGnLALLcUkm66rCCDbTyVlSGdH'] %}
+{% set img_url = image.url|default('') %}
+{% set is_dummy = false %}
+{% for h in raed_dummies %}{% if h in img_url %}{% set is_dummy = true %}{% endif %}{% endfor %}
+{% if img_url and not is_dummy %}
+<section component-id="{{ componentId }}" data-testid="store-home-fixed-banner" class="teraz-custom-banner">
+  <a href="{{ url|default('#knit') }}" aria-label="{{ image.alt|default('بانر طراز') }}">
+    <picture>
+      {% if image.small_url %}<source media="(max-width: 767px)" srcset="{{ image.small_url }}" />{% endif %}
+      <img src="{{ img_url }}" alt="{{ image.alt|default('بانر طراز') }}" loading="lazy" width="1360" height="420">
+    </picture>
+  </a>
 </section>
+{% endif %}

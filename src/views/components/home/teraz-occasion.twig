@@ -1,6 +1,9 @@
-{# Occasion section (.occasion-section): two editorial cards. Images default to the theme assets. #}
+{#
+  TERAZ 2.0 — يومك له أكثر من طراز (home.teraz-occasion)
+#}
 {% set c = component|default({}) %}
-<section class="occasion-section">
+{% if c.card_1_image or c.card_2_image or c.title or c.eyebrow %}
+<section class="occasion-section" component-id="{{ componentId|default('') }}">
   <div>
     <span class="eyebrow">{{ c.eyebrow|default('يومك له أكثر من طراز') }}</span>
     <h2>{{ c.title|default('للدوام كشخة.
@@ -8,11 +11,12 @@
     <p>{{ c.text|default('ابدأ بالقطعة الأقرب ليومك، وكمّلها بألوان تنسجم معها.') }}</p>
   </div>
   <a href="{{ c.card_1_link|default('#knit') }}" class="occasion-card">
-    <img src="{{ c.card_1_image|default('images/black.webp'|asset) }}" alt="{{ c.card_1_alt|default('عتيم الليل بكامل اللون الأسود') }}" loading="lazy" width="1200" height="900">
+    <img src="{{ c.card_1_image|default('https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/black.webp') }}" alt="{{ c.card_1_alt|default('عتيم الليل') }}" loading="lazy" width="1200" height="900">
     <span>{{ c.card_1_title|default('للثوب والدوام') }} <b>{{ c.card_1_cta|default('اكتشف مجموعة الأناقة ←') }}</b></span>
   </a>
-  <a href="{{ c.card_2_link|default('#clogs') }}" class="occasion-card">
-    <img src="{{ c.card_2_image|default('images/clogs-1.webp'|asset) }}" alt="{{ c.card_2_alt|default('خف الكشخة الجملي للمشاوير اليومية') }}" loading="lazy" width="1200" height="900">
+  <a href="{{ c.card_2_link|default('#c/clogs') }}" class="occasion-card">
+    <img src="{{ c.card_2_image|default('https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/clogs-1.webp') }}" alt="{{ c.card_2_alt|default('خف الكشخة') }}" loading="lazy" width="1200" height="900">
     <span>{{ c.card_2_title|default('للمشوار القريب') }} <b>{{ c.card_2_cta|default('اكتشف خفّ الكشخة ←') }}</b></span>
   </a>
 </section>
+{% endif %}

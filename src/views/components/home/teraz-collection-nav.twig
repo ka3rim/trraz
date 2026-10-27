@@ -1,14 +1,1 @@
-{# Collection navigation (.collection-nav). Links are editable; defaults are the 5 prototype collections. #}
-{% set c = component|default({}) %}
-{% set defaults = [
-  { label: 'الأحذية المحاكة', hint: 'للثوب والكاجوال', link: '#knit' },
-  { label: 'الكابات', hint: 'كمّل إطلالتك', link: '#caps' },
-  { label: 'الشرابات', hint: 'تفاصيل تفرق', link: '#socks' },
-  { label: 'خفّ الكشخة', hint: 'للمشوار الخفيف', link: '#clogs' },
-  { label: 'العناية بالجزم', hint: 'نظافة وحماية', link: '#care' }
-] %}
-<nav class="collection-nav" aria-label="اختر مجموعتك">
-  {% for item in c.links|default(defaults) %}
-    <a href="{{ item.link }}">{{ item.label }} <span>{{ item.hint }}</span></a>
-  {% endfor %}
-</nav>
+{# TERAZ 2.0 — Handled natively by TERAZ 2.0 #}

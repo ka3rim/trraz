@@ -1,0 +1,23 @@
+{#
+  TERAZ 2.0 — التحكم الكامل بصور الواجهة والأقسام والعروض والمنتجات (home.teraz-images)
+#}
+{% set c = component|default({}) %}
+<script>
+window.TERAZ_QUEUE_OVERRIDE({{ {
+  logo: c.logo|default(''),
+  heroBg: c.hero_bg|default(''),
+  categories: {
+    mule: c.cat_mule|default(''),
+    clogs: c.cat_clogs|default(''),
+    caps: c.cat_caps|default(''),
+    socks: c.cat_socks|default(''),
+    care: c.cat_care|default('')
+  },
+  offers: {
+    single: c.offer_single|default(''),
+    starter: c.offer_starter|default(''),
+    pair2: c.offer_pair2|default('')
+  },
+  products: c.product_images|default([])
+}|json_encode|raw }});
+</script>

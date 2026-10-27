@@ -1,16 +1,16 @@
-{# Material story (.material-story). The link resolves to the TERAZ "tuwaiq" product URL unless link_url is set. #}
+{#
+  TERAZ 2.0 — قصة الخامة (home.teraz-material-story)
+#}
 {% set c = component|default({}) %}
-<section class="material-story">
-  <div class="material-art"><img src="{{ c.image|default('images/beige-white.webp'|asset) }}" alt="{{ c.image_alt|default('تفاصيل النسيج والجلد في ثرى طويق') }}" loading="lazy"></div>
+{% if c.image or c.title or c.eyebrow %}
+<section class="material-story" component-id="{{ componentId|default('') }}">
+  <div class="material-art"><img src="{{ c.image|default('https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/beige-white.webp') }}" alt="{{ c.image_alt|default('تفاصيل النسيج والجلد في ثرى طويق') }}" loading="lazy"></div>
   <div>
     <span class="eyebrow">{{ c.eyebrow|default('القيمة في اللي تلبسه') }}</span>
     <h2>{{ c.title|default('من النسيج
 إلى آخر خطوة.')|nl2br }}</h2>
-    <p>{{ c.text|default('في الموديلات الأصلية: نسيج بوليستر محاك، تفاصيل جلد طبيعي، قاعدة بولي يوريثان، وفرشة مغطاة بجلد الماعز. مكونات واضحة تعرفها قبل تختار.') }}</p>
-    {% if c.link_url %}
-      <a class="underlined" href="{{ c.link_url }}">{{ c.link_label|default('اكتشف ثرى طويق عن قرب ↗') }}</a>
-    {% else %}
-      <a class="underlined" href="#knit" data-teraz-link="tuwaiq">{{ c.link_label|default('اكتشف ثرى طويق عن قرب ↗') }}</a>
-    {% endif %}
+    <p>{{ c.text|default('في الموديلات الأصلية: نسيج بوليستر محاك، تفاصيل جلد طبيعي، قاعدة بولي يوريثان، وفرشة مغطاة بجلد الماعز.') }}</p>
+    <a class="underlined" href="{{ c.link_url|default('#p/tuwaiq') }}">{{ c.link_label|default('اكتشف ثرى طويق عن قرب ↗') }}</a>
   </div>
 </section>
+{% endif %}

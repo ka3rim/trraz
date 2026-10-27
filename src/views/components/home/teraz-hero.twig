@@ -1,35 +1,27 @@
-{# Hero Atelier Stage — .hero / .atelier-stage with the 8 hero shoes on the stone stage (--column / --tier). #}
+{#
+  TERAZ 2.0 — المنصة الرئيسية (home.teraz-hero)
+#}
 {% set c = component|default({}) %}
-{% set stage = c.stage_image|default('images/atelier.webp'|asset) %}
-<section class="hero" id="home">
-  <div class="hero-wording">
-    <p class="eyebrow">{{ c.eyebrow|default('للرجل السعودي. ولكل يوم في حياته.') }}</p>
-    <h1>{{ c.title|default('راحة تليق بالمقام.') }}</h1>
-    <p>{{ c.text_line_1|default('أحذية محاكة بتفاصيل جلدية تكمل ثوبك وكاجوالك.') }}<br class="mobile-only"> {{ c.text_line_2|default('ومعها كل ما يكمّل كشختك، في مكان واحد.') }}</p>
-    <a class="primary" href="{{ c.button_link|default('#knit') }}">{{ c.button_label|default('اختر طرازك') }} <span>←</span></a>
-  </div>
-  <div class="atelier-stage" aria-label="مجموعة طراز الكاملة على منصات حجرية">
-    <img class="stage-bg" src="{{ stage }}" width="1536" height="1024" alt="">
-    {#
-      Exhibits come from the "hero_products" field (max 8, in the order picked).
-      If it is empty the controller fills #hero-shoes with the 8 TERAZ knit shoes found in the store.
-    #}
-    <div id="hero-shoes">
-      {% for product in c.hero_products|default([])|slice(0, 8) %}
-        <a href="{{ product.url }}" class="exhibit"
-          style="--column:{{ loop.index0 % 4 }};--tier:{{ (loop.index0 / 4)|round(0, 'floor') }}"
-          data-product-id="{{ product.id }}" data-sku="{{ product.sku }}" data-name="{{ product.name }}" data-url="{{ product.url }}"
-          data-price="{{ product.price }}" data-image="{{ product.image.url }}" data-available="{{ product.is_available ? 'true' : 'false' }}"
-          data-peek-img="{{ product.image.url }}" data-peek-name="{{ product.name }}"
-          aria-label="اكتشف {{ product.name }}">
-          <img src="{{ product.image.url }}" width="1200" height="900" alt="{{ product.name }}"><span>{{ product.name }} ↗</span>
-        </a>
-      {% endfor %}
-    </div>
-    <div id="hero-peek" aria-hidden="true"><img alt=""><span></span></div>
-  </div>
-  <div class="hero-bottom">
-    <span>{{ c.bottom_start|default('قماش محاك · تفاصيل جلدية · ألوان تشبهك') }}</span>
-    <span>{{ c.bottom_end|default('مرّر لتكتشف. اضغط لتختار.') }}</span>
-  </div>
-</section>
+{% set sub_text = ((c.text_line_1|default('')) ~ ' ' ~ (c.text_line_2|default('')))|trim %}
+{% set hero_prods = [] %}
+{% for p in c.hero_products|default([]) %}
+  {% set hero_prods = hero_prods|merge([{
+    id: p.id,
+    sku: p.sku,
+    name: p.name,
+    url: p.url,
+    price: p.price ? (p.price|money) : 0,
+    image: p.image.url|default('')
+  }]) %}
+{% endfor %}
+<script>
+window.TERAZ_QUEUE_OVERRIDE({{ {
+  heroBg: c.stage_image|default(''),
+  heroEyebrow: c.eyebrow|default(''),
+  heroTitle: c.title|default(''),
+  heroSub: sub_text,
+  heroBtnLabel: c.button_label|default(''),
+  heroBtnLink: c.button_link|default(''),
+  sallaProducts: hero_prods
+}|json_encode|raw }});
+</script>

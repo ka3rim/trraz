@@ -829,9 +829,34 @@ const track = (name, data) => { try { window.TerazTrack && TerazTrack.event(name
 
 /* ---------- images ---------- */
 const ASSET_BASE = (window.TERAZ_SALLA_CONFIG && window.TERAZ_SALLA_CONFIG.assetsBase) || 'assets/';
+const siteImages = {
+  logo: 'logo.webp',
+  heroBg: 'atelier.webp',
+  muleLife: 'mule-1-life.webp',
+  offers: {
+    single: 'thumb/black.webp',
+    starter: 'thumb/offer-starter.webp',
+    pair2: 'thumb/offer-pair.webp'
+  }
+};
+const RAED_DUMMY_HASHES = [
+  'MopzhoqpTkDObcKc8Q8n77AuydanfsGXdZO7iinH',
+  '3gOhYSaIhaHxhH2IHWxJYDl9JHwxP6dGKiZFSq4K',
+  'D7bG3pgSit43TheOejBOZV7LIfG1y1Cj0hWLmgIh',
+  'pzOCEw10wCfXeVSpKnL0Ifd1O9ZkTfnZ17RkE14R',
+  'lkyDjYwvWJNmAQoGnLALLcUkm66rCCDbTyVlSGdH'
+];
+function isValidCustomImage(url) {
+  if (!url || typeof url !== 'string') return false;
+  const s = url.trim();
+  if (!s || s === 'null' || s === 'undefined') return false;
+  if (RAED_DUMMY_HASHES.some(h => s.includes(h))) return false;
+  if (s === 'images/logo.webp' || s.endsWith('/placeholder.png')) return false;
+  return true;
+}
 function assetUrl(file, thumb = false) {
   if (!file) return '';
-  if (/^https?:\/\//i.test(file)) return file;
+  if (/^(https?:\/\/|data:|blob:|\/)/i.test(file)) return file;
   const clean = String(file).replace(/^assets\//, '');
   return ASSET_BASE + (thumb && !clean.startsWith('thumb/') ? 'thumb/' + clean : clean);
 }
@@ -1046,7 +1071,7 @@ function renderHomeOffers() {
     ${o.list > o.price ? `<p class="offer-save">توفر ${money(o.list - o.price)}</p>` : ''}
     ${shipNote(o.price)}
     <span class="offer-cta">${cta} ←</span></a>`;
-  $('#home-offers').innerHTML = card(single, 'thumb/black.webp', '#lp/all/single', 'اختر لونك') + card(starter, 'thumb/offer-starter.webp', '#lp/all/starter', 'اختر لونك ومقاسك') + card(pair, 'thumb/offer-pair.webp', '#lp/all/pair2', 'اختر اللونين');
+  $('#home-offers').innerHTML = card(single, siteImages.offers.single, '#lp/all/single', 'اختر لونك') + card(starter, siteImages.offers.starter, '#lp/all/starter', 'اختر لونك ومقاسك') + card(pair, siteImages.offers.pair2, '#lp/all/pair2', 'اختر اللونين');
 }
 
 /* ---------- reviews, guarantee, FAQ, footer ---------- */
@@ -1588,7 +1613,7 @@ const angles = {
 function lpHero() {
   const p = panel.p, a = angles[panel.angle] || angles.all;
   return `<div class="lp-hero">
-    ${stageModes(p).length ? `<div class="lp-visual staged">${galleryHTML(p)}</div>` : `<div class="lp-visual"><img class="lp-bg" src="${assetUrl('atelier.webp')}" alt="" width="1536" height="1024"><div class="lp-shoe" data-lp-image>${img(p, { extra: 'fetchpriority="high"' })}</div></div>`}
+    ${stageModes(p).length ? `<div class="lp-visual staged">${galleryHTML(p)}</div>` : `<div class="lp-visual"><img class="lp-bg" src="${assetUrl(siteImages.heroBg)}" alt="" width="1536" height="1024"><div class="lp-shoe" data-lp-image>${img(p, { extra: 'fetchpriority="high"' })}</div></div>`}
     <div class="lp-copy"><span class="eyebrow">${a.eyebrow}</span><p class="lp-title">${a.title}</p><p class="lp-sub">${a.sub}</p>${purchasePanel()}</div>
   </div>`;
 }
@@ -1609,7 +1634,7 @@ function viewLanding(angle = 'all', offer = 'starter') {
       <ul class="why-facts wide"><li><b>تدخله وتطلع</b> خلفه مفتوح، لا ربط ولا انحناء.</li><li><b>ملمس سويدي</b> ناعم، وشكله مرتب مع الثوب.</li><li><b>فرشة مبطنة</b> مريحة، وتقدر تطلعها.</li></ul></section>
     <section class="occasion-section lp-occasion">
       <a class="occasion-card photo" href="#p/mule-0">${img(byId('mule-0'), { extra: 'loading="lazy"' })}<span><small>مع شراب غامق</small><b>الأسود ←</b></span></a>
-      <a class="occasion-card photo" href="#p/mule-1"><img class="is-photo" src="${assetUrl('mule-1-life.webp')}" alt="لوفر الكشخة بيج مع جينز" loading="lazy"><span><small>مع الجينز</small><b>البيج ←</b></span></a>
+      <a class="occasion-card photo" href="#p/mule-1"><img class="is-photo" src="${assetUrl(siteImages.muleLife)}" alt="لوفر الكشخة بيج مع جينز" loading="lazy"><span><small>مع الجينز</small><b>البيج ←</b></span></a>
     </section>` : `
     <section class="section why lp-why"><div class="why-copy"><h2>ليش طراز؟</h2><p class="lead">الرياضي مريح بس ما يضبط مع الثوب، والكلاسيكي يضبط بس يتعبك في الحر. طراز جات بين الاثنين.</p>
       <ul class="why-facts"><li><b>نسيج محاك يهوّي</b> خفيف ويريّح رجلك.</li><li><b>جلد طبيعي حول الرباط والكعب</b> يعطيها شكل رسمي.</li><li><b>فرشة مغطاة بجلد ماعز</b> تحسها من أول لبسة.</li></ul></div>
@@ -1709,9 +1734,16 @@ function linkSallaProductToCatalog(sallaProd) {
   target.sallaProductId = sallaProd.id;
   if (Array.isArray(sallaProd.options) && sallaProd.options.length) target.sallaOptions = sallaProd.options;
   if (sallaProd.url) target.sallaUrl = sallaProd.url;
+  const isDemo = String(sallaProd.url || '').includes('demostore');
   const parsedPrice = parseSallaPrice(sallaProd.price, 0);
-  if (parsedPrice > 0 && !String(sallaProd.url || '').includes('demostore')) {
+  if (parsedPrice > 0 && !isDemo) {
     target.price = parsedPrice;
+  }
+  const rawImg = typeof sallaProd.image === 'string' ? sallaProd.image : (sallaProd.image?.url || sallaProd.thumbnail || '');
+  if (isValidCustomImage(rawImg) && !isDemo && !target._customThemeImage) {
+    target.image = rawImg;
+    target.thumb = rawImg;
+    target.images = [rawImg, ...(target.images ? target.images.slice(1) : [])];
   }
   return target;
 }
@@ -2175,7 +2207,7 @@ function megaHTML(key) {
   if (key === 'shoes') return `<div class="mega-inner"><div class="mega-grid shoes">${C.ordered(knit, 'thobe').map(p => `<a href="#p/${p.id}">${img(p, { thumb: true })}<b>${esc(p.name)}</b><small>${esc(p.color)}</small></a>`).join('')}</div>
     <div class="mega-side"><h3>مجموعة الأناقة</h3><p>ثمان ألوان، من 319 ريال.</p><a class="primary small" href="#knit">شوف المجموعة كاملة</a><a class="text-button" href="#needs">ما تدري وش تختار؟</a></div></div>`;
   if (key === 'more') return `<div class="mega-inner"><div class="mega-grid more">${categories.map(c => `<a href="${catHref(c)}"><img src="${assetUrl(c.image, true)}" alt="" class="${c.photo ? 'is-photo' : ''}"><b>${c.name}${c.isNew ? ' <i class="nav-new">جديد</i>' : ''}</b><small>من ${money(c.from)}</small></a>`).join('')}</div></div>`;
-  if (key === 'offers') { const p = byId('night'); return `<div class="mega-inner"><div class="mega-grid offers">${offersFor(p).map((o, i) => `<a href="#lp/all/${o.key}"><img src="${assetUrl(['black.webp', 'offer-starter.webp', 'offer-pair.webp'][i], true)}" alt=""><b>${o.title} · ${money(o.price)}</b><small>${o.list > o.price ? 'توفر ' + money(o.list - o.price) : 'الجزمة بس'}</small></a>`).join('')}</div></div>`; }
+  if (key === 'offers') { const p = byId('night'), oImgs = [siteImages.offers.single, siteImages.offers.starter, siteImages.offers.pair2]; return `<div class="mega-inner"><div class="mega-grid offers">${offersFor(p).map((o, i) => `<a href="#lp/all/${o.key}"><img src="${assetUrl(oImgs[i], true)}" alt=""><b>${o.title} · ${money(o.price)}</b><small>${o.list > o.price ? 'توفر ' + money(o.list - o.price) : 'الجزمة بس'}</small></a>`).join('')}</div></div>`; }
   return '';
 }
 let megaOpen = null, megaTimer;
@@ -2192,10 +2224,11 @@ $('#mega')?.addEventListener('mouseenter', () => clearTimeout(megaTimer));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMega(); });
 function renderMenu() {
   const row = (title, items, href) => `<section class="menu-sec"><div class="menu-sec-head"><h3>${title}</h3>${href ? `<a href="${href}">الكل</a>` : ''}</div><div class="menu-row">${items}</div></section>`;
+  const oImgs = [siteImages.offers.single, siteImages.offers.starter, siteImages.offers.pair2];
   $('#menu-body').innerHTML =
     row('الأحذية', C.ordered(knit, 'thobe').map(p => `<a href="#p/${p.id}">${img(p, { thumb: true })}<span>${esc(p.name)}</span></a>`).join(''), '#knit') +
     row('كمّل كشختك', categories.map(c => `<a href="${catHref(c)}"><img src="${assetUrl(c.image, true)}" alt="" class="${c.photo ? 'is-photo' : ''}"><span>${c.name}</span></a>`).join('')) +
-    row('العروض', offersFor(byId('night')).map((o, i) => `<a href="#lp/all/${o.key}"><img src="${assetUrl(['black.webp', 'offer-starter.webp', 'offer-pair.webp'][i], true)}" alt=""><span>${o.title} · ${money(o.price)}</span></a>`).join('')) +
+    row('العروض', offersFor(byId('night')).map((o, i) => `<a href="#lp/all/${o.key}"><img src="${assetUrl(oImgs[i], true)}" alt=""><span>${o.title} · ${money(o.price)}</span></a>`).join('')) +
     `<nav class="menu-links"><a href="#needs">وش يناسب مشواري؟</a><button data-action="size-guide">جدول المقاسات</button><a href="#guarantee">التبديل والإرجاع</a><a href="#questions">التوصيل والأسئلة</a><a href="https://wa.me/+966570442661" target="_blank" rel="noopener" data-action="whatsapp">كلمنا واتساب</a></nav>`;
 }
 
@@ -2393,16 +2426,153 @@ window.addEventListener('hashchange', () => {
   route(); backNav = false; goingBack = false;
 });
 
-/* ---------- boot ---------- */
-initSallaBridge();
-if ($('#hero-shoes')) {
+/* ---------- Salla Theme Editor Image & Component Overrides ---------- */
+function renderHeroShoes() {
+  if (!$('#hero-shoes')) return;
   $('#hero-shoes').innerHTML = knit.map((p, i) => `<a href="#p/${p.id}" class="exhibit" style="--column:${i % 4};--tier:${Math.floor(i / 4)}" data-peek="${p.id}" aria-label="شوف ${esc(p.name)}">${img(p, { thumb: true })}<span>${esc(p.name)}</span></a>`).join('');
   $$('[data-peek]').forEach(el => {
-    const show = () => { const p = byId(el.dataset.peek); $('#hero-peek img').src = assetUrl(p.image); $('#hero-peek span').textContent = p.name; $('#hero-peek').classList.add('visible'); };
-    const hide = () => $('#hero-peek').classList.remove('visible');
+    const show = () => { const p = byId(el.dataset.peek); if ($('#hero-peek img')) $('#hero-peek img').src = assetUrl(p.image); if ($('#hero-peek span')) $('#hero-peek span').textContent = p.name; $('#hero-peek')?.classList.add('visible'); };
+    const hide = () => $('#hero-peek')?.classList.remove('visible');
     el.addEventListener('mouseenter', show); el.addEventListener('focus', show); el.addEventListener('mouseleave', hide); el.addEventListener('blur', hide);
   });
 }
+
+function applySingleProductOverride(id, data) {
+  if (!id) return;
+  const cleanId = typeof id === 'object' ? (id.value || id.id || '') : String(id).trim();
+  const p = byId(cleanId);
+  if (!p) return;
+  if (typeof data === 'string') {
+    if (isValidCustomImage(data)) {
+      p.image = data.trim();
+      p.thumb = data.trim();
+      p.images = [data.trim(), ...(p.images ? p.images.slice(1) : [])];
+      p._customThemeImage = true;
+    }
+  } else if (data && typeof data === 'object') {
+    if (isValidCustomImage(data.image)) {
+      const imgMain = data.image.trim();
+      p.image = imgMain;
+      p.thumb = isValidCustomImage(data.thumb) ? data.thumb.trim() : imgMain;
+      const extras = [data.image2, data.image3].filter(isValidCustomImage).map(x => x.trim());
+      p.images = extras.length ? [imgMain, ...extras] : [imgMain, ...(p.images ? p.images.slice(1) : [])];
+      p._customThemeImage = true;
+    }
+    if (data.name && String(data.name).trim()) p.name = String(data.name).trim();
+    if (data.color && String(data.color).trim()) p.color = String(data.color).trim();
+    if (data.price) {
+      const pr = parseSallaPrice(data.price, 0);
+      if (pr > 0) p.price = pr;
+    }
+  }
+}
+
+window.TERAZ_APPLY_OVERRIDES = function(ovr) {
+  if (!ovr || typeof ovr !== 'object') return;
+  let needsRefresh = false;
+
+  if (isValidCustomImage(ovr.logo)) {
+    siteImages.logo = ovr.logo.trim();
+    $$('.site-header .brand img, #menu-dialog .brand img').forEach(el => { el.src = assetUrl(siteImages.logo); });
+  }
+  if (isValidCustomImage(ovr.heroBg)) {
+    siteImages.heroBg = ovr.heroBg.trim();
+    $$('.hero .stage-bg, .lp-bg').forEach(el => { el.src = assetUrl(siteImages.heroBg); });
+  }
+  if (isValidCustomImage(ovr.muleLife)) {
+    siteImages.muleLife = ovr.muleLife.trim();
+  }
+  if (ovr.heroEyebrow && String(ovr.heroEyebrow).trim()) {
+    const el = $('.hero-wording .eyebrow'); if (el) el.textContent = String(ovr.heroEyebrow).trim();
+  }
+  if (ovr.heroTitle && String(ovr.heroTitle).trim()) {
+    const el = $('.hero-wording h1'); if (el) el.textContent = String(ovr.heroTitle).trim();
+  }
+  if (ovr.heroSub && String(ovr.heroSub).trim()) {
+    const el = $('.hero-wording .hero-sub'); if (el) el.textContent = String(ovr.heroSub).trim();
+  }
+  if (ovr.heroBtnLabel && String(ovr.heroBtnLabel).trim()) {
+    const el = $('.hero-actions .primary'); if (el) el.innerHTML = esc(String(ovr.heroBtnLabel).trim()) + ' <span>←</span>';
+  }
+  if (ovr.heroBtnLink && String(ovr.heroBtnLink).trim()) {
+    const el = $('.hero-actions .primary'); if (el) el.setAttribute('href', String(ovr.heroBtnLink).trim());
+  }
+  if (ovr.knitTitle && String(ovr.knitTitle).trim()) {
+    const el = $('#knit .section-heading h2'); if (el) el.textContent = String(ovr.knitTitle).trim();
+  }
+  if (ovr.knitSub && String(ovr.knitSub).trim()) {
+    const el = $('#knit .section-heading p'); if (el) el.textContent = String(ovr.knitSub).trim();
+  }
+  if (ovr.offersTitle && String(ovr.offersTitle).trim()) {
+    const el = $('#offers .section-heading h2'); if (el) el.textContent = String(ovr.offersTitle).trim();
+  }
+  if (ovr.offersSub && String(ovr.offersSub).trim()) {
+    const el = $('#offers .section-heading p'); if (el) el.textContent = String(ovr.offersSub).trim();
+  }
+
+  if (ovr.categories && typeof ovr.categories === 'object') {
+    for (const [k, val] of Object.entries(ovr.categories)) {
+      const c = catByKey(k);
+      if (!c || !val) continue;
+      if (typeof val === 'string') {
+        if (isValidCustomImage(val)) { c.image = val.trim(); needsRefresh = true; }
+      } else if (typeof val === 'object') {
+        if (isValidCustomImage(val.image)) { c.image = val.image.trim(); needsRefresh = true; }
+        if (val.name && String(val.name).trim()) { c.name = String(val.name).trim(); needsRefresh = true; }
+        if (val.line && String(val.line).trim()) { c.line = String(val.line).trim(); needsRefresh = true; }
+      }
+    }
+  }
+
+  if (ovr.offers && typeof ovr.offers === 'object') {
+    for (const [k, val] of Object.entries(ovr.offers)) {
+      if (siteImages.offers[k] !== undefined && isValidCustomImage(val)) {
+        siteImages.offers[k] = val.trim();
+        needsRefresh = true;
+      }
+    }
+  }
+
+  if (ovr.products) {
+    if (Array.isArray(ovr.products)) {
+      ovr.products.forEach(item => {
+        if (!item) return;
+        const pid = item.product_id ?? item.id;
+        applySingleProductOverride(pid, item);
+        needsRefresh = true;
+      });
+    } else if (typeof ovr.products === 'object') {
+      for (const [pid, val] of Object.entries(ovr.products)) {
+        if (val) { applySingleProductOverride(pid, val); needsRefresh = true; }
+      }
+    }
+  }
+
+  if (Array.isArray(ovr.sallaProducts) && ovr.sallaProducts.length) {
+    ovr.sallaProducts.forEach(sp => {
+      if (sp) { linkSallaProductToCatalog(sp); needsRefresh = true; }
+    });
+  }
+
+  if (needsRefresh) {
+    renderHeroShoes();
+    if ($('#needs-grid')) renderNeeds();
+    if ($('[data-group="knit"]')) renderCollection($('[data-sort][aria-pressed="true"]')?.dataset.sort || 'thobe');
+    if ($('#home-offers')) renderHomeOffers();
+    if ($('#category-rows')) renderCategories();
+    if (view === 'product' && panel?.p) viewProduct(panel.p.id, panel);
+  }
+};
+
+/* ---------- boot ---------- */
+initSallaBridge();
+if (window.TERAZ_SALLA_CONFIG && window.TERAZ_SALLA_CONFIG.overrides) {
+  window.TERAZ_APPLY_OVERRIDES(window.TERAZ_SALLA_CONFIG.overrides);
+}
+if (Array.isArray(window.TERAZ_PENDING_OVERRIDES)) {
+  window.TERAZ_PENDING_OVERRIDES.forEach(o => window.TERAZ_APPLY_OVERRIDES(o));
+}
+renderHeroShoes();
 if ($('#hero-rating')) $('#hero-rating').innerHTML = ratingLine(true);
 if ($('#reviews') && hasReviews()) { $('#reviews').innerHTML = reviewsHTML(); $('#reviews').hidden = false; bindVoiceTracks($('#reviews')); }
 if (!CFG.whatsapp && $('#whatsapp-float')) $('#whatsapp-float').classList.add('demo');
