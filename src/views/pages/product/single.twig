@@ -1,5 +1,6 @@
 {#
   TERAZ 2.0 Single Product Page (src/views/pages/product/single.twig)
+  Strictly follows Salla Twilight Documentation for Product Single Page
 #}
 {% extends "layouts.master" %}
 
@@ -20,6 +21,7 @@
   options: product.options|default([])
 } %}
 <script type="application/json" id="teraz-product-data">{{ pdp_payload|json_encode|raw }}</script>
+
 <div id="home-view">
 
   <section class="hero" id="home">
@@ -120,4 +122,69 @@
 <section id="product-view" hidden aria-label="صفحة المنتج"></section>
 <section id="lp-view" hidden aria-label="عرض طراز"></section>
 <section id="collection-view" hidden aria-label="المجموعة"></section>
+
+<section id="salla-native-pdp" class="teraz-salla-pdp-extras" data-testid="store-product-single">
+  {% hook 'product:single.start' %}
+  <nav class="breadcrumbs w-full py-4">
+    <salla-breadcrumb data-testid="store-breadcrumb"></salla-breadcrumb>
+  </nav>
+
+  {% hook 'product:single.description.start' %}
+  {% hook 'product:single.description.end' %}
+
+  <div class="teraz-salla-pdp-card">
+    {% hook 'product:single.price.start' %}
+    {% hook 'product:single.price.end' %}
+
+    <salla-installment price="{{ product.price }}" data-testid="store-product-installment"></salla-installment>
+
+    {% hook 'product:single.form.start' %}
+    <form class="form product-form" enctype="multipart/form-data" method="post" onsubmit="return salla.form.onSubmit('cart.addItem', event)">
+      <input type="hidden" name="id" value="{{ product.id }}">
+
+      {% hook 'product:single.form.options.start' %}
+      {% include 'pages.partials.product.options' %}
+      {% hook 'product:single.form.options.end' %}
+
+      <div class="teraz-salla-form-row">
+        {% if product.is_hidden_quantity or product.type == 'booking' %}
+          <input type="hidden" value="1" name="quantity" aria-label="Quantity"/>
+        {% else %}
+          <salla-quantity-input max="{{ product.max_quantity }}" value="1" name="quantity" aria-label="Quantity" data-testid="store-product-quantity"></salla-quantity-input>
+        {% endif %}
+
+        <salla-add-product-button
+          quick-buy
+          {{ theme.settings.get('sticky_add_to_cart') ? ' support-sticky-bar' : '' }}
+          {{ product.is_require_shipping ? 'required-shipping' : '' }}
+          amount="{{ product.base_currency_price }}"
+          class="w-full"
+          shadow-on-hover
+          width="wide"
+          product-id="{{ product.id }}"
+          product-status="{{ product.status }}"
+          product-type="{{ product.type }}"
+          data-testid="store-add-product-btn">
+          {{ product.add_to_cart_label }}
+        </salla-add-product-button>
+      </div>
+
+      {% if product.is_giftable %}
+        <salla-gifting id="salla-gifting" class="mt-5" widget-title="{{ trans('pages.products.gifting_title') }}" widget-subtitle="{{ trans('pages.products.gifting_subtitle') }}" product-id="{{ product.id }}" {{ product.is_require_shipping ? 'physical-products' : '' }}></salla-gifting>
+      {% endif %}
+    </form>
+    {% hook 'product:single.form.end' %}
+  </div>
+
+  <salla-comments item-id="{{ product.id }}" type="product" data-testid="store-product-comments"></salla-comments>
+
+  <div class="mt-6">
+    <salla-products-slider source="related" source-value="{{ product.id }}" block-title="{{ trans('pages.products.similar_products') }}" display-all-url data-testid="store-related-products"></salla-products-slider>
+  </div>
+  {% hook 'product:single.end' %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+  <script defer src="{{ 'product.js' | asset }}"></script>
 {% endblock %}

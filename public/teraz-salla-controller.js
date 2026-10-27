@@ -1783,6 +1783,7 @@ function initSallaBridge() {
     if (s.event && typeof s.event.on === 'function') {
       s.event.on('login::open', () => {
         if ($('#cart-dialog')?.open) closeCart();
+        if ($('#menu-dialog')?.open) $('#menu-dialog').close();
       });
       s.event.on('::loggedIn', () => {
         if (sallaPendingCheckout && s.cart && typeof s.cart.submit === 'function') {
@@ -1791,7 +1792,23 @@ function initSallaBridge() {
         }
       });
     }
+    if (s.cart && s.cart.event) {
+      if (typeof s.cart.event.onUpdated === 'function') {
+        s.cart.event.onUpdated(data => {
+          if (data && typeof data.count === 'number' && !cart.length && $('#cart-count')) {
+            $('#cart-count').textContent = data.count;
+            $('#cart-count').classList.toggle('has', data.count > 0);
+          }
+        });
+      }
+    }
   };
+  if ($('salla-thank-you-page') || document.body.classList.contains('teraz-thank-you')) {
+    cart = [];
+    couponCode = '';
+    couponDiscount = 0;
+    try { localStorage.removeItem(CART_KEY); } catch {}
+  }
   if (window.salla) bootSalla();
   else document.addEventListener('salla::ready', bootSalla, { once: true });
 }
@@ -2229,7 +2246,7 @@ function renderMenu() {
     row('الأحذية', C.ordered(knit, 'thobe').map(p => `<a href="#p/${p.id}">${img(p, { thumb: true })}<span>${esc(p.name)}</span></a>`).join(''), '#knit') +
     row('كمّل كشختك', categories.map(c => `<a href="${catHref(c)}"><img src="${assetUrl(c.image, true)}" alt="" class="${c.photo ? 'is-photo' : ''}"><span>${c.name}</span></a>`).join('')) +
     row('العروض', offersFor(byId('night')).map((o, i) => `<a href="#lp/all/${o.key}"><img src="${assetUrl(oImgs[i], true)}" alt=""><span>${o.title} · ${money(o.price)}</span></a>`).join('')) +
-    `<nav class="menu-links"><a href="#needs">وش يناسب مشواري؟</a><button data-action="size-guide">جدول المقاسات</button><a href="#guarantee">التبديل والإرجاع</a><a href="#questions">التوصيل والأسئلة</a><a href="https://wa.me/+966570442661" target="_blank" rel="noopener" data-action="whatsapp">كلمنا واتساب</a></nav>`;
+    `<nav class="menu-links"><button type="button" data-action="login">تسجيل الدخول / حسابي</button><a href="#needs">وش يناسب مشواري؟</a><button data-action="size-guide">جدول المقاسات</button><a href="#guarantee">التبديل والإرجاع</a><a href="#questions">التوصيل والأسئلة</a><a href="https://wa.me/+966570442661" target="_blank" rel="noopener" data-action="whatsapp">كلمنا واتساب</a></nav>`;
 }
 
 /* ---------- routing ---------- */
@@ -2242,6 +2259,8 @@ function showView(name) {
   if ($('#product-view')) $('#product-view').hidden = name !== 'product';
   if ($('#lp-view')) $('#lp-view').hidden = name !== 'lp';
   if ($('#collection-view')) $('#collection-view').hidden = name !== 'collection';
+  if ($('#salla-native-pdp')) $('#salla-native-pdp').hidden = name !== 'product';
+  if ($('#salla-native-category')) $('#salla-native-category').hidden = name !== 'collection';
   if (name !== 'collection' && $('#collection-view')) $('#collection-view').innerHTML = '';
   if (name !== 'product' && $('#product-view')) $('#product-view').innerHTML = '';
   if (name !== 'lp' && $('#lp-view')) $('#lp-view').innerHTML = '';
@@ -2360,6 +2379,13 @@ document.addEventListener('click', e => {
   if (el.dataset.remove !== undefined) { cart.splice(Number(el.dataset.remove), 1); persist(); renderCart($('#cart-dialog').dataset.stage); return; }
   switch (el.dataset.action) {
     case 'cart': openCart('bag'); break;
+    case 'login':
+      if ($('#menu-dialog')?.open) $('#menu-dialog').close();
+      if ($('#cart-dialog')?.open) closeCart();
+      if (window.salla && window.salla.event && typeof window.salla.event.dispatch === 'function') {
+        window.salla.event.dispatch('login::open');
+      }
+      break;
     case 'back': if (inSiteNav > 0) { e.preventDefault(); goingBack = true; history.back(); } break;
     case 'menu': renderMenu(); $('#menu-dialog')?.showModal(); break;
     case 'close-menu': $('#menu-dialog')?.close(); break;

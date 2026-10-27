@@ -1,44 +1,37 @@
-{% extends "layouts.master" %}
-{% set home_url = store.url|default('/') %}
+{#
+  TERAZ 2.0 Customer Layout (src/views/layouts/customer.twig)
+  Strictly follows Salla Twilight Documentation for Customer Account Pages
+#}
+{% extends 'layouts.master' %}
+{% block body_class %}teraz-customer-page{% endblock %}
 {% block content %}
-<div class="teraz teraz-subpage teraz-customer-layout">
-  <div class="product-breadcrumb">
-    <a href="{{ home_url }}">→ العودة إلى الرئيسية</a>
-    <span>طراز / حسابي / {{ page.title }}</span>
-  </div>
-
-  <section class="section">
-    <header class="section-heading">
+  <div class="teraz-subpage teraz-customer-layout" data-testid="store-customer-layout">
+    <header class="teraz-subpage-header">
       <div>
-        <span class="eyebrow">حساب العميل في طراز</span>
-        <h1>{{ page.title }}</h1>
+        <nav class="breadcrumbs w-full pb-2">
+          <salla-breadcrumb data-testid="store-breadcrumb"></salla-breadcrumb>
+        </nav>
+        <div class="flex items-center gap-3">
+          <h1 class="teraz-subpage-title">{{ page.title }}</h1>
+          {% hook 'customer:profile.header.end' %}
+        </div>
       </div>
+      <a href="{{ store.url|default('/') }}" class="secondary">← العودة للمتجر</a>
     </header>
 
     <div class="teraz-customer-grid">
-      <nav aria-label="Sidebar" class="teraz-customer-sidebar sidebar">
-        {% if is_page('customer.profile') %}
-          <div class="teraz-avatar-box">
-            <div class="h-20 w-20 m-auto avatar-wrap rounded-full">
-              <salla-file-upload data-testid="store-profile-avatar-upload" profile-image value="{{ user.avatar }}">
-                <span class="avatar-placeholder flex justify-center items-center flex-col">
-                  <span class="sicon-user"></span>
-                  <span class="text">{{ trans('common.uploader.choose_suitable_picture') }}</span>
-                </span>
-              </salla-file-upload>
-            </div>
-          </div>
-        {% endif %}
-        <div class="teraz-user-menu-wrap">
-          <salla-user-menu data-testid="store-sidebar-user-menu" inline></salla-user-menu>
+      <aside class="teraz-customer-sidebar">
+        <div class="teraz-customer-card">
+          <salla-user-menu inline data-testid="store-customer-menu"></salla-user-menu>
         </div>
-      </nav>
-
-      <div class="teraz-panel teraz-customer-main main-content">
-        {% block inner_title %}{% endblock %}
+      </aside>
+      <div class="teraz-customer-main">
         {% block inner_content %}{% endblock %}
       </div>
     </div>
-  </section>
-</div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script defer src="{{ 'customer.js' | asset }}"></script>
 {% endblock %}

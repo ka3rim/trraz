@@ -1012,3 +1012,61 @@ html,body{overflow-anchor:none}
 .teraz-parallax-inner::before{content:"";position:absolute;inset:0;background:rgba(25,21,17,.45)}
 .teraz-parallax-content{position:relative;z-index:1;color:var(--ivory);max-width:640px}
 .teraz-parallax-content h2{color:var(--ivory);margin:0 0 14px;font-size:clamp(24px,3.5vw,38px)}
+
+/* =====================================================================
+   Salla Documentation Compliance: Header Login, Native PDP, Cart,
+   Thank-You Page & Customer Account Pages
+   ===================================================================== */
+.header-actions{display:flex;align-items:center;gap:10px}
+.header-login-btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);padding:8px 14px;border-radius:999px;background:var(--white);color:var(--ink);font-size:14px;transition:border-color .2s,background .2s}
+.header-login-btn:hover{border-color:var(--ink);background:var(--cream)}
+.header-user-menu{display:inline-flex;align-items:center}
+@media(max-width:640px){
+  .header-login-btn span{display:none}
+  .header-login-btn{padding:8px 10px}
+}
+
+.teraz-subpage{max-width:1280px;margin:0 auto;padding:36px clamp(18px,4vw,48px) 80px}
+.teraz-subpage-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.teraz-subpage-title{font-size:clamp(28px,3.2vw,42px);margin:8px 0 0;color:var(--ink)}
+.teraz-panel{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,3vw,32px);margin-bottom:22px;box-shadow:var(--shadow)}
+
+/* Customer Layout & Profile */
+.teraz-customer-grid{display:grid;grid-template-columns:280px minmax(0,1fr);gap:28px;align-items:start}
+.teraz-customer-sidebar{position:sticky;top:90px}
+.teraz-customer-card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.teraz-customer-main .form-input,
+.teraz-customer-main input[type="text"],
+.teraz-customer-main input[type="email"],
+.teraz-customer-main input[type="tel"]{width:100%;min-height:44px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--ivory);color:var(--ink);font:15px inherit}
+@media(max-width:860px){
+  .teraz-customer-grid{grid-template-columns:1fr}
+  .teraz-customer-sidebar{position:static}
+}
+
+/* Thank You Page */
+.teraz-thankyou-page{max-width:1080px;margin:0 auto}
+.teraz-thankyou-actions{display:flex;justify-content:center;gap:14px;margin-top:28px;flex-wrap:wrap}
+
+/* Native Salla Cart Section (when Salla backend cart has items or on /cart) */
+.teraz-salla-cart-section{max-width:1280px;margin:0 auto;padding:32px clamp(18px,4vw,48px) 60px;border-bottom:1px solid var(--line)}
+.teraz-salla-cart-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:28px;align-items:start;margin-top:22px}
+.teraz-salla-cart-item{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;position:relative}
+.teraz-salla-cart-item-row{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:18px;align-items:center}
+.teraz-salla-cart-item-img{width:110px;height:96px;border-radius:10px;background:var(--cream);overflow:hidden;display:block}
+.teraz-salla-cart-item-img img{width:100%;height:100%;object-fit:contain}
+.teraz-salla-cart-summary-box{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px;position:sticky;top:90px;box-shadow:var(--shadow)}
+.teraz-free-ship-box{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px}
+.teraz-free-ship-progress-bg{height:8px;border-radius:999px;background:#dfd4c2;overflow:hidden;margin-top:10px}
+.teraz-free-ship-progress-bar{height:100%;background:var(--good);border-radius:999px;transition:width .3s ease}
+@media(max-width:900px){
+  .teraz-salla-cart-grid{grid-template-columns:1fr}
+  .teraz-salla-cart-summary-box{position:static}
+  .teraz-salla-cart-item-row{grid-template-columns:84px minmax(0,1fr)}
+}
+
+/* Native Salla PDP & Category Extras */
+.teraz-salla-pdp-extras,.teraz-salla-category-extras{max-width:1280px;margin:0 auto;padding:36px clamp(18px,4vw,48px) 64px;border-top:1px solid var(--line)}
+.teraz-salla-pdp-card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:24px}
+.teraz-salla-pdp-card h3{margin:0 0 14px;font-size:22px;color:var(--ink)}
+.teraz-salla-form-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:16px}

@@ -1,5 +1,6 @@
 {#
   TERAZ 2.0 Category / Collection Page (src/views/pages/product/index.twig)
+  Strictly follows Salla Twilight Documentation for Product Index / Listing Page
 #}
 {% extends "layouts.master" %}
 
@@ -13,6 +14,7 @@
   slug: page.slug|default('')
 } %}
 <script type="application/json" id="teraz-category-data">{{ cat_payload|json_encode|raw }}</script>
+
 <div id="home-view">
 
   <section class="hero" id="home">
@@ -113,4 +115,34 @@
 <section id="product-view" hidden aria-label="صفحة المنتج"></section>
 <section id="lp-view" hidden aria-label="عرض طراز"></section>
 <section id="collection-view" hidden aria-label="المجموعة"></section>
+
+<section id="salla-native-category" class="teraz-salla-category-extras" data-testid="store-product-index">
+  <nav class="breadcrumbs w-full py-4">
+    <salla-breadcrumb data-testid="store-breadcrumb"></salla-breadcrumb>
+  </nav>
+
+  {% hook 'product.index.before_products_group_with_filter' %}
+  <div class="flex items-start flex-col md:flex-row">
+    {% if filters %}
+      <salla-filters id="filters-menu" data-testid="store-filters"></salla-filters>
+    {% endif %}
+    <div class="main-content flex-1 w-full">
+      {% hook 'product:index.items.start' %}
+      <salla-products-list
+        class="flex-1 min-w-0 overflow-auto"
+        source="{{ page.slug }}"
+        source-value="{{ page.id }}"
+        data-testid="store-products-list"
+        {{ filters ? 'filters-Results' : '' }}>
+      </salla-products-list>
+      {% hook 'product:index.items.end' %}
+    </div>
+  </div>
+  {% hook 'product.index.after_products_group_with_filter' %}
+  {% hook 'product.index.after_testimonials' %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+  <script defer src="{{ 'product.js' | asset }}"></script>
 {% endblock %}
