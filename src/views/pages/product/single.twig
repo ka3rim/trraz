@@ -7,7 +7,7 @@
 {% block body_class %}teraz-product{% endblock %}
 
 {% block content %}
-<script type="application/json" id="teraz-product-data">{{ {
+{% set pdp_payload = {
   id: product.id,
   sku: product.sku,
   name: product.name,
@@ -18,7 +18,8 @@
   is_available: product.is_available is defined ? (product.is_available ? true : false) : true,
   image: product.image.url|default(''),
   options: product.options|default([])
-}|json_encode|raw }}</script>
+} %}
+<script type="application/json" id="teraz-product-data">{{ pdp_payload|json_encode|raw }}</script>
 <div id="home-view">
 
   <section class="hero" id="home">

@@ -1328,7 +1328,7 @@ function purchasePanel() {
   const sizes = sizesFor(p);
   const p2 = isShoe ? (byId(panel.shoe2) || knit[0]) : null;
   return `<div class="purchase-panel" data-panel>
-    <span class="eyebrow">${{ knit: 'مجموعة الأناقة', mule: 'جديد عندنا', clogs: 'خفّ الكشخة', caps: 'كابات طراز', socks: 'شرابات الأناقة', care: 'العناية' }[p.group]}</span>
+    <span class="eyebrow">${({ knit: 'مجموعة الأناقة', mule: 'جديد عندنا', clogs: 'خفّ الكشخة', caps: 'كابات طراز', socks: 'شرابات الأناقة', care: 'العناية' })[p.group]}</span>
     <h1 data-panel-name>${esc(p.family || p.name)}</h1>
     <p class="color-line">${p.family ? 'اللون: ' + esc(p.color) : esc(p.color)}</p>
     ${ratingLine(true)}

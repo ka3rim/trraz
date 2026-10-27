@@ -2,8 +2,7 @@
   TERAZ 2.0 — قسم العروض والباقات (home.teraz-offers)
 #}
 {% set c = component|default({}) %}
-<script>
-window.TERAZ_QUEUE_OVERRIDE({{ {
+{% set offers_ovr = {
   offersTitle: c.title|default(''),
   offersSub: c.text|default(''),
   offers: {
@@ -11,5 +10,7 @@ window.TERAZ_QUEUE_OVERRIDE({{ {
     starter: c.offer_starter_image|default(''),
     pair2: c.offer_pair2_image|default('')
   }
-}|json_encode|raw }});
+} %}
+<script>
+window.TERAZ_QUEUE_OVERRIDE({{ offers_ovr|json_encode|raw }});
 </script>

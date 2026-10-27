@@ -2,8 +2,21 @@
   TERAZ 2.0 — التحكم الكامل بصور الواجهة والأقسام والعروض والمنتجات (home.teraz-images)
 #}
 {% set c = component|default({}) %}
-<script>
-window.TERAZ_QUEUE_OVERRIDE({{ {
+{% set direct_prods = {
+  'tuwaiq': c.img_tuwaiq|default(''),
+  'badr': c.img_badr|default(''),
+  'night': c.img_night|default(''),
+  'oud': c.img_oud|default(''),
+  'ramth': c.img_ramth|default(''),
+  'evening': c.img_evening|default(''),
+  'dahna': c.img_dahna|default(''),
+  'coffee': c.img_coffee|default(''),
+  'mule-0': c.img_mule_0|default(''),
+  'mule-1': c.img_mule_1|default(''),
+  'mule-2': c.img_mule_2|default(''),
+  'care-pack': c.img_care_pack|default('')
+} %}
+{% set ovr_payload = {
   logo: c.logo|default(''),
   heroBg: c.hero_bg|default(''),
   categories: {
@@ -18,6 +31,11 @@ window.TERAZ_QUEUE_OVERRIDE({{ {
     starter: c.offer_starter|default(''),
     pair2: c.offer_pair2|default('')
   },
-  products: c.product_images|default([])
-}|json_encode|raw }});
+  products: direct_prods
+} %}
+<script>
+window.TERAZ_QUEUE_OVERRIDE({{ ovr_payload|json_encode|raw }});
+{% if c.product_images is defined and c.product_images|length %}
+window.TERAZ_QUEUE_OVERRIDE({ products: {{ c.product_images|json_encode|raw }} });
+{% endif %}
 </script>

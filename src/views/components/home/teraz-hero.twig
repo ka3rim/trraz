@@ -14,8 +14,7 @@
     image: p.image.url|default('')
   }]) %}
 {% endfor %}
-<script>
-window.TERAZ_QUEUE_OVERRIDE({{ {
+{% set hero_ovr = {
   heroBg: c.stage_image|default(''),
   heroEyebrow: c.eyebrow|default(''),
   heroTitle: c.title|default(''),
@@ -23,5 +22,7 @@ window.TERAZ_QUEUE_OVERRIDE({{ {
   heroBtnLabel: c.button_label|default(''),
   heroBtnLink: c.button_link|default(''),
   sallaProducts: hero_prods
-}|json_encode|raw }});
+} %}
+<script>
+window.TERAZ_QUEUE_OVERRIDE({{ hero_ovr|json_encode|raw }});
 </script>

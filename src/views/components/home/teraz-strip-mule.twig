@@ -13,9 +13,10 @@
     image: p.image.url|default('')
   }]) %}
 {% endfor %}
-<script>
-window.TERAZ_QUEUE_OVERRIDE({{ {
+{% set strip_ovr = {
   categories: { 'mule': { image: c.image|default(''), name: c.title|default(''), line: c.text|default('') } },
   sallaProducts: prods
-}|json_encode|raw }});
+} %}
+<script>
+window.TERAZ_QUEUE_OVERRIDE({{ strip_ovr|json_encode|raw }});
 </script>

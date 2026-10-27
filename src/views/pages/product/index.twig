@@ -7,11 +7,12 @@
 {% block body_class %}teraz-category{% endblock %}
 
 {% block content %}
-<script type="application/json" id="teraz-category-data">{{ {
+{% set cat_payload = {
   id: category.id|default(''),
   name: category.name|default(page.title|default('')),
   slug: page.slug|default('')
-}|json_encode|raw }}</script>
+} %}
+<script type="application/json" id="teraz-category-data">{{ cat_payload|json_encode|raw }}</script>
 <div id="home-view">
 
   <section class="hero" id="home">
