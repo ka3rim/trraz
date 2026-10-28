@@ -1551,7 +1551,7 @@ function sceneHTML(shoe, mode, sockHex) {
   return `<div class="scene${clog ? ' is-clog' : ''}">${back}<img class="scene-shoe" src="${assetUrl(shoe.image)}" alt="${esc(shoe.name)}">${front ? `<svg class="scene-front" viewBox="0 -300 1360 1220" aria-hidden="true">${front}</svg>` : ''}</div>`;
 }
 const hotspots = p => [
-  { x: 66, y: 44, t: 'نسيج محاك', d: 'يهوّي وخفيف على رجلك في أجوائنا.' },
+  { x: 66, y: 54, t: 'نسيج محاك', d: 'يهوّي وخفيف على رجلك في أجوائنا.' },
   { x: 18, y: 45, t: 'جلد طبيعي', d: 'حول الكعب والرباط، يعطيها شكل رسمي مع الثوب.' },
   { x: 52, y: 72, t: 'النعل والفرشة', d: p.verified ? 'نعل بولي يوريثان مرن، وفرشة مغطاة بجلد الماعز.' : 'نعل مرن يريحك من الصبح لليل.' }
 ];

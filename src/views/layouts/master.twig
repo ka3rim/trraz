@@ -795,7 +795,6 @@ a.needs-row:hover{background:var(--cream)}
 .stage-photo.detail>img{transform:scale(1.8)}
 .stage-photo.detail .hotspot{display:none}
 .hotspot{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#fffcf6e6;border:2px solid var(--coffee);box-shadow:0 0 0 6px #7a523233;animation:hs-pulse 2.4s infinite;z-index:3}
-.hotspot[data-hotspot="0"]{margin:25px 0 0 -15px}
 .hotspot::after{content:'+';color:var(--coffee);font:18px/26px Arial}
 .hotspot.open::after{content:'−'}
 @keyframes hs-pulse{50%{box-shadow:0 0 0 12px #7a523200}}
@@ -2800,7 +2799,7 @@ function sceneHTML(shoe, mode, sockHex) {
   return `<div class="scene${clog ? ' is-clog' : ''}">${back}<img class="scene-shoe" src="${assetUrl(shoe.image)}" alt="${esc(shoe.name)}">${front ? `<svg class="scene-front" viewBox="0 -300 1360 1220" aria-hidden="true">${front}</svg>` : ''}</div>`;
 }
 const hotspots = p => [
-  { x: 66, y: 44, t: 'نسيج محاك', d: 'يهوّي وخفيف على رجلك في أجوائنا.' },
+  { x: 66, y: 54, t: 'نسيج محاك', d: 'يهوّي وخفيف على رجلك في أجوائنا.' },
   { x: 18, y: 45, t: 'جلد طبيعي', d: 'حول الكعب والرباط، يعطيها شكل رسمي مع الثوب.' },
   { x: 52, y: 72, t: 'النعل والفرشة', d: p.verified ? 'نعل بولي يوريثان مرن، وفرشة مغطاة بجلد الماعز.' : 'نعل مرن يريحك من الصبح لليل.' }
 ];

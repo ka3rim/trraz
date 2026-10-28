@@ -730,7 +730,6 @@ a.needs-row:hover{background:var(--cream)}
 .stage-photo.detail>img{transform:scale(1.8)}
 .stage-photo.detail .hotspot{display:none}
 .hotspot{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#fffcf6e6;border:2px solid var(--coffee);box-shadow:0 0 0 6px #7a523233;animation:hs-pulse 2.4s infinite;z-index:3}
-.hotspot[data-hotspot="0"]{margin:25px 0 0 -15px}
 .hotspot::after{content:'+';color:var(--coffee);font:18px/26px Arial}
 .hotspot.open::after{content:'−'}
 @keyframes hs-pulse{50%{box-shadow:0 0 0 12px #7a523200}}
