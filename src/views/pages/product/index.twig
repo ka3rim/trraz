@@ -26,7 +26,10 @@
       <div class="hero-actions"><a class="primary" href="#knit">اختر جزمتك <span>←</span></a><a class="secondary" href="#offers">وش العروض؟</a></div>
     </div>
     <div class="atelier-stage" aria-label="ألوان طراز الثمانية على درج حجري">
-      <img class="stage-bg" src="{{ theme.settings.get('teraz_hero_bg')|default('https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/atelier.webp') }}" width="1536" height="1024" alt="" fetchpriority="high">
+      <picture class="stage-bg-picture">
+        <source class="stage-bg-mobile" media="(max-width: 640px)" srcset="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/atelier-mobile.jpg">
+        <img class="stage-bg" src="https://cdn.jsdelivr.net/gh/ka3rim/trraz@master/public/images/atelier.webp" width="1536" height="1024" alt="" fetchpriority="high">
+      </picture>
       <div id="hero-shoes"></div>
       <div id="hero-peek" aria-hidden="true"><img alt=""><span></span></div>
     </div>

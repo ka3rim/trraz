@@ -832,6 +832,7 @@ const ASSET_BASE = (window.TERAZ_SALLA_CONFIG && window.TERAZ_SALLA_CONFIG.asset
 const siteImages = {
   logo: 'logo.webp',
   heroBg: 'atelier.webp',
+  heroBgMobile: 'atelier-mobile.jpg',
   muleLife: 'mule-1-life.webp',
   offers: {
     single: 'thumb/black.webp',
@@ -2889,6 +2890,10 @@ window.TERAZ_APPLY_OVERRIDES = function(ovr) {
   if (isValidCustomImage(ovr.heroBg)) {
     siteImages.heroBg = ovr.heroBg.trim();
     $$('.hero .stage-bg, .lp-bg').forEach(el => { el.src = assetUrl(siteImages.heroBg); });
+  }
+  if (isValidCustomImage(ovr.heroBgMobile)) {
+    siteImages.heroBgMobile = ovr.heroBgMobile.trim();
+    $$('.hero .stage-bg-mobile').forEach(el => { el.srcset = assetUrl(siteImages.heroBgMobile); });
   }
   if (isValidCustomImage(ovr.muleLife)) {
     siteImages.muleLife = ovr.muleLife.trim();
