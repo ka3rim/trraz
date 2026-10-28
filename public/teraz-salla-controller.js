@@ -898,22 +898,22 @@ function ratingLine(small = false) {
   return `<a class="rating-line${small ? ' small' : ''}" href="#reviews">${stars(s.rating)} <b>${s.rating.toFixed(1)}</b> <span>(${s.count} تقييم)</span></a>`;
 }
 const ALL_SALLA_PAYMENT_METHODS = [
-  { id: 'mada', sallaKeys: ['mada'], chip: 'مدى', label: 'مدى', badge: 'Mada', desc: 'الدفع الفوري ببطاقة مدى البنكية' },
-  { id: 'apple_pay', sallaKeys: ['apple_pay', 'applepay', 'apple'], chip: 'Apple Pay', label: 'Apple Pay', badge: 'Apple Pay', desc: 'دفع سريع وآمن بلمسة واحدة' },
-  { id: 'tabby', sallaKeys: ['tabby_installment', 'tabby'], chip: 'تابي 4 دفعات', label: 'تابي (4 دفعات)', badge: 'Tabby', desc: 'قسّم فاتورتك على 4 دفعات شهرية بدون فوائد ولا رسوم', isBnpl: true, bnplName: 'تابي' },
-  { id: 'tamara', sallaKeys: ['tamara_installment', 'tamara'], chip: 'تمارا 4 دفعات', label: 'تمارا (4 دفعات)', badge: 'Tamara', desc: 'ادفع ربع القيمة اليوم والباقي على 3 أشهر بدون فوائد', isBnpl: true, bnplName: 'تمارا' },
-  { id: 'stc_pay', sallaKeys: ['stc_pay', 'stcpay'], chip: 'STC Pay', label: 'STC Pay', badge: 'STC Pay', desc: 'الدفع المباشر عبر محفظة STC Pay' },
-  { id: 'card', sallaKeys: ['credit_card', 'card', 'visa', 'mastercard', 'cc'], chip: 'البطاقة الائتمانية', label: 'بطاقة ائتمانية', badge: 'Visa / MC', desc: 'فيزا أو ماستركارد عبر بوابة سلة الآمنة' },
-  { id: 'bank', sallaKeys: ['bank', 'bank_transfer'], chip: 'التحويل البنكي', label: 'تحويل بنكي', badge: 'Bank', desc: 'التحويل المباشر إلى الحساب البنكي للمتجر عبر سلة' },
-  { id: 'cod', sallaKeys: ['cod'], chip: 'الدفع عند الاستلام', label: 'عند الاستلام', badge: 'COD', desc: 'الدفع نقدًا أو عبر الشبكة لمندوب التوصيل عند الاستلام' },
-  { id: 'urpay', sallaKeys: ['urpay'], chip: 'urpay', label: 'محفظة urpay', badge: 'urpay', desc: 'الدفع السريع عبر محفظة urpay الإلكترونية' },
-  { id: 'paypal', sallaKeys: ['paypal'], chip: 'PayPal', label: 'PayPal', badge: 'PayPal', desc: 'الدفع الإلكتروني الآمن عبر حساب PayPal' },
-  { id: 'mispay', sallaKeys: ['mispay', 'mispay_installment'], chip: 'MIS Pay', label: 'MIS Pay (تقسيط)', badge: 'MIS Pay', desc: 'قسّم مشترياتك عبر MIS Pay بدون فوائد', isBnpl: true, bnplName: 'MIS Pay' },
-  { id: 'madfu', sallaKeys: ['madfu', 'madfu_installment'], chip: 'مدفوع', label: 'مدفوع (تقسيط)', badge: 'Madfu', desc: 'قسّم مشترياتك عبر مدفوع بدون فوائد', isBnpl: true, bnplName: 'مدفوع' },
-  { id: 'emkan', sallaKeys: ['emkan_installment', 'emkan'], chip: 'إمكان', label: 'إمكان (تقسيط)', badge: 'Emkan', desc: 'الدفع بالتقسيط عبر إمكان', isBnpl: true, bnplName: 'إمكان' },
-  { id: 'deema', sallaKeys: ['deema_installment', 'deema'], chip: 'ديمة', label: 'ديمة (تقسيط)', badge: 'Deema', desc: 'قسّم فاتورتك عبر ديمة بدون فوائد', isBnpl: true, bnplName: 'ديمة' },
-  { id: 'knet', sallaKeys: ['knet'], chip: 'KNET', label: 'كي نت (KNET)', badge: 'KNET', desc: 'الدفع الإلكتروني عبر شبكة كي نت' },
-  { id: 'benefit', sallaKeys: ['benefit'], chip: 'Benefit', label: 'بنفت (Benefit)', badge: 'Benefit', desc: 'الدفع الإلكتروني عبر شبكة بنفت' }
+  { id: 'mada', sallaKeys: ['mada'], chip: 'مدى', label: 'مدى', badge: 'Mada', desc: 'الدفع الفوري ببطاقة مدى البنكية عبر بوابة سلة الآمنة (3D Secure).', howItWorks: 'أدخل بيانات بطاقة مدى وسيصلك رمز تحقق بنكي (OTP) لتأكيد السداد فورًا.' },
+  { id: 'apple_pay', sallaKeys: ['apple_pay', 'applepay', 'apple'], chip: 'Apple Pay', label: 'Apple Pay', badge: 'Apple Pay', desc: 'دفع سريع وآمن بلمسة واحدة عبر محفظة Apple Pay.', howItWorks: 'اختر Apple Pay في صفحة الدفع وأكّد العملية ببصمة الوجه (Face ID) أو الإصبع.' },
+  { id: 'tabby', sallaKeys: ['tabby_installment', 'tabby'], chip: 'تابي 4 دفعات', label: 'تابي (4 دفعات)', badge: 'Tabby', desc: 'قسّم فاتورتك على 4 دفعات شهرية بدون فوائد ولا رسوم.', howItWorks: 'تدفع 25% فقط اليوم عند التأكيد، والباقي على 3 دفعات شهرية عبر تابي.', isBnpl: true, bnplName: 'تابي' },
+  { id: 'tamara', sallaKeys: ['tamara_installment', 'tamara'], chip: 'تمارا 4 دفعات', label: 'تمارا (4 دفعات)', badge: 'Tamara', desc: 'ادفع ربع القيمة اليوم والباقي على 3 أشهر بدون فوائد.', howItWorks: 'يتم تحويلك لبوابة تمارا لتأكيد رقم الجوال وسداد الدفعة الأولى فقط اليوم.', isBnpl: true, bnplName: 'تمارا' },
+  { id: 'stc_pay', sallaKeys: ['stc_pay', 'stcpay'], chip: 'STC Pay', label: 'STC Pay', badge: 'STC Pay', desc: 'الدفع المباشر عبر محفظة STC Pay الرقمية.', howItWorks: 'أدخل رقم جوالك المرتبط بـ STC Pay وأكّد رمز التحقق لإتمام الدفع.' },
+  { id: 'card', sallaKeys: ['credit_card', 'card', 'visa', 'mastercard', 'cc'], chip: 'البطاقة الائتمانية', label: 'بطاقة ائتمانية', badge: 'Visa / MC', desc: 'فيزا أو ماستركارد عبر بوابة سلة الآمنة.', howItWorks: 'أدخل بيانات البطاقة الائتمانية (Visa / MasterCard) وأكّد رمز الأمان الثلاثي.' },
+  { id: 'bank', sallaKeys: ['bank', 'bank_transfer'], chip: 'التحويل البنكي', label: 'تحويل بنكي', badge: 'Bank', desc: 'التحويل المباشر إلى الحساب البنكي للمتجر عبر سلة.', howItWorks: 'اختر البنك، حوّل المبلغ لآيبان المتجر، وارفع إيصال التحويل لتأكيد الطلب.' },
+  { id: 'cod', sallaKeys: ['cod'], chip: 'الدفع عند الاستلام', label: 'عند الاستلام', badge: 'COD', desc: 'الدفع نقدًا أو عبر الشبكة لمندوب التوصيل عند الاستلام.', howItWorks: 'أكّد عنوانك الآن وادفع مباشرة للمندوب عند استلام شحنتك.' },
+  { id: 'urpay', sallaKeys: ['urpay'], chip: 'urpay', label: 'محفظة urpay', badge: 'urpay', desc: 'الدفع السريع عبر محفظة urpay الإلكترونية.', howItWorks: 'أدخل رقم الجوال المرتبط بمحفظة urpay وأكّد رمز التحقق.' },
+  { id: 'paypal', sallaKeys: ['paypal'], chip: 'PayPal', label: 'PayPal', badge: 'PayPal', desc: 'الدفع الإلكتروني الآمن عبر حساب PayPal.', howItWorks: 'يتم توجيهك لبوابة PayPal لتسجيل الدخول وتأكيد السداد.' },
+  { id: 'mispay', sallaKeys: ['mispay', 'mispay_installment'], chip: 'MIS Pay', label: 'MIS Pay (تقسيط)', badge: 'MIS Pay', desc: 'قسّم مشترياتك عبر MIS Pay بدون فوائد.', howItWorks: 'سجّل برقم جوالك في MIS Pay وسدّد الدفعة الأولى فقط اليوم.', isBnpl: true, bnplName: 'MIS Pay' },
+  { id: 'madfu', sallaKeys: ['madfu', 'madfu_installment'], chip: 'مدفوع', label: 'مدفوع (تقسيط)', badge: 'Madfu', desc: 'قسّم مشترياتك عبر مدفوع بدون فوائد.', howItWorks: 'أكّد هويتك عبر بوابة مدفوع وقسّم الفاتورة على دفعات ميسرة.', isBnpl: true, bnplName: 'مدفوع' },
+  { id: 'emkan', sallaKeys: ['emkan_installment', 'emkan'], chip: 'إمكان', label: 'إمكان (تقسيط)', badge: 'Emkan', desc: 'الدفع بالتقسيط عبر إمكان.', howItWorks: 'أكمل خطوات التمويل الفوري عبر إمكان في صفحة الدفع.', isBnpl: true, bnplName: 'إمكان' },
+  { id: 'deema', sallaKeys: ['deema_installment', 'deema'], chip: 'ديمة', label: 'ديمة (تقسيط)', badge: 'Deema', desc: 'قسّم فاتورتك عبر ديمة بدون فوائد.', howItWorks: 'اختر ديمة في صفحة الدفع لتقسيم المبلغ على دفعات شهرية.', isBnpl: true, bnplName: 'ديمة' },
+  { id: 'knet', sallaKeys: ['knet'], chip: 'KNET', label: 'كي نت (KNET)', badge: 'KNET', desc: 'الدفع الإلكتروني عبر شبكة كي نت.', howItWorks: 'أدخل بيانات بطاقة KNET وأكّد العملية عبر بوابة الدفع.' },
+  { id: 'benefit', sallaKeys: ['benefit'], chip: 'Benefit', label: 'بنفت (Benefit)', badge: 'Benefit', desc: 'الدفع الإلكتروني عبر شبكة بنفت.', howItWorks: 'أدخل بيانات بطاقة Benefit وأكّد العملية عبر بوابة الدفع.' }
 ];
 let SALLA_PAYMENT_METHODS = ALL_SALLA_PAYMENT_METHODS.filter(m => ['mada', 'apple_pay', 'tabby', 'tamara', 'stc_pay', 'card', 'cod'].includes(m.id));
 let selectedPaymentMethod = SALLA_PAYMENT_METHODS[0].id;
@@ -1765,6 +1765,9 @@ function lpSwatch(id) {
 /* ---------- Salla Commerce & Payment Bridge ---------- */
 let couponCode = '';
 let couponDiscount = 0;
+let couponEnabled = (window.TERAZ_SALLA_CONFIG && window.TERAZ_SALLA_CONFIG.couponEnabled !== undefined)
+  ? Boolean(window.TERAZ_SALLA_CONFIG.couponEnabled && window.TERAZ_SALLA_CONFIG.couponEnabled !== '0' && window.TERAZ_SALLA_CONFIG.couponEnabled !== 'false')
+  : true;
 let lastOrder = null;
 let sallaPendingCheckout = false;
 let initialSallaProductId = null;
@@ -1779,6 +1782,24 @@ function normalizeArabic(s) {
     .replace(/ى/g, 'ي')
     .replace(/\s+/g, ' ');
 }
+
+function syncSallaCouponSetting(enabled) {
+  if (enabled === undefined || enabled === null) return couponEnabled;
+  const next = Boolean(enabled && enabled !== '0' && enabled !== 'false');
+  couponEnabled = next;
+  if (!couponEnabled) {
+    couponCode = '';
+    couponDiscount = 0;
+  }
+  if ($('#cart-dialog')?.open) {
+    renderCart($('#cart-dialog').dataset.stage || 'bag');
+  }
+  return couponEnabled;
+}
+
+window.TERAZ_SET_COUPON_ENABLED = function(enabled) {
+  return syncSallaCouponSetting(enabled);
+};
 
 function syncSallaPayments(rawList) {
   if (!Array.isArray(rawList) || !rawList.length) return false;
@@ -1801,7 +1822,8 @@ function syncSallaPayments(rawList) {
       chip: rawStr,
       label: rawStr,
       badge: rawStr.toUpperCase(),
-      desc: 'الدفع الإلكتروني الآمن عبر بوابة سلة'
+      desc: 'الدفع الإلكتروني الآمن عبر بوابة سلة',
+      howItWorks: 'اختر هذه الوسيلة في صفحة الدفع عبر سلة وأكمل تأكيد العملية.'
     };
     if (!resolved.some(r => r.id === entry.id)) resolved.push(entry);
   });
@@ -1990,10 +2012,61 @@ window.TERAZ_SET_PRODUCT_STOCK = function(idOrSkuOrName, inStock) {
   refreshStarterPackUI();
 };
 
-function initSallaBridge() {
-  if (window.TERAZ_SALLA_CONFIG && Array.isArray(window.TERAZ_SALLA_CONFIG.storePayments) && window.TERAZ_SALLA_CONFIG.storePayments.length) {
-    syncSallaPayments(window.TERAZ_SALLA_CONFIG.storePayments);
+function applySallaStoreSettings(settings) {
+  if (!settings || typeof settings !== 'object') return;
+  if (Array.isArray(settings.payments) && settings.payments.length) {
+    syncSallaPayments(settings.payments);
   }
+  if (settings.cart && settings.cart.apply_coupon_enabled !== undefined) {
+    syncSallaCouponSetting(settings.cart.apply_coupon_enabled);
+  } else if (settings.apply_coupon_enabled !== undefined) {
+    syncSallaCouponSetting(settings.apply_coupon_enabled);
+  }
+}
+
+function extractSallaInitFromDOM() {
+  try {
+    const scripts = document.querySelectorAll('script');
+    for (let i = 0; i < scripts.length; i++) {
+      const txt = scripts[i].textContent || '';
+      if (!txt.includes('"twilight::init"')) continue;
+      const m = txt.match(/dispatchEvents\s*\(\s*(\{[\s\S]*\})\s*\)/);
+      if (m && m[1]) {
+        try {
+          const parsed = JSON.parse(m[1]);
+          const settings = parsed?.['twilight::init']?.store?.settings;
+          if (settings) {
+            applySallaStoreSettings(settings);
+            return settings;
+          }
+        } catch {}
+      }
+      const payMatch = txt.match(/"payments"\s*:\s*(\[[^\]]*\])/);
+      if (payMatch && payMatch[1]) {
+        try {
+          const pList = JSON.parse(payMatch[1]);
+          if (Array.isArray(pList) && pList.length) syncSallaPayments(pList);
+        } catch {}
+      }
+      const coupMatch = txt.match(/"apply_coupon_enabled"\s*:\s*(true|false)/);
+      if (coupMatch) {
+        syncSallaCouponSetting(coupMatch[1] === 'true');
+      }
+    }
+  } catch {}
+  return null;
+}
+
+function initSallaBridge() {
+  if (window.TERAZ_SALLA_CONFIG) {
+    if (Array.isArray(window.TERAZ_SALLA_CONFIG.storePayments) && window.TERAZ_SALLA_CONFIG.storePayments.length) {
+      syncSallaPayments(window.TERAZ_SALLA_CONFIG.storePayments);
+    }
+    if (window.TERAZ_SALLA_CONFIG.couponEnabled !== undefined) {
+      syncSallaCouponSetting(window.TERAZ_SALLA_CONFIG.couponEnabled);
+    }
+  }
+  extractSallaInitFromDOM();
   const pdpJsonEl = $('#teraz-product-data');
   if (pdpJsonEl) {
     try {
@@ -2014,25 +2087,19 @@ function initSallaBridge() {
       else if (raw.includes('عناي') || raw.includes('care')) initialSallaCategoryKey = 'care';
     } catch {}
   }
+  let sallaEventsBound = false;
   const bootSalla = () => {
+    extractSallaInitFromDOM();
     const s = window.salla;
     if (!s) return;
     try {
-      const sPayments = (s.config && typeof s.config.get === 'function')
-        ? (s.config.get('store.settings.payments') || s.config.get('store')?.settings?.payments)
-        : null;
-      if (Array.isArray(sPayments) && sPayments.length) {
-        syncSallaPayments(sPayments);
+      if (s.config && typeof s.config.get === 'function') {
+        const sPayments = s.config.get('store.settings.payments') || s.config.get('store')?.settings?.payments;
+        if (Array.isArray(sPayments) && sPayments.length) syncSallaPayments(sPayments);
+        const sCoupon = s.config.get('store.settings.cart.apply_coupon_enabled') ?? s.config.get('store')?.settings?.cart?.apply_coupon_enabled;
+        if (sCoupon !== undefined && sCoupon !== null) syncSallaCouponSetting(sCoupon);
       }
     } catch {}
-    if (typeof s.onReady === 'function') {
-      try {
-        s.onReady(cfg => {
-          const p = cfg?.store?.settings?.payments || (s.config?.get && s.config.get('store.settings.payments'));
-          if (Array.isArray(p) && p.length) syncSallaPayments(p);
-        });
-      } catch {}
-    }
     if (s.product && typeof s.product.fetch === 'function') {
       try {
         Promise.resolve(s.product.fetch({ source: 'latest', limit: 50 })).then(res => {
@@ -2042,10 +2109,10 @@ function initSallaBridge() {
         }).catch(() => {});
       } catch {}
     }
-    if (s.event && typeof s.event.on === 'function') {
+    if (!sallaEventsBound && s.event && typeof s.event.on === 'function') {
+      sallaEventsBound = true;
       s.event.on('twilight::init', payload => {
-        const p = payload?.store?.settings?.payments;
-        if (Array.isArray(p) && p.length) syncSallaPayments(p);
+        if (payload?.store?.settings) applySallaStoreSettings(payload.store.settings);
       });
       s.event.on('login::open', () => {
         if ($('#cart-dialog')?.open) closeCart();
@@ -2076,11 +2143,20 @@ function initSallaBridge() {
     try { localStorage.removeItem(CART_KEY); } catch {}
   }
   window.addEventListener('twilight::initiated', e => {
-    const p = e?.detail?.store?.settings?.payments;
-    if (Array.isArray(p) && p.length) syncSallaPayments(p);
+    if (e?.detail?.store?.settings) applySallaStoreSettings(e.detail.store.settings);
+    bootSalla();
   });
+  document.addEventListener('salla::ready', bootSalla);
+  const sObj = window.Salla || window.salla;
+  if (sObj && typeof sObj.onReady === 'function') {
+    try {
+      sObj.onReady(cfg => {
+        if (cfg?.store?.settings) applySallaStoreSettings(cfg.store.settings);
+        bootSalla();
+      });
+    } catch {}
+  }
   if (window.salla) bootSalla();
-  else document.addEventListener('salla::ready', bootSalla, { once: true });
 }
 
 function syncSingleProductToSalla(p, size, qty) {
@@ -2170,10 +2246,18 @@ function upsell(t) {
   const sock = byId(shoe.pair[1]);
   return `<div class="upsell" data-match="${sock.id}">${img(sock, { thumb: true })}<div><b>شراب بلون جزمتك بـ ${money(S.sockAddonPrice)}</b><small>بدل ${money(sock.price)}، ثلاث أزواج ${esc(sock.color)}</small></div><button class="primary small" data-quick="${sock.id}">أضفه</button></div>`;
 }
-function renderPaymentPills() {
+function renderPaymentPills(showSteps = false) {
   const selectedObj = SALLA_PAYMENT_METHODS.find(m => m.id === selectedPaymentMethod) || SALLA_PAYMENT_METHODS[0];
+  const stepsHTML = showSteps ? `<div class="salla-buy-steps" data-salla-buy-steps>
+    <strong>خطوات تأكيد الطلب والدفع عبر سلة:</strong>
+    <ol>
+      <li>اضغط <b>«إتمام الطلب والدفع عبر سلة»</b> بالأسفل.</li>
+      <li><b>التحقق السريع:</b> أدخل رمز التحقق (OTP) المرسل لجوالك أو بريدك من سلة.</li>
+      <li><b>العنوان والدفع:</b> حدد عنوان التوصيل وأكّد الدفع عبر <b>${esc(selectedObj.label)}</b> في بوابة سلة الآمنة.</li>
+    </ol>
+  </div>` : '';
   return `<div class="teraz-salla-payments">
-    <span class="payments-label">اختر وسيلة الدفع عبر سلة</span>
+    <span class="payments-label">وسائل الدفع المتاحة في المتجر عبر سلة</span>
     <div class="payment-pills" role="radiogroup" aria-label="وسيلة الدفع">
       ${SALLA_PAYMENT_METHODS.map(m => `
         <button type="button" class="payment-pill" data-payment-method="${m.id}" aria-pressed="${m.id === selectedPaymentMethod ? 'true' : 'false'}">
@@ -2182,7 +2266,8 @@ function renderPaymentPills() {
         </button>
       `).join('')}
     </div>
-    <small class="payment-desc">${esc(selectedObj.desc)}</small>
+    <small class="payment-desc"><b>${esc(selectedObj.label)}:</b> ${esc(selectedObj.desc)}${selectedObj.howItWorks ? ' — ' + esc(selectedObj.howItWorks) : ''}</small>
+    ${stepsHTML}
   </div>`;
 }
 function getBnplProviders() {
@@ -2374,7 +2459,8 @@ function renderCart(stage = 'bag') {
     </div></article>`;
   }).join('')}</div>`;
   const recsHTML = cartSuggestions() ? `<div class="cart-recommend"><h3>${stage === 'review' ? 'قبل تكمّل، يمكن تحتاج' : 'كمّل كشختك'}</h3><div class="quick-grid compact">${cartSuggestions()}</div></div>` : '';
-  const couponHTML = stage === 'review' ? `<div class="teraz-bag-coupon">
+  const couponHTML = (stage === 'review' && couponEnabled) ? `<div class="teraz-bag-coupon" data-cart-coupon>
+    <span class="coupon-label">كود الخصم</span>
     <div class="teraz-coupon-row">
       <input id="teraz-coupon-input" type="text" placeholder="كود الخصم (مثال: TERAZ10)" value="${esc(couponCode)}" aria-label="كود الخصم">
       <button type="button" class="secondary" data-action="apply-coupon">تطبيق</button>
@@ -2391,9 +2477,9 @@ function renderCart(stage = 'bag') {
     <p class="grand-total"><span>الإجمالي</span><strong>${money(grandTotal)}</strong></p>
     ${renderInstallmentHint(grandTotal, true)}
     ${ couponHTML }
-    ${ stage === 'review' ? renderPaymentPills() : `<div class="pay-chips">${payChips()}</div>` }
+    ${ stage === 'review' ? renderPaymentPills(true) : `<div class="pay-chips">${payChips()}</div>` }
     <p class="summary-note">توصلك خلال ${CFG.deliveryDays} أيام${CFG.firstExchangeFree ? '، وأول تبديل مقاس علينا' : ''}.</p>
-    <button class="primary" data-action="${stage === 'review' ? 'confirm-order' : 'review'}">${stage === 'review' ? 'المتابعة للدفع عبر سلة' : 'كمّل الطلب'} <span>←</span></button>
+    <button class="primary" data-action="${stage === 'review' ? 'confirm-order' : 'review'}">${stage === 'review' ? 'إتمام الطلب والدفع عبر سلة' : 'كمّل الطلب'} <span>←</span></button>
     ${stage === 'review' ? '<button class="text-button" data-action="back-to-bag">رجوع للسلة</button>' : '<button class="text-button" data-action="close-cart">كمّل تسوق</button>'}
     <small>دفع إلكتروني آمن وموثّق عبر سلة</small>
   </div>`;
@@ -2883,6 +2969,12 @@ window.TERAZ_APPLY_OVERRIDES = function(ovr) {
     syncSallaPayments(ovr.payments);
   } else if (Array.isArray(ovr.storePayments) && ovr.storePayments.length) {
     syncSallaPayments(ovr.storePayments);
+  }
+
+  if (ovr.couponEnabled !== undefined) {
+    syncSallaCouponSetting(ovr.couponEnabled);
+  } else if (ovr.apply_coupon_enabled !== undefined) {
+    syncSallaCouponSetting(ovr.apply_coupon_enabled);
   }
 
   if (needsRefresh) {

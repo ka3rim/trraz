@@ -949,21 +949,27 @@ html,body{overflow-anchor:none}
 .installment-banner{margin:8px 0 14px;padding:10px 14px;background:var(--cream);border-inline-start:2px solid var(--coffee);border-radius:8px;font-size:14px;color:var(--muted)}
 .installment-banner strong,.installment-banner b{color:var(--ink)}
 .installment-hint{font-size:13px!important;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px;margin-top:8px}
-.teraz-bag-coupon{margin:12px 0;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.teraz-bag-coupon .teraz-coupon-row{display:flex;gap:8px}
-.teraz-bag-coupon input{flex:1;min-height:40px;padding:6px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--white);color:var(--ink);font:14px inherit}
-.teraz-bag-coupon button{min-height:40px;padding:6px 16px;font-size:14px}
+.teraz-bag-coupon{margin:12px 0;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);width:100%;box-sizing:border-box}
+.teraz-bag-coupon .coupon-label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+.teraz-bag-coupon .teraz-coupon-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:stretch;gap:8px;width:100%;box-sizing:border-box}
+.teraz-bag-coupon input{width:100%;min-width:0;min-height:40px;padding:6px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--white);color:var(--ink);font:13px inherit;box-sizing:border-box}
+.teraz-bag-coupon button{min-height:40px;padding:6px 14px;font-size:13px;white-space:nowrap;flex-shrink:0}
 .coupon-applied{display:block;margin-top:6px;color:var(--good);font-size:13px}
 .discount-row strong{color:var(--good)}
-.teraz-salla-payments{margin:12px 0}
+.teraz-salla-payments{margin:12px 0;width:100%;box-sizing:border-box}
 .payments-label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
-.payment-pills{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.payment-pill{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;padding:8px 6px;border:1px solid var(--line);border-radius:10px;background:var(--white);color:var(--ink);cursor:pointer;transition:border-color .2s,background .2s}
+.payment-pills{display:grid;grid-template-columns:repeat(auto-fit,minmax(82px,1fr));gap:8px;width:100%;box-sizing:border-box}
+.payment-pill{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;padding:8px 6px;border:1px solid var(--line);border-radius:10px;background:var(--white);color:var(--ink);cursor:pointer;transition:border-color .2s,background .2s;text-align:center}
 .payment-pill b{font-size:11px;letter-spacing:.03em;color:var(--coffee)}
-.payment-pill span{font-size:13px}
+.payment-pill span{font-size:12px;line-height:1.25}
 .payment-pill[aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:var(--white)}
 .payment-pill[aria-pressed=true] b{color:var(--sand)}
-.payment-desc{display:block;margin-top:8px;font-size:12px;color:var(--muted)}
+.payment-desc{display:block;margin-top:8px;padding:8px 10px;background:var(--white);border:1px solid var(--line);border-radius:8px;font-size:12px;line-height:1.5;color:var(--ink)}
+.salla-buy-steps{margin:10px 0 0;padding:10px 12px;background:var(--white);border:1px dashed var(--line);border-radius:10px;text-align:right}
+.salla-buy-steps strong{display:block;font-size:12px;color:var(--coffee);margin-bottom:6px}
+.salla-buy-steps ol{margin:0;padding:0 16px 0 0;font-size:12px;line-height:1.65;color:var(--muted)}
+.salla-buy-steps li+li{margin-top:3px}
+.salla-buy-steps b{color:var(--ink);font-weight:400}
 .salla-step-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line);font-size:13px}
 .salla-step-bar span{padding:4px 12px;border-radius:999px;background:var(--cream);color:var(--muted)}
 .salla-step-bar span.done{color:var(--good);background:var(--good-bg)}
