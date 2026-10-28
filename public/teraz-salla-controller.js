@@ -897,13 +897,36 @@ function ratingLine(small = false) {
   if (!s || !s.count) return '';
   return `<a class="rating-line${small ? ' small' : ''}" href="#reviews">${stars(s.rating)} <b>${s.rating.toFixed(1)}</b> <span>(${s.count} تقييم)</span></a>`;
 }
+const ALL_SALLA_PAYMENT_METHODS = [
+  { id: 'mada', sallaKeys: ['mada'], chip: 'مدى', label: 'مدى', badge: 'Mada', desc: 'الدفع الفوري ببطاقة مدى البنكية' },
+  { id: 'apple_pay', sallaKeys: ['apple_pay', 'applepay', 'apple'], chip: 'Apple Pay', label: 'Apple Pay', badge: 'Apple Pay', desc: 'دفع سريع وآمن بلمسة واحدة' },
+  { id: 'tabby', sallaKeys: ['tabby_installment', 'tabby'], chip: 'تابي 4 دفعات', label: 'تابي (4 دفعات)', badge: 'Tabby', desc: 'قسّم فاتورتك على 4 دفعات شهرية بدون فوائد ولا رسوم', isBnpl: true, bnplName: 'تابي' },
+  { id: 'tamara', sallaKeys: ['tamara_installment', 'tamara'], chip: 'تمارا 4 دفعات', label: 'تمارا (4 دفعات)', badge: 'Tamara', desc: 'ادفع ربع القيمة اليوم والباقي على 3 أشهر بدون فوائد', isBnpl: true, bnplName: 'تمارا' },
+  { id: 'stc_pay', sallaKeys: ['stc_pay', 'stcpay'], chip: 'STC Pay', label: 'STC Pay', badge: 'STC Pay', desc: 'الدفع المباشر عبر محفظة STC Pay' },
+  { id: 'card', sallaKeys: ['credit_card', 'card', 'visa', 'mastercard', 'cc'], chip: 'البطاقة الائتمانية', label: 'بطاقة ائتمانية', badge: 'Visa / MC', desc: 'فيزا أو ماستركارد عبر بوابة سلة الآمنة' },
+  { id: 'bank', sallaKeys: ['bank', 'bank_transfer'], chip: 'التحويل البنكي', label: 'تحويل بنكي', badge: 'Bank', desc: 'التحويل المباشر إلى الحساب البنكي للمتجر عبر سلة' },
+  { id: 'cod', sallaKeys: ['cod'], chip: 'الدفع عند الاستلام', label: 'عند الاستلام', badge: 'COD', desc: 'الدفع نقدًا أو عبر الشبكة لمندوب التوصيل عند الاستلام' },
+  { id: 'urpay', sallaKeys: ['urpay'], chip: 'urpay', label: 'محفظة urpay', badge: 'urpay', desc: 'الدفع السريع عبر محفظة urpay الإلكترونية' },
+  { id: 'paypal', sallaKeys: ['paypal'], chip: 'PayPal', label: 'PayPal', badge: 'PayPal', desc: 'الدفع الإلكتروني الآمن عبر حساب PayPal' },
+  { id: 'mispay', sallaKeys: ['mispay', 'mispay_installment'], chip: 'MIS Pay', label: 'MIS Pay (تقسيط)', badge: 'MIS Pay', desc: 'قسّم مشترياتك عبر MIS Pay بدون فوائد', isBnpl: true, bnplName: 'MIS Pay' },
+  { id: 'madfu', sallaKeys: ['madfu', 'madfu_installment'], chip: 'مدفوع', label: 'مدفوع (تقسيط)', badge: 'Madfu', desc: 'قسّم مشترياتك عبر مدفوع بدون فوائد', isBnpl: true, bnplName: 'مدفوع' },
+  { id: 'emkan', sallaKeys: ['emkan_installment', 'emkan'], chip: 'إمكان', label: 'إمكان (تقسيط)', badge: 'Emkan', desc: 'الدفع بالتقسيط عبر إمكان', isBnpl: true, bnplName: 'إمكان' },
+  { id: 'deema', sallaKeys: ['deema_installment', 'deema'], chip: 'ديمة', label: 'ديمة (تقسيط)', badge: 'Deema', desc: 'قسّم فاتورتك عبر ديمة بدون فوائد', isBnpl: true, bnplName: 'ديمة' },
+  { id: 'knet', sallaKeys: ['knet'], chip: 'KNET', label: 'كي نت (KNET)', badge: 'KNET', desc: 'الدفع الإلكتروني عبر شبكة كي نت' },
+  { id: 'benefit', sallaKeys: ['benefit'], chip: 'Benefit', label: 'بنفت (Benefit)', badge: 'Benefit', desc: 'الدفع الإلكتروني عبر شبكة بنفت' }
+];
+let SALLA_PAYMENT_METHODS = ALL_SALLA_PAYMENT_METHODS.filter(m => ['mada', 'apple_pay', 'tabby', 'tamara', 'stc_pay', 'card', 'cod'].includes(m.id));
+let selectedPaymentMethod = SALLA_PAYMENT_METHODS[0].id;
+
 function payChips() { return (CFG.payments || []).map(x => `<span class="pay-chip">${esc(x)}</span>`).join(''); }
 function assurances({ compact = false } = {}) {
+  const payList = (CFG.payments || []).slice(0, 2);
+  const payText = payList.length ? 'ادفع بـ' + payList.join(' أو ') : 'دفع إلكتروني آمن عبر سلة';
   const items = [
     ['truck', `توصلك خلال ${CFG.deliveryDays || '2 إلى 4'} أيام`],
     ['swap', CFG.firstExchangeFree ? 'أول تبديل مقاس علينا' : `تقدر تبدّل خلال ${CFG.exchangeDays || 20} يوم`],
     ['gift', `التوصيل مجاني فوق ${S.freeShippingThreshold} ريال`],
-    ['lock', 'ادفع بـ' + (CFG.payments || []).slice(0, 2).join(' أو ')]
+    ['lock', payText]
   ];
   const icon = name => ({
     truck: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7" /><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/>',
@@ -1740,16 +1763,6 @@ function lpSwatch(id) {
 }
 
 /* ---------- Salla Commerce & Payment Bridge ---------- */
-const SALLA_PAYMENT_METHODS = [
-  { id: 'mada', label: 'مدى', badge: 'Mada', desc: 'الدفع الفوري ببطاقة مدى البنكية' },
-  { id: 'apple_pay', label: 'Apple Pay', badge: 'Apple Pay', desc: 'دفع سريع وآمن بلمسة واحدة' },
-  { id: 'tabby', label: 'تابي (4 دفعات)', badge: 'Tabby', desc: 'قسّم فاتورتك على 4 دفعات شهرية بدون فوائد ولا رسوم' },
-  { id: 'tamara', label: 'تمارا (4 دفعات)', badge: 'Tamara', desc: 'ادفع ربع القيمة اليوم والباقي على 3 أشهر بدون فوائد' },
-  { id: 'stc_pay', label: 'STC Pay', badge: 'STC Pay', desc: 'الدفع المباشر عبر محفظة STC Pay' },
-  { id: 'card', label: 'بطاقة ائتمانية', badge: 'Visa / MC', desc: 'فيزا أو ماستركارد عبر بوابة سلة الآمنة' },
-  { id: 'cod', label: 'عند الاستلام', badge: 'COD', desc: 'الدفع نقدًا أو عبر الشبكة لمندوب التوصيل عند الاستلام' }
-];
-let selectedPaymentMethod = 'mada';
 let couponCode = '';
 let couponDiscount = 0;
 let lastOrder = null;
@@ -1766,6 +1779,58 @@ function normalizeArabic(s) {
     .replace(/ى/g, 'ي')
     .replace(/\s+/g, ' ');
 }
+
+function syncSallaPayments(rawList) {
+  if (!Array.isArray(rawList) || !rawList.length) return false;
+  const resolved = [];
+  rawList.forEach(item => {
+    if (!item) return;
+    const rawStr = typeof item === 'string' ? item.trim() : String(item.id || item.code || item.name || '').trim();
+    if (!rawStr) return;
+    const key = rawStr.toLowerCase();
+    const norm = normalizeArabic(rawStr);
+    const match = ALL_SALLA_PAYMENT_METHODS.find(m =>
+      m.id === key ||
+      m.sallaKeys.includes(key) ||
+      normalizeArabic(m.chip) === norm ||
+      normalizeArabic(m.label) === norm
+    );
+    const entry = match || {
+      id: key,
+      sallaKeys: [key],
+      chip: rawStr,
+      label: rawStr,
+      badge: rawStr.toUpperCase(),
+      desc: 'الدفع الإلكتروني الآمن عبر بوابة سلة'
+    };
+    if (!resolved.some(r => r.id === entry.id)) resolved.push(entry);
+  });
+  if (!resolved.length) return false;
+  SALLA_PAYMENT_METHODS = resolved;
+  CFG.payments = SALLA_PAYMENT_METHODS.map(m => m.chip);
+  if (!SALLA_PAYMENT_METHODS.some(m => m.id === selectedPaymentMethod)) {
+    selectedPaymentMethod = SALLA_PAYMENT_METHODS[0].id;
+  }
+  if (Array.isArray(faqs) && faqs[3]) {
+    faqs[3][1] = (CFG.payments || []).join('، ') + '.';
+  }
+  if ($('#footer-pay')) $('#footer-pay').innerHTML = payChips();
+  if ($('#trust')) renderTrust();
+  if ($('#faq')) $('#faq').innerHTML = faqHTML(faqs);
+  if (view === 'lp' && $('.lp-view .questions > div:last-child')) {
+    $('.lp-view .questions > div:last-child').innerHTML = faqHTML(faqs.slice(0, 4));
+  }
+  $$('[data-panel] .pay-chips').forEach(el => { el.innerHTML = payChips(); });
+  $$('[data-panel] .assurances').forEach(el => { el.innerHTML = assurances({ compact: true }); });
+  if ($('#cart-dialog')?.open) {
+    renderCart($('#cart-dialog').dataset.stage || 'bag');
+  }
+  return true;
+}
+
+window.TERAZ_SET_PAYMENT_METHODS = function(list) {
+  return syncSallaPayments(list);
+};
 
 function parseSallaPrice(val, fallback) {
   if (typeof val === 'number' && Number.isFinite(val) && val > 0) return val;
@@ -1926,6 +1991,9 @@ window.TERAZ_SET_PRODUCT_STOCK = function(idOrSkuOrName, inStock) {
 };
 
 function initSallaBridge() {
+  if (window.TERAZ_SALLA_CONFIG && Array.isArray(window.TERAZ_SALLA_CONFIG.storePayments) && window.TERAZ_SALLA_CONFIG.storePayments.length) {
+    syncSallaPayments(window.TERAZ_SALLA_CONFIG.storePayments);
+  }
   const pdpJsonEl = $('#teraz-product-data');
   if (pdpJsonEl) {
     try {
@@ -1949,6 +2017,22 @@ function initSallaBridge() {
   const bootSalla = () => {
     const s = window.salla;
     if (!s) return;
+    try {
+      const sPayments = (s.config && typeof s.config.get === 'function')
+        ? (s.config.get('store.settings.payments') || s.config.get('store')?.settings?.payments)
+        : null;
+      if (Array.isArray(sPayments) && sPayments.length) {
+        syncSallaPayments(sPayments);
+      }
+    } catch {}
+    if (typeof s.onReady === 'function') {
+      try {
+        s.onReady(cfg => {
+          const p = cfg?.store?.settings?.payments || (s.config?.get && s.config.get('store.settings.payments'));
+          if (Array.isArray(p) && p.length) syncSallaPayments(p);
+        });
+      } catch {}
+    }
     if (s.product && typeof s.product.fetch === 'function') {
       try {
         Promise.resolve(s.product.fetch({ source: 'latest', limit: 50 })).then(res => {
@@ -1959,6 +2043,10 @@ function initSallaBridge() {
       } catch {}
     }
     if (s.event && typeof s.event.on === 'function') {
+      s.event.on('twilight::init', payload => {
+        const p = payload?.store?.settings?.payments;
+        if (Array.isArray(p) && p.length) syncSallaPayments(p);
+      });
       s.event.on('login::open', () => {
         if ($('#cart-dialog')?.open) closeCart();
         if ($('#menu-dialog')?.open) $('#menu-dialog').close();
@@ -1987,6 +2075,10 @@ function initSallaBridge() {
     couponDiscount = 0;
     try { localStorage.removeItem(CART_KEY); } catch {}
   }
+  window.addEventListener('twilight::initiated', e => {
+    const p = e?.detail?.store?.settings?.payments;
+    if (Array.isArray(p) && p.length) syncSallaPayments(p);
+  });
   if (window.salla) bootSalla();
   else document.addEventListener('salla::ready', bootSalla, { once: true });
 }
@@ -2093,13 +2185,27 @@ function renderPaymentPills() {
     <small class="payment-desc">${esc(selectedObj.desc)}</small>
   </div>`;
 }
+function getBnplProviders() {
+  return SALLA_PAYMENT_METHODS.filter(m => m.isBnpl);
+}
+function renderInstallmentHint(grandTotal, withNames = true) {
+  const bnpl = getBnplProviders();
+  if (!bnpl.length) return '';
+  const installment = Math.ceil(grandTotal / 4);
+  if (!withNames) {
+    return `<p class="installment-hint" data-installment-hint>شامل الضريبة · أو 4 دفعات بقيمة <strong>${money(installment)}</strong> بدون فوائد</p>`;
+  }
+  const names = bnpl.map(b => `<b>${esc(b.bnplName || b.label)}</b>`).join(' أو ');
+  return `<p class="installment-hint" data-installment-hint>أو قسّمها على 4 دفعات بقيمة <strong>${money(installment)}</strong> بدون فوائد عبر ${names}</p>`;
+}
 function renderPaymentMethodFields(grandTotal) {
   const m = selectedPaymentMethod;
+  const methodObj = SALLA_PAYMENT_METHODS.find(x => x.id === m) || SALLA_PAYMENT_METHODS[0];
   const installment = Math.ceil(grandTotal / 4);
-  if (m === 'tabby' || m === 'tamara') {
-    const provider = m === 'tabby' ? 'تابي (Tabby)' : 'تمارا (Tamara)';
+  if (methodObj && methodObj.isBnpl) {
+    const provider = m === 'tabby' ? 'تابي (Tabby)' : m === 'tamara' ? 'تمارا (Tamara)' : (methodObj.bnplName || methodObj.label);
     return `<div class="salla-pay-box bnpl-box">
-      <strong>خطتك الميسرة عبر ${provider} — 0% فوائد</strong>
+      <strong>خطتك الميسرة عبر ${esc(provider)} — 0% فوائد</strong>
       <div class="bnpl-steps">
         <div><span>الدفعة الأولى (اليوم)</span><b>${money(installment)}</b></div>
         <div><span>بعد شهر</span><b>${money(installment)}</b></div>
@@ -2114,12 +2220,19 @@ function renderPaymentMethodFields(grandTotal) {
       <p>سيتم تأكيد الدفع بمبلغ <b>${money(grandTotal)}</b> عبر بصمة الوجه أو الإصبع فور الضغط على زر التأكيد.</p>
     </div>`;
   }
-  if (m === 'stc_pay') {
+  if (m === 'stc_pay' || m === 'urpay') {
+    const walletName = m === 'urpay' ? 'urpay' : 'STC Pay';
     return `<div class="salla-pay-box stc-pay-box">
-      <strong>محفظة STC Pay</strong>
-      <label>رقم الجوال المرتبط بـ STC Pay
+      <strong>محفظة ${walletName}</strong>
+      <label>رقم الجوال المرتبط بـ ${walletName}
         <input id="salla-stc-phone" type="tel" inputmode="tel" placeholder="05XXXXXXXX" value="${esc($('#salla-ship-phone')?.value || '')}">
       </label>
+    </div>`;
+  }
+  if (m === 'bank') {
+    return `<div class="salla-pay-box bank-box">
+      <strong>التحويل البنكي عبر سلة</strong>
+      <p>سيتم عرض بيانات الحساب البنكي ورقم الآيبان (IBAN) لإرفاق إيصال التحويل بمبلغ <b>${money(grandTotal)}</b> فور تأكيد الطلب.</p>
     </div>`;
   }
   if (m === 'cod') {
@@ -2128,8 +2241,14 @@ function renderPaymentMethodFields(grandTotal) {
       <p>ادفع نقدًا أو عبر جهاز الشبكة (مدى) مباشرة لمندوب التوصيل عند استلام طلبك.</p>
     </div>`;
   }
+  if (m === 'paypal') {
+    return `<div class="salla-pay-box paypal-box">
+      <strong>الدفع عبر PayPal</strong>
+      <p>سيتم توجيهك إلى بوابة PayPal الآمنة لتأكيد دفع مبلغ <b>${money(grandTotal)}</b>.</p>
+    </div>`;
+  }
   return `<div class="salla-pay-box card-box">
-    <strong>بيانات بطاقة ${m === 'mada' ? 'مدى البنكية' : 'الائتمان (Visa / MasterCard)'}</strong>
+    <strong>بيانات بطاقة ${m === 'mada' ? 'مدى البنكية' : esc(methodObj ? methodObj.label : 'الائتمان (Visa / MasterCard)')}</strong>
     <div class="salla-card-grid">
       <label class="full">رقم البطاقة
         <input id="salla-card-number" type="text" inputmode="numeric" maxlength="19" placeholder="4455 •••• •••• ••••">
@@ -2230,7 +2349,7 @@ function renderCart(stage = 'bag') {
         ${discount > 0 ? `<p class="discount-row"><span>خصم الكوبون (${esc(couponCode)})</span><strong>−${money(discount)}</strong></p>` : ''}
         <p><span>التوصيل</span><strong>${t.shipping ? money(t.shipping) : 'مجاني'}</strong></p>
         <p class="grand-total"><span>الإجمالي المستحق</span><strong>${money(grandTotal)}</strong></p>
-        <p class="installment-hint">شامل الضريبة · أو 4 دفعات بقيمة <strong>${money(installment)}</strong> بدون فوائد</p>
+        ${renderInstallmentHint(grandTotal, false)}
         <button type="button" class="primary" data-action="submit-salla-payment">تأكيد ودفع ${money(grandTotal)} <span>←</span></button>
         <button type="button" class="text-button" data-action="review">العودة لمراجعة الطلب</button>
       </div>`;
@@ -2270,7 +2389,7 @@ function renderCart(stage = 'bag') {
     ${discount > 0 ? `<p class="discount-row"><span>خصم الكوبون (${esc(couponCode)})</span><strong>−${money(discount)}</strong></p>` : ''}
     <p><span>التوصيل</span><strong>${t.shipping ? money(t.shipping) : 'مجاني'}</strong></p>
     <p class="grand-total"><span>الإجمالي</span><strong>${money(grandTotal)}</strong></p>
-    <p class="installment-hint">أو قسّمها على 4 دفعات بقيمة <strong>${money(installment)}</strong> بدون فوائد عبر <b>تابي</b> أو <b>تمارا</b></p>
+    ${renderInstallmentHint(grandTotal, true)}
     ${ couponHTML }
     ${ stage === 'review' ? renderPaymentPills() : `<div class="pay-chips">${payChips()}</div>` }
     <p class="summary-note">توصلك خلال ${CFG.deliveryDays} أيام${CFG.firstExchangeFree ? '، وأول تبديل مقاس علينا' : ''}.</p>
@@ -2758,6 +2877,12 @@ window.TERAZ_APPLY_OVERRIDES = function(ovr) {
     ovr.sallaProducts.forEach(sp => {
       if (sp) { linkSallaProductToCatalog(sp); needsRefresh = true; }
     });
+  }
+
+  if (Array.isArray(ovr.payments) && ovr.payments.length) {
+    syncSallaPayments(ovr.payments);
+  } else if (Array.isArray(ovr.storePayments) && ovr.storePayments.length) {
+    syncSallaPayments(ovr.storePayments);
   }
 
   if (needsRefresh) {

@@ -1070,3 +1070,4 @@ html,body{overflow-anchor:none}
 .teraz-salla-pdp-card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:24px}
 .teraz-salla-pdp-card h3{margin:0 0 14px;font-size:22px;color:var(--ink)}
 .teraz-salla-form-row{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:16px}
+.salla-native-payments{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:8px}
