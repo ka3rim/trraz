@@ -795,6 +795,7 @@ a.needs-row:hover{background:var(--cream)}
 .stage-photo.detail>img{transform:scale(1.8)}
 .stage-photo.detail .hotspot{display:none}
 .hotspot{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#fffcf6e6;border:2px solid var(--coffee);box-shadow:0 0 0 6px #7a523233;animation:hs-pulse 2.4s infinite;z-index:3}
+.hotspot[data-hotspot="0"]{margin:25px 0 0 -15px}
 .hotspot::after{content:'+';color:var(--coffee);font:18px/26px Arial}
 .hotspot.open::after{content:'−'}
 @keyframes hs-pulse{50%{box-shadow:0 0 0 12px #7a523200}}
@@ -2299,27 +2300,65 @@ function renderNeeds() {
   </div>`;
 }
 
-/* ---------- offers ---------- */
+/* ---------- offers & starter pack stock synchronization ---------- */
+let starterPackGlobalInStock = true;
+function isProductInStock(p) {
+  if (!p) return false;
+  if (p.inStock === false) return false;
+  if (Array.isArray(p.parts) && p.parts.some(pid => {
+    const sub = byId(pid);
+    return sub && sub.inStock === false;
+  })) return false;
+  return true;
+}
+function isStarterPackAvailable(shoe) {
+  if (!starterPackGlobalInStock) return false;
+  for (const cid of ['cleaning-kit', 'water-shield', 'care-pack']) {
+    const cp = byId(cid);
+    if (cp && !isProductInStock(cp)) return false;
+  }
+  const socksList = catalog.filter(x => x.group === 'socks');
+  if (socksList.some(s => !isProductInStock(s))) return false;
+  if (shoe && shoe.group === 'knit') {
+    if (!isProductInStock(shoe)) return false;
+    const pairedSock = shoe.pair && shoe.pair[1] ? byId(shoe.pair[1]) : null;
+    if (pairedSock && !isProductInStock(pairedSock)) return false;
+  } else if (knit.every(k => !isProductInStock(k))) {
+    return false;
+  }
+  return true;
+}
 function offersFor(p) {
   const sock = byId(p.pair[1]);
   const starterList = p.price + sock.price + byId('cleaning-kit').price + byId('water-shield').price;
-  return [
-    { key: 'single', title: 'لون واحد', sub: 'الجزمة بس.', price: p.price, list: p.price },
-    { key: 'starter', title: S.bundles.starter.name, sub: 'الجزمة، وشراب بلونها، وعدة التنظيف، وبخاخ العزل. كل اللي تحتاجه من أول يوم.', price: S.bundles.starter.price, list: starterList },
-    { key: 'pair2', title: S.bundles.pair2.name, sub: 'جزمتين بلونين: وحدة للدوام ووحدة للطلعات، أو لك ولأخوك.', price: S.bundles.pair2.price, list: p.price * 2 }
+  const list = [
+    { key: 'single', title: 'لون واحد', sub: 'الجزمة بس.', price: p.price, list: p.price }
   ];
+  if (isStarterPackAvailable(p)) {
+    list.push({ key: 'starter', title: S.bundles.starter.name, sub: 'الجزمة، وشراب بلونها، وعدة التنظيف، وبخاخ العزل. كل اللي تحتاجه من أول يوم.', price: S.bundles.starter.price, list: starterList });
+  }
+  list.push({ key: 'pair2', title: S.bundles.pair2.name, sub: 'جزمتين بلونين: وحدة للدوام ووحدة للطلعات، أو لك ولأخوك.', price: S.bundles.pair2.price, list: p.price * 2 });
+  return list;
 }
 const shipNote = price => price >= S.freeShippingThreshold ? '<span class="free-ship">التوصيل مجاني</span>' : `<span class="ship-fee">+ ${S.shippingFee} ريال توصيل</span>`;
 function renderHomeOffers() {
-  const p = byId('night'), [single, starter, pair] = offersFor(p);
-  const card = (o, image, href, cta) => `<a class="offer-card${o.key === 'starter' ? ' featured' : ''}" href="${href}">
-    <div class="offer-image"><img src="${assetUrl(image)}" alt="" loading="lazy" width="1400" height="1050"></div>
-    <h3>${o.title}</h3><p>${o.sub}</p>
-    <div class="offer-price"><strong>${money(o.price)}</strong>${o.list > o.price ? `<s>${money(o.list)}</s>` : ''}</div>
-    ${o.list > o.price ? `<p class="offer-save">توفر ${money(o.list - o.price)}</p>` : ''}
-    ${shipNote(o.price)}
-    <span class="offer-cta">${cta} ←</span></a>`;
-  $('#home-offers').innerHTML = card(single, siteImages.offers.single, '#lp/all/single', 'اختر لونك') + card(starter, siteImages.offers.starter, '#lp/all/starter', 'اختر لونك ومقاسك') + card(pair, siteImages.offers.pair2, '#lp/all/pair2', 'اختر اللونين');
+  if (!$('#home-offers')) return;
+  const p = byId('night');
+  const meta = {
+    single:  { img: siteImages.offers.single,  href: '#lp/all/single',  cta: 'اختر لونك' },
+    starter: { img: siteImages.offers.starter, href: '#lp/all/starter', cta: 'اختر لونك ومقاسك' },
+    pair2:   { img: siteImages.offers.pair2,   href: '#lp/all/pair2',   cta: 'اختر اللونين' }
+  };
+  $('#home-offers').innerHTML = offersFor(p).map(o => {
+    const m = meta[o.key] || meta.single;
+    return `<a class="offer-card${o.key === 'starter' ? ' featured' : ''}" data-offer-card="${o.key}" href="${m.href}">
+      <div class="offer-image"><img src="${assetUrl(m.img)}" alt="" loading="lazy" width="1400" height="1050"></div>
+      <h3>${o.title}</h3><p>${o.sub}</p>
+      <div class="offer-price"><strong>${money(o.price)}</strong>${o.list > o.price ? `<s>${money(o.list)}</s>` : ''}</div>
+      ${o.list > o.price ? `<p class="offer-save">توفر ${money(o.list - o.price)}</p>` : ''}
+      ${shipNote(o.price)}
+      <span class="offer-cta">${m.cta} ←</span></a>`;
+  }).join('');
 }
 
 /* ---------- reviews, guarantee, FAQ, footer ---------- */
@@ -2562,9 +2601,33 @@ function renderSizeGuide() {
 /* ---------- purchase panel (product page + landing page) ---------- */
 function newPanel(p, mode, offer) {
   const isShoe = p.group === 'knit';
-  return { p, mode, offer: isShoe ? (offer || 'starter') : 'single', size: oneSize(p) ? optionLabel(p) : '', size2: '', shoe2: p.group === 'knit' ? (p.id === 'coffee' ? 'night' : 'coffee') : p.id, view: 'photo', socksShoe: 'night' };
+  let initialOffer = 'single';
+  let autoFallback = false;
+  if (isShoe) {
+    const starterOk = isStarterPackAvailable(p);
+    const requested = offer || 'starter';
+    if (requested === 'starter' && !starterOk) {
+      initialOffer = 'single';
+      autoFallback = true;
+    } else {
+      initialOffer = requested;
+    }
+  }
+  return { p, mode, offer: initialOffer, _autoFallbackFromStarter: autoFallback, size: oneSize(p) ? optionLabel(p) : '', size2: '', shoe2: p.group === 'knit' ? (p.id === 'coffee' ? 'night' : 'coffee') : p.id, view: 'photo', socksShoe: 'night' };
 }
-function currentOffer() { return panel.p.group === 'knit' ? offersFor(panel.p).find(o => o.key === panel.offer) : { key: 'single', price: panel.p.price, list: panel.p.compareAt || panel.p.price }; }
+function currentOffer() {
+  if (panel.p.group !== 'knit') return { key: 'single', price: panel.p.price, list: panel.p.compareAt || panel.p.price };
+  const list = offersFor(panel.p);
+  return list.find(o => o.key === panel.offer) || list[0];
+}
+function offerOptionsHTML(p) {
+  return `<legend class="field-label">وش تبي تاخذ؟</legend>${offersFor(p).map(o => `
+    <label class="offer-option${o.key === panel.offer ? ' selected' : ''}" data-offer-option="${o.key}">
+      <input type="radio" name="offer" value="${o.key}" ${o.key === panel.offer ? 'checked' : ''}>
+      <span class="offer-main"><b>${o.title}</b><small>${o.sub}</small></span>
+      <span class="offer-side"><strong>${money(o.price)}</strong>${o.list > o.price ? `<s>${money(o.list)}</s>` : ''}</span>
+    </label>`).join('')}`;
+}
 const siblings = p => catalog.filter(x => x.group === p.group);
 const hasSwatches = p => p.group === 'knit' || !!p.family;
 function swatches(p, mode) {
@@ -2582,12 +2645,7 @@ function purchasePanel() {
     ${ratingLine(true)}
     <div class="price-line" data-panel-price></div>
     ${hasSwatches(p) ? `<p class="field-label"><span data-color-label>${isShoe && panel.offer === 'pair2' ? 'اللون الأول' : 'اللون'}</span> <small>${['', 'لون واحد', 'لونين', 'ثلاث ألوان', 'أربع ألوان', 'خمس ألوان', 'ست ألوان', 'سبع ألوان', 'ثمان ألوان'][siblings(p).length] || ''}</small></p>${swatches(p, mode)}` : ''}
-    ${isShoe ? `<fieldset class="offers-picker"><legend class="field-label">وش تبي تاخذ؟</legend>${offersFor(p).map(o => `
-      <label class="offer-option${o.key === panel.offer ? ' selected' : ''}">
-        <input type="radio" name="offer" value="${o.key}" ${o.key === panel.offer ? 'checked' : ''}>
-        <span class="offer-main"><b>${o.title}</b><small>${o.sub}</small></span>
-        <span class="offer-side"><strong>${money(o.price)}</strong>${o.list > o.price ? `<s>${money(o.list)}</s>` : ''}</span>
-      </label>`).join('')}</fieldset>` : ''}
+    ${isShoe ? `<fieldset class="offers-picker" data-offers-picker>${offerOptionsHTML(p)}</fieldset>` : ''}
     ${sizes.length ? `<fieldset class="sizes" id="sizes"><legend class="field-label"><span data-size-label>${panel.offer === 'pair2' ? 'مقاس اللون الأول' : 'مقاسك'}</span><button type="button" class="link-button" data-action="size-guide">ما تعرف مقاسك؟</button></legend>
       <div>${sizes.map(s => `<button type="button" data-size="${s}" aria-pressed="${s === panel.size}">${s}</button>`).join('')}</div></fieldset>` : `<p class="one-size-note">${p.group === 'care' ? esc(p.fit) : 'مقاس واحد يناسب الكل'}</p>`}
     ${isShoe ? `<div class="pair2-extra" data-pair2 ${panel.offer === 'pair2' ? '' : 'hidden'}>
@@ -2610,6 +2668,23 @@ function purchasePanel() {
 }
 function updatePanel() {
   if (!panel || !$('[data-panel]')) return;
+  if (panel.p.group === 'knit') {
+    const starterOk = isStarterPackAvailable(panel.p);
+    if (!starterOk && panel.offer === 'starter') {
+      panel.offer = 'single';
+      panel._autoFallbackFromStarter = true;
+    } else if (starterOk && panel._autoFallbackFromStarter) {
+      panel.offer = 'starter';
+      panel._autoFallbackFromStarter = false;
+    }
+    const picker = $('[data-offers-picker]') || $('.offers-picker');
+    if (picker) {
+      const hasStarterNode = Boolean(picker.querySelector('[data-offer-option="starter"]'));
+      if (hasStarterNode !== starterOk) {
+        picker.innerHTML = offerOptionsHTML(panel.p);
+      }
+    }
+  }
   const o = currentOffer();
   $('[data-panel-price]').innerHTML = `<strong>${money(o.price)}</strong>${o.list > o.price ? `<s>${money(o.list)}</s><em class="save">توفر ${money(o.list - o.price)}</em>` : ''}`;
   $('[data-add-price]').textContent = money(o.price);
@@ -2640,6 +2715,10 @@ function addFromPanel() {
     $('#sizes')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     $('#sizes button')?.focus({ preventScroll: true });
     return;
+  }
+  if (p.group === 'knit' && panel.offer === 'starter' && !isStarterPackAvailable(p)) {
+    panel.offer = 'single';
+    updatePanel();
   }
   const o = currentOffer();
   let id = p.id, size = panel.size;
@@ -2952,49 +3031,148 @@ function parseSallaPrice(val, fallback) {
   return fallback;
 }
 
-function matchCatalogProduct(sallaProd) {
-  if (!sallaProd) return null;
+function isSallaProductAvailable(sallaProd) {
+  if (!sallaProd || typeof sallaProd !== 'object') return true;
+  if (sallaProd.inStock === false || sallaProd.in_stock === false) return false;
+  if (sallaProd.is_available === false || sallaProd.is_available === 0 || sallaProd.is_available === '0' || sallaProd.is_available === 'false') return false;
+  if (sallaProd.is_out_of_stock === true || sallaProd.is_out_of_stock === 1 || sallaProd.is_out_of_stock === '1') return false;
+  const st = String(sallaProd.status || '').toLowerCase().trim();
+  if (st === 'out' || st === 'out-of-stock' || st === 'out_of_stock' || st === 'unavailable' || st === 'hidden' || st === 'deleted') return false;
+  if (typeof sallaProd.quantity === 'number' && sallaProd.quantity <= 0 && sallaProd.unlimited_quantity !== true && sallaProd.is_infinite_quantity !== true) return false;
+  return true;
+}
+
+function parseProductMapConfig() {
+  const raw = window.TERAZ_SALLA_CONFIG && window.TERAZ_SALLA_CONFIG.productMap;
+  if (!raw) return {};
+  if (typeof raw === 'object') return raw;
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed) return {};
+    try { return JSON.parse(trimmed); } catch {}
+    const out = {};
+    trimmed.split(/[\r\n,;]+/).forEach(line => {
+      const m = line.split(/[:=]/);
+      if (m.length >= 2) out[m[0].trim()] = m[1].trim();
+    });
+    return out;
+  }
+  return {};
+}
+
+function matchCatalogTargets(sallaProd) {
+  if (!sallaProd) return [];
   const sku = String(sallaProd.sku || '').trim().toLowerCase();
   if (sku) {
+    if (sku === 'socks') return catalog.filter(p => p.group === 'socks');
     const bySku = catalog.find(p => p.id.toLowerCase() === sku);
-    if (bySku) return bySku;
+    if (bySku) return [bySku];
   }
-  const mapCfg = window.TERAZ_SALLA_CONFIG && window.TERAZ_SALLA_CONFIG.productMap;
-  if (mapCfg && typeof mapCfg === 'object') {
+  const mapCfg = parseProductMapConfig();
+  if (mapCfg && typeof mapCfg === 'object' && sallaProd.id !== undefined) {
+    const matchedByMap = [];
     for (const [terazId, sallaId] of Object.entries(mapCfg)) {
-      if (String(sallaId) === String(sallaProd.id)) {
-        const found = byId(terazId);
-        if (found) return found;
+      if (String(sallaId).trim() === String(sallaProd.id).trim()) {
+        if (terazId === 'socks') matchedByMap.push(...catalog.filter(p => p.group === 'socks'));
+        else {
+          const found = byId(terazId);
+          if (found) matchedByMap.push(found);
+        }
       }
     }
+    if (matchedByMap.length) return matchedByMap;
   }
   const normName = normalizeArabic(sallaProd.name);
   if (normName) {
-    const byName = catalog.find(p => normalizeArabic(p.name) === normName || normalizeArabic((p.family || '') + ' ' + p.color) === normName || normName.includes(normalizeArabic(p.name)));
-    if (byName) return byName;
+    const exactOrSub = catalog.find(p =>
+      normalizeArabic(p.name) === normName ||
+      normalizeArabic((p.family || '') + ' ' + p.color) === normName ||
+      normName.includes(normalizeArabic(p.name))
+    );
+    if (exactOrSub) return [exactOrSub];
+
+    if (normName.includes('تنظيف') || normName.includes('عده التنظيف') || normName.includes('فوم')) return [byId('cleaning-kit')].filter(Boolean);
+    if (normName.includes('عزل') || normName.includes('بخاخ')) return [byId('water-shield')].filter(Boolean);
+    if (normName.includes('طقم العنايه') || normName.includes('مجموعه العنايه')) return [byId('care-pack')].filter(Boolean);
+    if (normName.includes('ضي البدر')) return [byId('badr')].filter(Boolean);
+    if (normName.includes('دفء العود')) return [byId('oud')].filter(Boolean);
+    if (normName.includes('رمل الدهناء')) return [byId('dahna')].filter(Boolean);
+    if (normName.includes('هيل القهوه')) return [byId('coffee')].filter(Boolean);
+
+    const byFamily = catalog.filter(p => p.family && (normalizeArabic(p.family) === normName || normName.includes(normalizeArabic(p.family))));
+    if (byFamily.length) return byFamily;
+    if (normName === 'شرابات' || normName === 'شراب' || normName === 'جوارب') return catalog.filter(p => p.group === 'socks');
   }
-  return null;
+  return [];
+}
+
+function matchCatalogProduct(sallaProd) {
+  return matchCatalogTargets(sallaProd)[0] || null;
+}
+
+function refreshStarterPackUI() {
+  if ($('#home-offers')) renderHomeOffers();
+  if (megaOpen === 'offers' && $('#mega')) $('#mega').innerHTML = megaHTML('offers');
+  if ($('#menu-dialog')?.open) renderMenu();
+  if (panel && panel.p && panel.p.group === 'knit') {
+    updatePanel();
+    setupSticky();
+    if (view === 'lp' && $('.lp-final .offer-grid')) {
+      const p = panel.p;
+      $('.lp-final .offer-grid').innerHTML = offersFor(p).map(o => `<button class="offer-card${o.key === panel.offer ? ' featured' : ''}" data-pick-offer="${o.key}"><h3>${o.title}</h3><p>${o.sub}</p><div class="offer-price"><strong>${money(o.price)}</strong>${o.list > o.price ? `<s>${money(o.list)}</s>` : ''}</div>${o.list > o.price ? `<p class="offer-save">توفر ${money(o.list - o.price)}</p>` : ''}${shipNote(o.price)}<span class="offer-cta">أبي هذا ↑</span></button>`).join('');
+    }
+  }
 }
 
 function linkSallaProductToCatalog(sallaProd) {
-  const target = matchCatalogProduct(sallaProd);
-  if (!target || !sallaProd.id) return target;
-  target.sallaProductId = sallaProd.id;
-  if (Array.isArray(sallaProd.options) && sallaProd.options.length) target.sallaOptions = sallaProd.options;
-  if (sallaProd.url) target.sallaUrl = sallaProd.url;
-  const isDemo = String(sallaProd.url || '').includes('demostore');
-  const parsedPrice = parseSallaPrice(sallaProd.price, 0);
-  if (parsedPrice > 0 && !isDemo) {
-    target.price = parsedPrice;
+  if (!sallaProd) return null;
+  const avail = isSallaProductAvailable(sallaProd);
+  const sku = String(sallaProd.sku || '').trim().toLowerCase();
+  const normName = normalizeArabic(sallaProd.name);
+  if (sallaProd.type === 'group_products' || sku === 'starter' || sku === 'starter-pack' || normName.includes('طقم البدايه') || normName.includes('باقه البدايه')) {
+    starterPackGlobalInStock = avail;
   }
-  const rawImg = typeof sallaProd.image === 'string' ? sallaProd.image : (sallaProd.image?.url || sallaProd.thumbnail || '');
-  if (isValidCustomImage(rawImg) && !isDemo && !target._customThemeImage) {
-    target.image = rawImg;
-    target.thumb = rawImg;
-    target.images = [rawImg, ...(target.images ? target.images.slice(1) : [])];
-  }
-  return target;
+  const targets = matchCatalogTargets(sallaProd);
+  if (!targets.length) return null;
+  targets.forEach(target => {
+    target.inStock = avail;
+    if (!sallaProd.id) return;
+    target.sallaProductId = sallaProd.id;
+    if (Array.isArray(sallaProd.options) && sallaProd.options.length) target.sallaOptions = sallaProd.options;
+    if (sallaProd.url) target.sallaUrl = sallaProd.url;
+    const isDemo = String(sallaProd.url || '').includes('demostore');
+    if (targets.length === 1) {
+      const parsedPrice = parseSallaPrice(sallaProd.price, 0);
+      if (parsedPrice > 0 && !isDemo) {
+        target.price = parsedPrice;
+      }
+      const rawImg = typeof sallaProd.image === 'string' ? sallaProd.image : (sallaProd.image?.url || sallaProd.thumbnail || '');
+      if (isValidCustomImage(rawImg) && !isDemo && !target._customThemeImage) {
+        target.image = rawImg;
+        target.thumb = rawImg;
+        target.images = [rawImg, ...(target.images ? target.images.slice(1) : [])];
+      }
+    }
+  });
+  return targets[0];
 }
+
+window.TERAZ_SET_PRODUCT_STOCK = function(idOrSkuOrName, inStock) {
+  const boolStock = Boolean(inStock);
+  const key = String(idOrSkuOrName || '').trim();
+  if (key === 'starter' || key === 'starter-pack' || normalizeArabic(key).includes('طقم البدايه')) {
+    starterPackGlobalInStock = boolStock;
+  } else {
+    const direct = byId(key);
+    if (direct) {
+      direct.inStock = boolStock;
+    } else {
+      const targets = matchCatalogTargets({ id: key, sku: key, name: key });
+      targets.forEach(t => { t.inStock = boolStock; });
+    }
+  }
+  refreshStarterPackUI();
+};
 
 function initSallaBridge() {
   const pdpJsonEl = $('#teraz-product-data');
@@ -3022,9 +3200,10 @@ function initSallaBridge() {
     if (!s) return;
     if (s.product && typeof s.product.fetch === 'function') {
       try {
-        Promise.resolve(s.product.fetch({ source: 'latest', limit: 30 })).then(res => {
+        Promise.resolve(s.product.fetch({ source: 'latest', limit: 50 })).then(res => {
           const list = Array.isArray(res?.data) ? res.data : (Array.isArray(res?.data?.products) ? res.data.products : []);
           list.forEach(linkSallaProductToCatalog);
+          refreshStarterPackUI();
         }).catch(() => {});
       } catch {}
     }
@@ -3472,7 +3651,7 @@ function megaHTML(key) {
   if (key === 'shoes') return `<div class="mega-inner"><div class="mega-grid shoes">${C.ordered(knit, 'thobe').map(p => `<a href="#p/${p.id}">${img(p, { thumb: true })}<b>${esc(p.name)}</b><small>${esc(p.color)}</small></a>`).join('')}</div>
     <div class="mega-side"><h3>مجموعة الأناقة</h3><p>ثمان ألوان، من 319 ريال.</p><a class="primary small" href="#knit">شوف المجموعة كاملة</a><a class="text-button" href="#needs">ما تدري وش تختار؟</a></div></div>`;
   if (key === 'more') return `<div class="mega-inner"><div class="mega-grid more">${categories.map(c => `<a href="${catHref(c)}"><img src="${assetUrl(c.image, true)}" alt="" class="${c.photo ? 'is-photo' : ''}"><b>${c.name}${c.isNew ? ' <i class="nav-new">جديد</i>' : ''}</b><small>من ${money(c.from)}</small></a>`).join('')}</div></div>`;
-  if (key === 'offers') { const p = byId('night'), oImgs = [siteImages.offers.single, siteImages.offers.starter, siteImages.offers.pair2]; return `<div class="mega-inner"><div class="mega-grid offers">${offersFor(p).map((o, i) => `<a href="#lp/all/${o.key}"><img src="${assetUrl(oImgs[i], true)}" alt=""><b>${o.title} · ${money(o.price)}</b><small>${o.list > o.price ? 'توفر ' + money(o.list - o.price) : 'الجزمة بس'}</small></a>`).join('')}</div></div>`; }
+  if (key === 'offers') { const p = byId('night'); return `<div class="mega-inner"><div class="mega-grid offers">${offersFor(p).map(o => `<a href="#lp/all/${o.key}" data-offer-card="${o.key}"><img src="${assetUrl(siteImages.offers[o.key] || siteImages.offers.single, true)}" alt=""><b>${o.title} · ${money(o.price)}</b><small>${o.list > o.price ? 'توفر ' + money(o.list - o.price) : 'الجزمة بس'}</small></a>`).join('')}</div></div>`; }
   return '';
 }
 let megaOpen = null, megaTimer;
@@ -3489,11 +3668,10 @@ $('#mega')?.addEventListener('mouseenter', () => clearTimeout(megaTimer));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMega(); });
 function renderMenu() {
   const row = (title, items, href) => `<section class="menu-sec"><div class="menu-sec-head"><h3>${title}</h3>${href ? `<a href="${href}">الكل</a>` : ''}</div><div class="menu-row">${items}</div></section>`;
-  const oImgs = [siteImages.offers.single, siteImages.offers.starter, siteImages.offers.pair2];
   $('#menu-body').innerHTML =
     row('الأحذية', C.ordered(knit, 'thobe').map(p => `<a href="#p/${p.id}">${img(p, { thumb: true })}<span>${esc(p.name)}</span></a>`).join(''), '#knit') +
     row('كمّل كشختك', categories.map(c => `<a href="${catHref(c)}"><img src="${assetUrl(c.image, true)}" alt="" class="${c.photo ? 'is-photo' : ''}"><span>${c.name}</span></a>`).join('')) +
-    row('العروض', offersFor(byId('night')).map((o, i) => `<a href="#lp/all/${o.key}"><img src="${assetUrl(oImgs[i], true)}" alt=""><span>${o.title} · ${money(o.price)}</span></a>`).join('')) +
+    row('العروض', offersFor(byId('night')).map(o => `<a href="#lp/all/${o.key}" data-offer-card="${o.key}"><img src="${assetUrl(siteImages.offers[o.key] || siteImages.offers.single, true)}" alt=""><span>${o.title} · ${money(o.price)}</span></a>`).join('')) +
     `<nav class="menu-links"><button type="button" data-action="login">تسجيل الدخول / حسابي</button><a href="#needs">وش يناسب مشواري؟</a><button data-action="size-guide">جدول المقاسات</button><a href="#guarantee">التبديل والإرجاع</a><a href="#questions">التوصيل والأسئلة</a><a href="https://wa.me/+966570442661" target="_blank" rel="noopener" data-action="whatsapp">كلمنا واتساب</a></nav>`;
 }
 
@@ -3738,6 +3916,9 @@ function applySingleProductOverride(id, data) {
       const pr = parseSallaPrice(data.price, 0);
       if (pr > 0) p.price = pr;
     }
+    if (data.inStock !== undefined || data.is_available !== undefined || data.status !== undefined) {
+      p.inStock = isSallaProductAvailable(data);
+    }
   }
 }
 
@@ -3835,6 +4016,7 @@ window.TERAZ_APPLY_OVERRIDES = function(ovr) {
     if ($('#home-offers')) renderHomeOffers();
     if ($('#category-rows')) renderCategories();
     if (view === 'product' && panel?.p) viewProduct(panel.p.id, panel);
+    refreshStarterPackUI();
   }
 };
 

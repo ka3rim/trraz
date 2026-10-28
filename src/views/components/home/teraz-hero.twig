@@ -11,6 +11,11 @@
     name: p.name,
     url: p.url,
     price: p.price ? (p.price|money) : 0,
+    status: p.status|default('sale'),
+    is_available: p.is_available is defined ? (p.is_available ? true : false) : (p.status|default('sale') != 'out'),
+    is_out_of_stock: p.is_out_of_stock|default(false),
+    quantity: p.quantity is defined ? p.quantity : null,
+    type: p.type|default('product'),
     image: p.image.url|default('')
   }]) %}
 {% endfor %}

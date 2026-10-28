@@ -16,7 +16,11 @@
   price: product.price ? (product.price|money) : 319,
   regular_price: product.regular_price ? (product.regular_price|money) : 319,
   is_on_sale: product.is_on_sale ? true : false,
-  is_available: product.is_available is defined ? (product.is_available ? true : false) : true,
+  status: product.status|default('sale'),
+  is_available: product.is_available is defined ? (product.is_available ? true : false) : (product.status|default('sale') != 'out'),
+  is_out_of_stock: product.is_out_of_stock|default(false),
+  quantity: product.quantity is defined ? product.quantity : null,
+  type: product.type|default('product'),
   image: product.image.url|default(''),
   options: product.options|default([])
 } %}
