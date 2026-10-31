@@ -1,0 +1,3080 @@
+{
+    "name": {
+        "ar": "trraz",
+        "en": "trraz"
+    },
+    "repository": "https://github.com/ka3rim/trraz",
+    "author_email": "onlybusinesskarim@gmail.com",
+    "features": [
+        "mega-menu",
+        "fonts",
+        "color",
+        "breadcrumb",
+        "unite-cards-height",
+        "component-featured-products",
+        "component-fixed-banner",
+        "component-fixed-products",
+        "component-products-slider",
+        "component-photos-slider",
+        "component-parallax-background",
+        "component-testimonials",
+        "component-square-photos",
+        "component-store-features",
+        "component-youtube",
+        "menu-images",
+        "filters"
+    ],
+    "settings": [
+        {
+            "id": "squar_photo_bg_image_size",
+            "type": "items",
+            "format": "dropdown-list",
+            "label": "طريقة عرض الصور في قسم قائمة عناصر ",
+            "description": null,
+            "labelHTML": null,
+            "icon": "sicon-list",
+            "selected": [
+                {
+                    "label": "اظهار الصورة كاملةً في المنتصف (Contain)",
+                    "value": "contain",
+                    "key": "f4adec13-6e4c-654b-b978-b2807935ced9"
+                }
+            ],
+            "options": [
+                {
+                    "label": "تغطية الصورة كامل المساحة مع المحافظة على أبعاد الصورة (Cover)",
+                    "value": "cover",
+                    "key": "e9c8ea8f-c5c6-234e-935-3bce269afde4"
+                },
+                {
+                    "label": "اظهار الصورة كاملةً في المنتصف (Contain)",
+                    "value": "contain",
+                    "key": "f4adec13-6e4c-654b-b978-b2807935ced9"
+                }
+            ],
+            "source": "Manual",
+            "required": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "عرض جميع الصور بنفس الحجم في قسم قائمة عناصر",
+            "description": "يؤثر على العدد الفردي فقط (٣ و٥). العدد الزوجي متساوٍ دائماً. عند التفعيل تُرص الصور في صفوف بحد أقصى ثلاث في السطر",
+            "id": "square_photos_equal_size",
+            "format": "switch",
+            "required": false,
+            "value": false,
+            "selected": false
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "وضع عمودي للمنتجات في مربع المنتجات الثابتة في الصفحة الرئيسية",
+            "description": null,
+            "id": "vertical_fixed_products",
+            "format": "switch",
+            "required": false,
+            "value": false,
+            "selected": false
+        },
+        {
+            "type": "boolean",
+            "id": "is_more_button_enabled",
+            "label": "عرض (زر الكل) في الصفحة الرئيسية",
+            "format": "switch"
+        },
+        {
+            "type": "static",
+            "id": "static-line1",
+            "format": "line"
+        },
+        {
+            "type": "static",
+            "format": "title",
+            "id": "static-label2",
+            "value": "<div class='rounded-lg' style='background-color: #21636d; display: flex; justify-content: center; align-items: center;padding: 15px;margin-bottom: 20px !important; flex-direction: column;gap: 15px;'><h6 style='color: #ffffff;font-size: 15px; font-weight: bold;'> خيارات أعلى الصفحة</h6></div>",
+            "variant": "h6"
+        },
+        {
+            "id": "header_is_sticky",
+            "label": "تثبت القائمة الرئيسية أعلى الصفحة عند التمرير لأسفل",
+            "description": "يُنصح بالغاء تفعيلها في حالة وجود عناصر كثيرة في القائمة المنسدلة",
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "شريط علوي داكن",
+            "description": null,
+            "id": "topnav_is_dark",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": false
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "عرض روابط الصفحات الهامة في الشريط العلوي",
+            "description": "مثل صفحة الهبوط ، المدونة ،الصفحات التعريفية",
+            "id": "important_links",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "تفعيل قائمة المزيد في القائمة الرئيسية",
+            "description": "عند تفعيلها، ستظهر الروابط الإضافية في قائمة منسدلة تسمى 'المزيد' عند عدم وجود مساحة كافية",
+            "id": "enable_more_menu",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "static",
+            "id": "static-line3",
+            "format": "line"
+        },
+        {
+            "type": "static",
+            "format": "title",
+            "id": "static-label4",
+            "value": "<div class='rounded-lg' style='background-color: #21636d; display: flex; justify-content: center; align-items: center;padding: 15px;margin-bottom: 20px !important; flex-direction: column;gap: 15px;'><h6 style='color: #ffffff;font-size: 15px; font-weight: bold;'> خيارات أسفل الصفحة</h6></div>",
+            "variant": "h6"
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "الوضع الداكن",
+            "description": null,
+            "id": "footer_is_dark",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": false
+        },
+        {
+            "type": "static",
+            "id": "static-line5",
+            "format": "line"
+        },
+        {
+            "type": "static",
+            "format": "title",
+            "id": "static-label6",
+            "value": "<div class='rounded-lg' style='background-color: #21636d; display: flex; justify-content: center; align-items: center;padding: 15px;margin-bottom: 20px !important; flex-direction: column;gap: 15px;'><h6 style='color: #ffffff;font-size: 15px; font-weight: bold;'> خيارات صفحة المنتج</h6></div>",
+            "variant": "h6"
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "إظهار مسار التنقل في صفحة المنتج",
+            "description": null,
+            "id": "product_show_breadcrumbs",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "إظهار مسار التنقل في صفحة قائمة المنتجات",
+            "description": null,
+            "id": "product_index_show_breadcrumbs",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "تفعيل إشعار الإضافة للسلة المحسن",
+            "description": null,
+            "id": "enable_add_product_toast",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "إظهار زر \"أعلمني عند التوفر\" في بطاقة المنتج",
+            "description": "يظهر زر إشعار التوفر في بطاقات المنتجات التي نفذت كميتها",
+            "id": "notify_when_available_in_card",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "تثبيت زر الإضافة والكمية أسفل شاشة الجوال",
+            "description": null,
+            "id": "sticky_add_to_cart",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "اظهار الوسوم",
+            "description": null,
+            "id": "show_tags",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "id": "slider_background_size",
+            "type": "items",
+            "format": "dropdown-list",
+            "label": "طريقة عرض الصور في سليدر صور المنتج",
+            "description": null,
+            "labelHTML": null,
+            "icon": "sicon-list",
+            "selected": [
+                {
+                    "label": "اظهار الصورة كاملةً في المنتصف (Contain)",
+                    "value": "contain",
+                    "key": "f4adec13-6e4c-433b-b141-b2807935ced9"
+                }
+            ],
+            "options": [
+                {
+                    "label": "تغطية الصورة كامل المساحة مع المحافظة على أبعاد الصورة (Cover)",
+                    "value": "cover",
+                    "key": "e9c8ea8f-c5c6-438e-9d45-3bce269afde4"
+                },
+                {
+                    "label": "اظهار الصورة كاملةً في المنتصف (Contain)",
+                    "value": "contain",
+                    "key": "f4adec13-6e4c-433b-b141-b2807935ced9"
+                }
+            ],
+            "source": "Manual",
+            "required": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "تكبير الصور في سليدر صور المنتج",
+            "description": "هذه الخاصية تمكنك من تكبير الصورة لتسهل رؤية المزيد من التفاصيل بها",
+            "id": "imageZoom",
+            "format": "switch",
+            "required": false,
+            "value": false,
+            "selected": false
+        },
+        {
+            "id": "teraz_title_commerce",
+            "type": "static",
+            "format": "title",
+            "label": "التجارة والشحن",
+            "icon": "sicon-Sliders",
+            "description": null,
+            "required": false
+        },
+        {
+            "id": "teraz_free_shipping_threshold",
+            "type": "number",
+            "format": "number",
+            "label": "حد الشحن المجاني (ر.س)",
+            "description": "يُستخدم في شريط التقدم داخل الحقيبة وصفحة المنتج. يجب أن يطابق إعداد الشحن في سلة.",
+            "value": 479,
+            "icon": "sicon-Sliders",
+            "required": false
+        },
+        {
+            "id": "teraz_shipping_fee",
+            "type": "number",
+            "format": "number",
+            "label": "رسوم الشحن تحت الحد (ر.س)",
+            "description": "تقدير للعرض فقط؛ سلة تحسب الشحن الفعلي عند الدفع.",
+            "value": 29,
+            "icon": "sicon-Sliders",
+            "required": false
+        },
+        {
+            "id": "teraz_show_shipping_estimate",
+            "type": "boolean",
+            "format": "switch",
+            "label": "إظهار تقدير الشحن والإجمالي في الحقيبة",
+            "value": true,
+            "icon": "sicon-Sliders",
+            "description": null,
+            "required": false
+        },
+        {
+            "id": "teraz_title_catalog",
+            "type": "static",
+            "format": "title",
+            "label": "ربط منتجات طراز",
+            "icon": "sicon-Sliders",
+            "description": null,
+            "required": false
+        },
+        {
+            "id": "teraz_category_ids",
+            "type": "items",
+            "format": "dropdown-list",
+            "label": "تصنيفات منتجات طراز",
+            "source": "categories",
+            "multichoice": true,
+            "description": "اختر التصنيفات التي تحوي منتجات طراز الـ22 (الأحذية، الكابات، الشرابات، الخف، العناية). تُستخدم لقسم «كمّل كشختك» والحقيبة والمنتجات المشابهة.",
+            "icon": "sicon-Sliders",
+            "required": false
+        },
+        {
+            "id": "teraz_product_map",
+            "type": "string",
+            "format": "textarea",
+            "label": "ربط يدوي (اختياري)",
+            "description": "سطر لكل منتج بصيغة معرّف_طراز=رقم_المنتج_في_سلة مثل tuwaiq=1234567890. الأولوية الأولى قبل SKU والاسم.",
+            "icon": "sicon-Sliders",
+            "required": false
+        },
+        {
+            "id": "teraz_title_brand",
+            "type": "static",
+            "format": "title",
+            "label": "الهوية",
+            "icon": "sicon-Sliders",
+            "description": null,
+            "required": false
+        },
+        {
+            "id": "teraz_logo",
+            "type": "string",
+            "format": "image",
+            "label": "شعار الهيدر (اختياري — الافتراضي شعار طراز المرفق)",
+            "icon": "sicon-Sliders",
+            "description": null,
+            "required": false
+        },
+        {
+            "id": "teraz_footer_tagline",
+            "type": "string",
+            "format": "text",
+            "label": "عبارة الفوتر",
+            "value": "راحة تليق بالمقام.",
+            "icon": "sicon-Sliders",
+            "description": null,
+            "required": false
+        },
+        {
+            "id": "teraz_title_images",
+            "type": "static",
+            "format": "title",
+            "label": "صور طراز (تغيير صور الواجهة والأقسام والعروض والمنتجات)",
+            "icon": "sicon-image",
+            "description": null,
+            "required": false
+        },
+        {
+            "id": "teraz_hero_bg",
+            "type": "string",
+            "format": "image",
+            "label": "صورة خلفية المنصة الحجرية (البانر الرئيسي)",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_cat_mule",
+            "type": "string",
+            "format": "image",
+            "label": "صورة قسم: لوفر الكشخة",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_cat_clogs",
+            "type": "string",
+            "format": "image",
+            "label": "صورة قسم: خفّ الكشخة",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_cat_caps",
+            "type": "string",
+            "format": "image",
+            "label": "صورة قسم: كابات طراز",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_cat_socks",
+            "type": "string",
+            "format": "image",
+            "label": "صورة قسم: شرابات الأناقة",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_cat_care",
+            "type": "string",
+            "format": "image",
+            "label": "صورة قسم: العناية",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_offer_single",
+            "type": "string",
+            "format": "image",
+            "label": "صورة عرض: لون واحد",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_offer_starter",
+            "type": "string",
+            "format": "image",
+            "label": "صورة عرض: طقم البداية",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_offer_pair2",
+            "type": "string",
+            "format": "image",
+            "label": "صورة عرض: لونين",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_tuwaiq",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: ثرى طويق (بيج وقاعدة بيضاء)",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_badr",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: ضيّ البدر (أسود وقاعدة بيضاء)",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_night",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: عتيم الليل (أسود بالكامل)",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_oud",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: دِفء العود (بني وقاعدة بيضاء)",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_ramth",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: غصن الرمث (زيتي وقاعدة بيضاء)",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_evening",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: سكون المساء (رمادي غامق)",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_dahna",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: رمل الدهناء (بيج بالكامل)",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_coffee",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: هيل القهوة (بني بالكامل)",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_mule_0",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: لوفر الكشخة — أسود",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_mule_1",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: لوفر الكشخة — بيج",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_mule_2",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: لوفر الكشخة — كحلي",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        },
+        {
+            "id": "teraz_img_care_pack",
+            "type": "string",
+            "format": "image",
+            "label": "صورة منتج: طقم العناية الكامل",
+            "description": "ارفع صورة مخصصة أو اتركه فارغًا لاستخدام صورة طراز الأصلية.",
+            "icon": "sicon-image",
+            "required": false
+        }
+    ],
+    "components": [
+        {
+            "key": "a1111111-2222-4333-8444-555555555501",
+            "name": "teraz-images",
+            "title": "طراز — تغيير صور الواجهة والأقسام والعروض والمنتجات",
+            "icon": "sicon-image",
+            "path": "home.teraz-images",
+            "fields": [
+                {
+                    "key": "a1111111-2222-4333-8444-555555555502",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "logo",
+                    "type": "string",
+                    "format": "image",
+                    "label": "شعار الهيدر والقائمة (اختياري)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555503",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "hero_bg",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة خلفية المنصة الحجرية (البانر الرئيسي)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555504",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "cat_mule",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة قسم: لوفر الكشخة"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555505",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "cat_clogs",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة قسم: خفّ الكشخة"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555506",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "cat_caps",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة قسم: كابات طراز"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555507",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "cat_socks",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة قسم: شرابات الأناقة"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555508",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "cat_care",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة قسم: العناية"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555509",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "offer_single",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة عرض: لون واحد"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555510",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "offer_starter",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة عرض: طقم البداية"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555511",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "offer_pair2",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة عرض: لونين"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555601",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_tuwaiq",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: ثرى طويق (بيج وقاعدة بيضاء)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555602",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_badr",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: ضيّ البدر (أسود وقاعدة بيضاء)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555603",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_night",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: عتيم الليل (أسود بالكامل)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555604",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_oud",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: دِفء العود (بني وقاعدة بيضاء)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555605",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_ramth",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: غصن الرمث (زيتي وقاعدة بيضاء)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555606",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_evening",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: سكون المساء (رمادي غامق)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555607",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_dahna",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: رمل الدهناء (بيج بالكامل)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555608",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_coffee",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: هيل القهوة (بني بالكامل)"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555609",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_mule_0",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: لوفر الكشخة — أسود"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555610",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_mule_1",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: لوفر الكشخة — بيج"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555611",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_mule_2",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: لوفر الكشخة — كحلي"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555612",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "img_care_pack",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة منتج: طقم العناية الكامل"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555512",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "product_images",
+                    "type": "collection",
+                    "format": "collection",
+                    "label": "صور منتجات إضافية (معرض صور المنتج)",
+                    "minimum": 1,
+                    "maximum": 26,
+                    "fields": [
+                        {
+                            "id": "product_id",
+                            "type": "string",
+                            "format": "text",
+                            "label": "معرّف المنتج (مثل tuwaiq أو night أو mule-0 أو clogs-1)",
+                            "description": "اكتب معرّف المنتج لتحديث صوره ومعرضه."
+                        },
+                        {
+                            "id": "image",
+                            "type": "string",
+                            "format": "image",
+                            "label": "الصورة الرئيسية للمنتج"
+                        },
+                        {
+                            "id": "image2",
+                            "type": "string",
+                            "format": "image",
+                            "label": "صورة إضافية 2 للمعرض (اختياري)"
+                        },
+                        {
+                            "id": "image3",
+                            "type": "string",
+                            "format": "image",
+                            "label": "صورة إضافية 3 للمعرض (اختياري)"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "a1111111-2222-4333-8444-555555555520",
+            "name": "teraz-strip-mule",
+            "title": "طراز — لوفر الكشخة (صورة ونص ومنتجات)",
+            "icon": "sicon-shoes",
+            "path": "home.teraz-strip-mule",
+            "fields": [
+                {
+                    "key": "a1111111-2222-4333-8444-555555555521",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة قسم لوفر الكشخة"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555522",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555523",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الوصف"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555524",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "products",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "المنتجات",
+                    "source": "products",
+                    "multichoice": true
+                }
+            ]
+        },
+        {
+            "key": "a1111111-2222-4333-8444-555555555530",
+            "name": "teraz-offers",
+            "title": "طراز — العروض والباقات (صور ونصوص)",
+            "icon": "sicon-Announcement",
+            "path": "home.teraz-offers",
+            "fields": [
+                {
+                    "key": "a1111111-2222-4333-8444-555555555531",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "عنوان قسم العروض"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555532",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "وصف قسم العروض"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555533",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "offer_single_image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة عرض: لون واحد"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555534",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "offer_starter_image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة عرض: طقم البداية"
+                },
+                {
+                    "key": "a1111111-2222-4333-8444-555555555535",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "offer_pair2_image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة عرض: لونين"
+                }
+            ]
+        },
+        {
+            "key": "186b3f4f-25cf-4d3c-abca-cef7eed6f0ab",
+            "title": {
+                "en": "Enhances Animated Images",
+                "ar": " صور متحركة (محسنة)"
+            },
+            "icon": "sicon-image-carousel",
+            "path": "home.enhanced-slider",
+            "image": "https://cdn.salla.network/images/themes/raed/preview-images/images-slider-enhancement.png?v=1.1",
+            "is_default": true,
+            "fields": [
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "static-desc",
+                    "value": "<div ><img class='w-full' src='https://cdn.salla.network/images/themes/raed/preview-images/images-slider-enhancement.png?v=1.1'></div>"
+                },
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "enhance-slider-note",
+                    "value": "<div >هذا العنصر غير مناسب لعرض البنرات، يمكنك استخدام عنصر <strong>صور متحركة</strong> بدلاً منه لتظهر صورة البنر بشكل كامل</div>"
+                },
+                {
+                    "id": "slides",
+                    "type": "collection",
+                    "format": "collection",
+                    "required": true,
+                    "minLength": 1,
+                    "maxLength": 10,
+                    "label": null,
+                    "item_label": "صورة",
+                    "value": [
+                        {
+                            "slides.image": "https://cdn.salla.sa/ZrBEO/MopzhoqpTkDObcKc8Q8n77AuydanfsGXdZO7iinH.jpg",
+                            "slides.title": "روِّج لمنتجاتك كصور متحركة",
+                            "slides.description": "اعرض المنتجات التي تود إبرازها لزوّار متجرك في هذه المساحة",
+                            "slides.without_overlay": false
+                        },
+                        {
+                            "slides.image": "https://cdn.salla.sa/ZrBEO/3gOhYSaIhaHxhH2IHWxJYDl9JHwxP6dGKiZFSq4K.jpg",
+                            "slides.title": "شجّع زوار متجرك على الشراء عبر عروض خاصة",
+                            "slides.description": "اعرض المنتجات التي تود إبرازها لزوّار متجرك في هذه المساحة",
+                            "slides.without_overlay": false
+                        }
+                    ],
+                    "fields": [
+                        {
+                            "type": "string",
+                            "icon": "sicon-image",
+                            "value": null,
+                            "id": "slides.image",
+                            "label": "صورة البنر",
+                            "format": "image",
+                            "required": true,
+                            "placeholder": null,
+                            "description": "* المقاس المناسب للصورة هو 900×600 بكسل"
+                        },
+                        {
+                            "type": "string",
+                            "icon": "sicon-format-text-alt",
+                            "label": "عنوان رئيسي",
+                            "multilanguage": true,
+                            "id": "slides.title",
+                            "value": null,
+                            "required": false,
+                            "format": "text",
+                            "description": "يتم عرضه على الصورة بحجم بارز جداً، مع إضافة تأثير دخول للنص يضيف لمسة جمالية على معرض الصور.",
+                            "placeholder": "يمكنك إضافة عنوان بارز هنا...",
+                            "hide": false,
+                            "minLength": 0,
+                            "maxLength": 100
+                        },
+                        {
+                            "type": "string",
+                            "icon": "sicon-typography",
+                            "label": "نص إضافي",
+                            "multilanguage": true,
+                            "id": "slides.description",
+                            "value": null,
+                            "description": "يتم عرضه على الصورة بحجم أصغر من العنوان الرئيسي، مع إضافة تأثير دخول للنص يضيف لمسة جمالية على معرض الصور.",
+                            "format": "textarea",
+                            "required": false,
+                            "placeholder": "يمكنك إضافة تفاصيل إضافية هنا",
+                            "minLength": 0,
+                            "maxLength": 255
+                        },
+                        {
+                            "type": "boolean",
+                            "icon": "sicon-toggle-off",
+                            "label": "إزالة طبقة التعتم",
+                            "description": null,
+                            "id": "slides.without_overlay",
+                            "format": "switch",
+                            "required": false,
+                            "value": false,
+                            "selected": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "2b1b130b-5b37-422a-9683-e0fd367460c0",
+            "title": {
+                "en": "Quick Links",
+                "ar": "روابط سريعة"
+            },
+            "icon": "sicon-layout-grid-rearrange",
+            "path": "home.main-links",
+            "image": "https://cdn.salla.network/images/themes/raed/main-links-with-bg.jpg?v=1.1",
+            "is_default": true,
+            "fields": [
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "with-bg",
+                    "value": "<div ><img class='w-full' src='https://cdn.salla.network/images/themes/raed/main-links-with-bg.jpg?v=1.1'></div>",
+                    "conditions": [
+                        {
+                            "id": "merge_with_top_component",
+                            "operation": "=",
+                            "value": true
+                        }
+                    ]
+                },
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "without-bg",
+                    "value": "<div ><h6 >معاينة العنصر</h6><img class='w-full' src='https://cdn.salla.network/images/themes/raed/preview-images/main-links.png?v=1.1'></div>",
+                    "conditions": [
+                        {
+                            "id": "merge_with_top_component",
+                            "operation": "=",
+                            "value": false
+                        }
+                    ]
+                },
+                {
+                    "type": "string",
+                    "icon": "sicon-format-text-alt",
+                    "label": "العنوان",
+                    "multilanguage": true,
+                    "id": "title",
+                    "value": null,
+                    "required": false,
+                    "format": "text",
+                    "description": null,
+                    "placeholder": "أدخل العنوان هنا...",
+                    "minLength": 0,
+                    "maxLength": 100
+                },
+                {
+                    "type": "boolean",
+                    "icon": "sicon-toggle-off",
+                    "label": "دمج مع العنصر السابق",
+                    "description": null,
+                    "id": "merge_with_top_component",
+                    "format": "switch",
+                    "required": false,
+                    "value": false,
+                    "selected": false
+                },
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "static-desc",
+                    "value": "<small >* إزاحة كامل العنصر ومحتوياته مع العنصر السابق، وجعلهما يظهران كعنصر واحد متناسق، يكون ذا فائدة في حالة كان العنصر السابق هو (صور متحركة محسنة). </small>"
+                },
+                {
+                    "type": "boolean",
+                    "icon": "sicon-toggle-off",
+                    "label": "عرض أسهم التحرك",
+                    "description": null,
+                    "id": "show_controls",
+                    "format": "switch",
+                    "required": false,
+                    "value": true,
+                    "selected": true
+                },
+                {
+                    "type": "boolean",
+                    "icon": "sicon-toggle-off",
+                    "label": "عرض روابط التصنيفات",
+                    "description": "يمكنك تحديد التصنيفات بدل العناصر الخاصة، مع امكانية عرض صورة التصنيف مع العنصر",
+                    "id": "show_cats",
+                    "format": "switch",
+                    "required": false,
+                    "value": false,
+                    "selected": false
+                },
+                {
+                    "id": "categories",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "حدد التصنيفات",
+                    "labelHTML": null,
+                    "icon": "sicon-keyboard_arrow_down",
+                    "selected": [],
+                    "options": [],
+                    "source": "categories",
+                    "multichoice": true,
+                    "searchable": true,
+                    "required": false,
+                    "conditions": [
+                        {
+                            "id": "show_cats",
+                            "operation": "=",
+                            "value": true
+                        }
+                    ]
+                },
+                {
+                    "id": "links",
+                    "type": "collection",
+                    "format": "collection",
+                    "required": true,
+                    "minLength": 3,
+                    "maxLength": 100,
+                    "item_label": "رابط",
+                    "value": [
+                        {
+                            "links.icon": "sicon-packed-box",
+                            "links.title": "منتج جاهز",
+                            "links.url__type": "offers_link"
+                        },
+                        {
+                            "links.icon": "sicon-fabric-swatch",
+                            "links.title": "خدمة حسب الطلب",
+                            "links.url__type": "offers_link"
+                        },
+                        {
+                            "links.icon": "sicon-cake",
+                            "links.title": "أكل ومشروبات",
+                            "links.url__type": "offers_link"
+                        },
+                        {
+                            "links.icon": "sicon-game-controller-alt",
+                            "links.title": "منتج رقمي",
+                            "links.url__type": "offers_link"
+                        },
+                        {
+                            "links.icon": "sicon-barcode-scan",
+                            "links.title": "بطاقة رقمية",
+                            "links.url__type": "offers_link"
+                        },
+                        {
+                            "links.icon": "sicon-inbox-full",
+                            "links.title": "مجموعة منتجات",
+                            "links.url__type": "offers_link"
+                        },
+                        {
+                            "links.icon": "sicon-calendar-date",
+                            "links.title": "حجوزات",
+                            "links.url__type": "offers_link"
+                        }
+                    ],
+                    "fields": [
+                        {
+                            "type": "string",
+                            "icon": "sicon-format-text-alt",
+                            "label": "عنوان الرابط",
+                            "id": "links.icon",
+                            "value": "sicon-store2",
+                            "required": false,
+                            "format": "icon",
+                            "class": "form--inline",
+                            "description": null
+                        },
+                        {
+                            "type": "string",
+                            "icon": "sicon-format-text-alt",
+                            "multilanguage": true,
+                            "id": "links.title",
+                            "value": null,
+                            "required": false,
+                            "format": "text",
+                            "description": null,
+                            "placeholder": "أدخل عنوان للرابط هنا...",
+                            "minLength": 2,
+                            "maxLength": 80
+                        },
+                        {
+                            "type": "items",
+                            "icon": "sicon-link",
+                            "label": "الرابط",
+                            "id": "links.url",
+                            "value": null,
+                            "description": null,
+                            "required": false,
+                            "format": "variable-list",
+                            "searchable": true,
+                            "source": "custom",
+                            "sources": [
+                                {
+                                    "label": "منتج",
+                                    "key": "products",
+                                    "value": "products"
+                                },
+                                {
+                                    "label": "منتجات مع وسم",
+                                    "key": "products_tags",
+                                    "value": "products_tags"
+                                },
+                                {
+                                    "label": "تصنيف",
+                                    "key": "categories",
+                                    "value": "categories"
+                                },
+                                {
+                                    "label": "ماركة تجارية",
+                                    "key": "brands",
+                                    "value": "brands"
+                                },
+                                {
+                                    "label": "صفحة تعريفية",
+                                    "key": "pages",
+                                    "value": "pages"
+                                },
+                                {
+                                    "label": "مقالة",
+                                    "key": "blog_articles",
+                                    "value": "blog_articles"
+                                },
+                                {
+                                    "label": "تصنيف ضمن المدونة",
+                                    "key": "blog_categories",
+                                    "value": "blog_categories"
+                                },
+                                {
+                                    "label": "التخفيضات",
+                                    "key": "offers_link",
+                                    "value": "offers_link"
+                                },
+                                {
+                                    "label": "الماركات التجارية",
+                                    "key": "brands_link",
+                                    "value": "brands_link"
+                                },
+                                {
+                                    "label": "المدونة",
+                                    "key": "blog_link",
+                                    "value": "blog_link"
+                                },
+                                {
+                                    "label": "رابط خارجي",
+                                    "key": "custom",
+                                    "value": "custom"
+                                }
+                            ]
+                        }
+                    ],
+                    "conditions": [
+                        {
+                            "id": "show_cats",
+                            "operation": "=",
+                            "value": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "9a758d20-2ce4-4782-91fe-c04466464588",
+            "title": {
+                "en": "Animated products with a background",
+                "ar": "منتجات متحركة مع خلفية"
+            },
+            "icon": "sicon-list-play",
+            "path": "home.slider-products-with-header",
+            "image": "https://cdn.salla.network/images/themes/raed/preview-images/slider-products-with-bg.png?v=1.1",
+            "fields": [
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "with-bg",
+                    "value": "<div ><img class='w-full' src='https://cdn.salla.network/images/themes/raed/preview-images/slider-products-with-bg.png?v=1.1'></div>"
+                },
+                {
+                    "type": "string",
+                    "icon": "sicon-image",
+                    "value": "https://cdn.salla.sa/form-builder/D7bG3pgSit43TheOejBOZV7LIfG1y1Cj0hWLmgIh.jpg",
+                    "label": "صورة الخلفية",
+                    "id": "background",
+                    "format": "image",
+                    "required": true,
+                    "placeholder": null,
+                    "description": "* المقاس المناسب للصورة هو 1233×500 بكسل",
+                    "settings": {
+                        "height": 580,
+                        "width": 1400
+                    }
+                },
+                {
+                    "type": "string",
+                    "icon": "sicon-format-text-alt",
+                    "label": "عنوان رئيسي",
+                    "multilanguage": true,
+                    "id": "title",
+                    "value": null,
+                    "required": false,
+                    "format": "text",
+                    "description": null,
+                    "placeholder": "يمكنك إضافة العنوان الرئيسي هنا...",
+                    "hide": false,
+                    "minLength": 0,
+                    "maxLength": "80"
+                },
+                {
+                    "type": "string",
+                    "icon": "sicon-typography",
+                    "label": "نص توضيحي",
+                    "multilanguage": true,
+                    "id": "description",
+                    "value": null,
+                    "description": null,
+                    "format": "textarea",
+                    "required": false,
+                    "placeholder": "يمكنك إضافة وصف لهذا القسم هنا...",
+                    "minLength": 0,
+                    "maxLength": "256"
+                },
+                {
+                    "type": "items",
+                    "icon": "sicon-keyboard_arrow_down",
+                    "label": "منتجات",
+                    "id": "products",
+                    "format": "dropdown-list",
+                    "description": null,
+                    "selected": [],
+                    "options": [],
+                    "required": true,
+                    "multichoice": true,
+                    "source": "products",
+                    "searchable": true,
+                    "maxLength": 8,
+                    "minLength": 1,
+                    "value": []
+                },
+                {
+                    "type": "items",
+                    "icon": "sicon-link",
+                    "label": "رابط عرض الكل",
+                    "id": "display_all_url",
+                    "value": [],
+                    "description": "عند إختيار رابط فارغ سيتم إخفاء زر 'عرض الكل'",
+                    "required": false,
+                    "format": "variable-list",
+                    "searchable": true,
+                    "source": "custom",
+                    "sources": [
+                        {
+                            "label": "منتج",
+                            "key": "products",
+                            "value": "products"
+                        },
+                        {
+                            "label": "منتجات مع وسم",
+                            "key": "products_tags",
+                            "value": "products_tags"
+                        },
+                        {
+                            "label": "تصنيف",
+                            "key": "categories",
+                            "value": "categories"
+                        },
+                        {
+                            "label": "ماركة تجارية",
+                            "key": "brands",
+                            "value": "brands"
+                        },
+                        {
+                            "label": "صفحة تعريفية",
+                            "key": "pages",
+                            "value": "pages"
+                        },
+                        {
+                            "label": "مقالة",
+                            "key": "blog_articles",
+                            "value": "blog_articles"
+                        },
+                        {
+                            "label": "تصنيف ضمن المدونة",
+                            "key": "blog_categories",
+                            "value": "blog_categories"
+                        },
+                        {
+                            "label": "التخفيضات",
+                            "key": "offers_link",
+                            "value": "offers_link"
+                        },
+                        {
+                            "label": "الماركات التجارية",
+                            "key": "brands_link",
+                            "value": "brands_link"
+                        },
+                        {
+                            "label": "المدونة",
+                            "key": "blog_link",
+                            "value": "blog_link"
+                        },
+                        {
+                            "label": "رابط خارجي",
+                            "key": "custom",
+                            "value": "custom"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "b89edc4a-ce0b-468f-8323-2da48147bb32",
+            "title": {
+                "en": "Enhanced square images",
+                "ar": "صور مربعة (محسنة)"
+            },
+            "icon": "sicon-image",
+            "path": "home.enhanced-square-banners",
+            "image": "https://cdn.salla.network/images/themes/raed/preview-images/square-images.png?v=1.1",
+            "is_default": true,
+            "fields": [
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "with-bg",
+                    "value": "<div ><img class='w-full' src='https://cdn.salla.network/images/themes/raed/preview-images/square-images.png?v=1.1'></div>"
+                },
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "banners-note",
+                    "value": "<div style='background-color:#f5f5f5;border-radius:8px;padding:12px 16px;margin-bottom:16px;color:#333;font-size:14px;line-height:1.6;direction:inherit;text-align:inherit;'><strong style='color:#e53e3e;'>تنبيه:</strong> يتم اقتصاص الصور من الأطراف لتناسب مقاسات الشاشات، لذا يُرجى مراعاة الأجزاء المقتصّة طولاً وعرضاً عند التصميم لتظهر الصورة كاملة قدر الإمكان.</div>"
+                },
+                {
+                    "id": "banners",
+                    "type": "collection",
+                    "format": "collection",
+                    "required": true,
+                    "minLength": 1,
+                    "maxLength": 5,
+                    "label": "قائمة الصور",
+                    "item_label": "صورة",
+                    "value": [
+                        {
+                            "banners.image": "https://cdn.salla.sa/mQgZlG/pzOCEw10wCfXeVSpKnL0Ifd1O9ZkTfnZ17RkE14R.jpg",
+                            "banners.url": null,
+                            "banners.title": "تصفَّح حسب التصنيف",
+                            "banners.description": "سهِّل تجربة التسوُّق والوصول لمنتجاتك"
+                        },
+                        {
+                            "banners.image": "https://cdn.salla.sa/mQgZlG/lkyDjYwvWJNmAQoGnLALLcUkm66rCCDbTyVlSGdH.jpg",
+                            "banners.url": null,
+                            "banners.title": "تصفَّح حسب التصنيف",
+                            "banners.description": "سهِّل تجربة التسوُّق والوصول لمنتجاتك"
+                        },
+                        {
+                            "banners.image": "https://cdn.salla.sa/mQgZlG/lkyDjYwvWJNmAQoGnLALLcUkm66rCCDbTyVlSGdH.jpg",
+                            "banners.url": null,
+                            "banners.title": "تصفَّح حسب التصنيف",
+                            "banners.description": "سهِّل تجربة التسوُّق والوصول لمنتجاتك"
+                        },
+                        {
+                            "banners.image": "https://cdn.salla.sa/mQgZlG/lkyDjYwvWJNmAQoGnLALLcUkm66rCCDbTyVlSGdH.jpg",
+                            "banners.url": null,
+                            "banners.title": "تصفَّح حسب التصنيف",
+                            "banners.description": "سهِّل تجربة التسوُّق والوصول لمنتجاتك"
+                        },
+                        {
+                            "banners.image": "https://cdn.salla.sa/mQgZlG/lkyDjYwvWJNmAQoGnLALLcUkm66rCCDbTyVlSGdH.jpg",
+                            "banners.url": null,
+                            "banners.title": "تصفَّح حسب التصنيف",
+                            "banners.description": "سهِّل تجربة التسوُّق والوصول لمنتجاتك"
+                        }
+                    ],
+                    "fields": [
+                        {
+                            "type": "string",
+                            "icon": "sicon-image",
+                            "value": null,
+                            "label": "صورة البنر",
+                            "id": "banners.image",
+                            "format": "image",
+                            "required": true,
+                            "placeholder": null,
+                            "description": "* المقاس المناسب للصورة هو 640×427 بكسل",
+                            "settings": {
+                                "height": 427,
+                                "width": 640
+                            }
+                        },
+                        {
+                            "type": "items",
+                            "icon": "sicon-link",
+                            "label": "الرابط",
+                            "id": "banners.url",
+                            "value": null,
+                            "description": null,
+                            "required": false,
+                            "format": "variable-list",
+                            "searchable": true,
+                            "source": "custom",
+                            "sources": [
+                                {
+                                    "label": "منتج",
+                                    "key": "products",
+                                    "value": "products"
+                                },
+                                {
+                                    "label": "منتجات مع وسم",
+                                    "key": "products_tags",
+                                    "value": "products_tags"
+                                },
+                                {
+                                    "label": "تصنيف",
+                                    "key": "categories",
+                                    "value": "categories"
+                                },
+                                {
+                                    "label": "ماركة تجارية",
+                                    "key": "brands",
+                                    "value": "brands"
+                                },
+                                {
+                                    "label": "صفحة تعريفية",
+                                    "key": "pages",
+                                    "value": "pages"
+                                },
+                                {
+                                    "label": "مقالة",
+                                    "key": "blog_articles",
+                                    "value": "blog_articles"
+                                },
+                                {
+                                    "label": "تصنيف ضمن المدونة",
+                                    "key": "blog_categories",
+                                    "value": "blog_categories"
+                                },
+                                {
+                                    "label": "التخفيضات",
+                                    "key": "offers_link",
+                                    "value": "offers_link"
+                                },
+                                {
+                                    "label": "الماركات التجارية",
+                                    "key": "brands_link",
+                                    "value": "brands_link"
+                                },
+                                {
+                                    "label": "المدونة",
+                                    "key": "blog_link",
+                                    "value": "blog_link"
+                                },
+                                {
+                                    "label": "رابط خارجي",
+                                    "key": "custom",
+                                    "value": "custom"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "string",
+                            "icon": "sicon-format-text-alt",
+                            "label": "عنوان رئيسي",
+                            "multilanguage": true,
+                            "id": "banners.title",
+                            "value": null,
+                            "required": false,
+                            "format": "text",
+                            "description": "نص يتم إضافته على الصورة بنمط خط كبير",
+                            "placeholder": "أدخل النص هنا...",
+                            "hide": false,
+                            "minLength": 0,
+                            "maxLength": 100
+                        },
+                        {
+                            "type": "string",
+                            "icon": "sicon-typography",
+                            "label": "نص توضيحي",
+                            "multilanguage": true,
+                            "id": "banners.description",
+                            "value": null,
+                            "description": "نص يتم إضافته على الصورة بخط أصغر من العنوان الرئيسي",
+                            "format": "textarea",
+                            "required": false,
+                            "placeholder": "Your text here",
+                            "minLength": 0,
+                            "maxLength": 255
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "25f6cf26-a53f-4954-9b32-739b311b32c7",
+            "title": {
+                "en": "Brands",
+                "ar": "الماركات التجارية"
+            },
+            "icon": "sicon-award-ribbon",
+            "path": "home.brands",
+            "image": "https://cdn.salla.network/images/themes/raed/preview-images/brands.png?v=1.1",
+            "fields": [
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "with-bg",
+                    "value": "<div ><img class='w-full' src='https://cdn.salla.network/images/themes/raed/preview-images/brands.png?v=1.1'></div>"
+                },
+                {
+                    "type": "string",
+                    "icon": "sicon-format-text-alt",
+                    "label": "العنوان",
+                    "multilanguage": true,
+                    "id": "title",
+                    "required": false,
+                    "format": "text",
+                    "description": null,
+                    "placeholder": "أدخل العنوان هنا...",
+                    "minLength": 0,
+                    "maxLength": 200,
+                    "value": "تصفح من خلال العلامات التجارية"
+                },
+                {
+                    "type": "items",
+                    "icon": "sicon-keyboard_arrow_down",
+                    "label": "الماركات التجارية",
+                    "id": "brands",
+                    "format": "dropdown-list",
+                    "description": null,
+                    "selected": [],
+                    "options": [],
+                    "required": true,
+                    "multichoice": true,
+                    "searchable": true,
+                    "source": "brands"
+                }
+            ]
+        },
+        {
+            "key": "541cc423-90c7-4230-8a33-a0342cfde4ad",
+            "title": {
+                "en": "Custom testimonials",
+                "ar": "آراء عملاء مخصصة"
+            },
+            "icon": "sicon-chat-bubbles",
+            "path": "home.custom-testimonials",
+            "image": "https://cdn.salla.network/images/themes/raed/preview-images/custom-testimonials.png?v=1.1",
+            "is_default": true,
+            "fields": [
+                {
+                    "type": "static",
+                    "format": "description",
+                    "id": "static-desc",
+                    "value": "<div ><img class='w-full' src='https://cdn.salla.network/images/themes/raed/preview-images/custom-testimonials.png?v=1.1'></div>"
+                },
+                {
+                    "id": "items",
+                    "key": "0473eb46-c7f5-44c5-bd6f-b1fe716a5e64",
+                    "type": "collection",
+                    "format": "collection",
+                    "label": "التقييمات",
+                    "description": null,
+                    "labelHTML": null,
+                    "item_label": "التقييم",
+                    "icon": "sicon-list-add",
+                    "value": [
+                        {
+                            "items.name": "ندى الحسيني",
+                            "items.avatar": "https://cdn.assets.salla.network/prod/stores/themes/default/assets/images/avatar_female.png",
+                            "items.stars": 5,
+                            "items.text": "وصلتني اليوم  وطلعت جميلة متحمسة أجربها ❤️"
+                        },
+                        {
+                            "items.name": "خالد الأحمد",
+                            "items.avatar": "https://cdn.assets.salla.network/prod/stores/themes/default/assets/images/avatar_male.png",
+                            "items.stars": 5,
+                            "items.text": "اشتريت من هنا لعيالي وصراحة شئ لا يعلى عليه 👏"
+                        },
+                        {
+                            "items.name": "خالد المسعودي",
+                            "items.avatar": "https://cdn.assets.salla.network/prod/stores/themes/default/assets/images/avatar_male.png",
+                            "items.stars": 5,
+                            "items.text": "رهيبين يفكون أزمة. 👌"
+                        },
+                        {
+                            "items.name": "عبدالعزيز اليامي",
+                            "items.avatar": "https://cdn.assets.salla.network/prod/stores/themes/default/assets/images/avatar_male.png",
+                            "items.stars": 5,
+                            "items.text": "أحب هذا المتجر وتعاملهم الراقي مع العملاء ❤️"
+                        }
+                    ],
+                    "fields": [
+                        {
+                            "id": "items.name",
+                            "key": "04e34d04-d1c3-4b75-b1d6-4e5b4ed22623",
+                            "type": "string",
+                            "format": "text",
+                            "label": "اسم العميل",
+                            "description": null,
+                            "labelHTML": null,
+                            "placeholder": "اسم العميل",
+                            "icon": "sicon-format-text-alt",
+                            "value": null,
+                            "multilanguage": false,
+                            "required": false
+                        },
+                        {
+                            "id": "items.avatar",
+                            "key": "9ae4a6cc-7d20-4ae9-8bc0-33b2452502ca",
+                            "type": "string",
+                            "format": "image",
+                            "label": "صورة العميل",
+                            "description": "المقاس المناسب للصورة هو 68*68 بكسل",
+                            "labelHTML": null,
+                            "placeholder": "e.g. https://hostname.com/image.png",
+                            "icon": "sicon-image",
+                            "value": null,
+                            "required": true
+                        },
+                        {
+                            "id": "items.stars",
+                            "type": "number",
+                            "format": "integer",
+                            "label": "عدد النجوم",
+                            "description": null,
+                            "key": "f0caf793-88f8-4178-b1cc-a7ace5c09ff6",
+                            "labelHTML": "من 1 إلى 5",
+                            "placeholder": "القيمة",
+                            "icon": "sicon-pencil-ruler",
+                            "value": 5,
+                            "required": false,
+                            "minimum": 1,
+                            "maximum": 5
+                        },
+                        {
+                            "id": "items.text",
+                            "key": "0d474cc4-39f6-4495-8e24-a8eb10d4bbab",
+                            "type": "string",
+                            "format": "textarea",
+                            "label": "نص التقييم",
+                            "description": null,
+                            "labelHTML": null,
+                            "placeholder": "نص التقييم",
+                            "icon": "sicon-format-text-alt",
+                            "value": null,
+                            "multilanguage": true,
+                            "required": false
+                        }
+                    ],
+                    "required": false,
+                    "minLength": 1,
+                    "maxLength": 30
+                }
+            ]
+        },
+        {
+            "key": "fe065d29-15ca-4534-a078-c15a149c5ff2",
+            "name": "teraz-hero",
+            "title": "طراز — الواجهة الرئيسية (منصة العرض)",
+            "icon": "sicon-image",
+            "path": "home.teraz-hero",
+            "fields": [
+                {
+                    "key": "c138341d-156b-4f39-83bb-cddce0f5c891",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "cd3c5a61-8c8b-434e-ad66-75b56411642a",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الرئيسي",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "140cfd25-0174-4719-b288-1e71a494b7b0",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text_line_1",
+                    "type": "string",
+                    "format": "text",
+                    "label": "السطر الأول من الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "12c9b013-4ee8-40ed-ba05-983efd676d82",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text_line_2",
+                    "type": "string",
+                    "format": "text",
+                    "label": "السطر الثاني من الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "48ecb883-05b6-44fc-8ca2-073395b9f087",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "button_label",
+                    "type": "string",
+                    "format": "text",
+                    "label": "نص الزر",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "539e8bd0-0019-4fd6-8e8f-81aae12258d3",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "button_link",
+                    "type": "string",
+                    "format": "text",
+                    "label": "رابط الزر",
+                    "description": "رابط أو مرساة داخل الصفحة مثل #knit. اتركه فارغًا للافتراضي."
+                },
+                {
+                    "key": "733861b7-72a8-4835-a946-47e614f9c025",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "stage_image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "خلفية المنصات الحجرية"
+                },
+                {
+                    "key": "cf199303-9fe8-4ceb-92ac-7f0b63a47eb0",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "hero_products",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "أحذية المنصة (حتى 8)",
+                    "source": "products",
+                    "multichoice": true,
+                    "maximum": 8,
+                    "description": "اختر المنتجات بالترتيب المطلوب. إن تركته فارغًا يملأ طراز القسم تلقائيًا من منتجات المتجر المطابقة."
+                },
+                {
+                    "key": "e970b113-839a-4f0c-8bc4-318ccf424ffc",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "bottom_start",
+                    "type": "string",
+                    "format": "text",
+                    "label": "النص السفلي (بداية)",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "35637dc7-620a-4493-9174-e73488556136",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "bottom_end",
+                    "type": "string",
+                    "format": "text",
+                    "label": "النص السفلي (نهاية)",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                }
+            ]
+        },
+        {
+            "key": "f6783ea6-351b-4c78-a0c9-887061eaafb2",
+            "name": "teraz-collection-nav",
+            "title": "طراز — روابط المجموعات",
+            "icon": "sicon-menu-list",
+            "path": "home.teraz-collection-nav",
+            "fields": [
+                {
+                    "key": "e4783ed6-a7b5-439d-ac22-45965e15da67",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "links",
+                    "type": "collection",
+                    "format": "collection",
+                    "label": "الروابط",
+                    "fields": [
+                        {
+                            "id": "label",
+                            "type": "string",
+                            "format": "text",
+                            "label": "العنوان",
+                            "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                        },
+                        {
+                            "id": "hint",
+                            "type": "string",
+                            "format": "text",
+                            "label": "الوصف القصير",
+                            "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                        },
+                        {
+                            "id": "link",
+                            "type": "string",
+                            "format": "text",
+                            "label": "الرابط",
+                            "description": "رابط أو مرساة داخل الصفحة مثل #knit. اتركه فارغًا للافتراضي."
+                        }
+                    ],
+                    "minimum": 1,
+                    "maximum": 6
+                }
+            ]
+        },
+        {
+            "key": "ed9ddba1-2a72-40d5-b0e5-107364c09cff",
+            "name": "teraz-promise",
+            "title": "طراز — شريط الوعد",
+            "icon": "sicon-shield-check",
+            "path": "home.teraz-promise",
+            "fields": [
+                {
+                    "key": "8aca39e4-7ef2-4821-9458-0b67e002bced",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "item_1",
+                    "type": "string",
+                    "format": "text",
+                    "label": "النص الأول",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "93677904-16db-46ea-a533-ed418c989379",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "item_2",
+                    "type": "string",
+                    "format": "text",
+                    "label": "النص الثاني",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "eb4c7f47-14a2-4f95-9186-c323197b4ce4",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "item_3",
+                    "type": "string",
+                    "format": "text",
+                    "label": "النص الثالث",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "bd42d1eb-24b4-4784-8465-000e4c77fe0c",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "link_label",
+                    "type": "string",
+                    "format": "text",
+                    "label": "نص الرابط",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "18014929-64af-4bcf-97cc-5a1a030e1e0a",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "link_url",
+                    "type": "string",
+                    "format": "text",
+                    "label": "الرابط",
+                    "description": "رابط أو مرساة داخل الصفحة مثل #knit. اتركه فارغًا للافتراضي."
+                }
+            ]
+        },
+        {
+            "key": "5cdb9c23-733e-46fc-8d96-4f1a74e66696",
+            "name": "teraz-introduction",
+            "title": "طراز — ليش طراز؟",
+            "icon": "sicon-edit",
+            "path": "home.teraz-introduction",
+            "fields": [
+                {
+                    "key": "be80111a-a7ee-416a-a03c-3cee03d85dcd",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "309720bf-c7f2-4ae1-8d83-daf2c75e47b1",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "العنوان (سطر جديد = سطر في العنوان)",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "26ef0eee-2d4f-4827-9749-d43656452618",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "lead",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الفقرة الرئيسية",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "9ef15d5f-062a-4662-9eb5-efd8ce556300",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "reason_1_title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "السبب 1 — عنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "725363bd-4f6a-4445-a5b3-fb98d59bd5a9",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "reason_1_text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "السبب 1 — نص",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "ec0c1709-2502-4857-b6a3-2ac86f29f014",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "reason_2_title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "السبب 2 — عنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "a651f5b9-ff58-4bd5-8d38-d4b5b674a2b8",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "reason_2_text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "السبب 2 — نص",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                }
+            ]
+        },
+        {
+            "key": "0eb54b15-d438-4ae5-b634-1d5611f2baf1",
+            "name": "teraz-occasion",
+            "title": "طراز — يومك له أكثر من طراز",
+            "icon": "sicon-layout-grid",
+            "path": "home.teraz-occasion",
+            "fields": [
+                {
+                    "key": "da19a398-7a76-4591-9021-249d7e14225a",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "0ed134a0-521a-4153-b9a1-201697fa81d7",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "fcbfbe31-63e9-404c-babb-28947bb72099",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "5a48afed-8650-4900-9800-9bdc9ee02ac1",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_1_image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "البطاقة 1 — صورة"
+                },
+                {
+                    "key": "533ac095-0bda-4ea4-84be-4d62cee4e641",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_1_alt",
+                    "type": "string",
+                    "format": "text",
+                    "label": "البطاقة 1 — نص بديل",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "59a5611d-d105-405f-a664-3ed7f50b0937",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_1_title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "البطاقة 1 — عنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "1b3f918f-7512-4296-ab5d-aec08f519e92",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_1_cta",
+                    "type": "string",
+                    "format": "text",
+                    "label": "البطاقة 1 — نص الرابط",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "5a1fa339-987c-42e0-8f77-184c9821beb1",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_1_link",
+                    "type": "string",
+                    "format": "text",
+                    "label": "البطاقة 1 — الرابط",
+                    "description": "رابط أو مرساة داخل الصفحة مثل #knit. اتركه فارغًا للافتراضي."
+                },
+                {
+                    "key": "fe92d82b-3550-4703-a812-0502b63ee509",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_2_image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "البطاقة 2 — صورة"
+                },
+                {
+                    "key": "a14fa286-f598-448d-b775-4239e542e4dc",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_2_alt",
+                    "type": "string",
+                    "format": "text",
+                    "label": "البطاقة 2 — نص بديل",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "7e05922f-b70e-466c-9c23-3a620268b7de",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_2_title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "البطاقة 2 — عنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "74e38695-4b8c-4fe9-bd68-d77518dc41e8",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_2_cta",
+                    "type": "string",
+                    "format": "text",
+                    "label": "البطاقة 2 — نص الرابط",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "ff395e65-373a-4844-9a09-b3e18bec4db6",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "card_2_link",
+                    "type": "string",
+                    "format": "text",
+                    "label": "البطاقة 2 — الرابط",
+                    "description": "رابط أو مرساة داخل الصفحة مثل #knit. اتركه فارغًا للافتراضي."
+                }
+            ]
+        },
+        {
+            "key": "a40a1b71-1b42-4857-841a-fba759b1c09f",
+            "name": "teraz-strip-knit",
+            "title": "طراز — مجموعة الأناقة (أحذية + فرز الثوب/الكاجوال/المشي)",
+            "icon": "sicon-sneakers",
+            "path": "home.teraz-strip-knit",
+            "fields": [
+                {
+                    "key": "f76b8bf0-155e-4d56-8bbe-3e01425f73ec",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "430c5854-6e81-4315-82e9-aafd4a729cdc",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "a61aac8e-a00c-408d-a47b-489e87c462b5",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "e9d1a9c4-3a57-403f-b929-35d2e3e2cb14",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "products",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "المنتجات",
+                    "source": "products",
+                    "multichoice": true,
+                    "description": "اختر المنتجات بالترتيب المطلوب. إن تركته فارغًا يملأ طراز القسم تلقائيًا من منتجات المتجر المطابقة."
+                },
+                {
+                    "key": "97e9214d-bdb9-4275-85aa-b537738a472c",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "category",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "أو تصنيف",
+                    "source": "categories",
+                    "multichoice": false,
+                    "description": "بديل عن اختيار المنتجات: يحمّل القسم منتجات هذا التصنيف."
+                },
+                {
+                    "key": "e0aa3fc3-58f7-4227-a842-294e19400924",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "note",
+                    "type": "string",
+                    "format": "text",
+                    "label": "ملاحظة أسفل المجموعة",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                }
+            ]
+        },
+        {
+            "key": "dcbbe17b-18fd-41b7-aa3f-efc45100150d",
+            "name": "teraz-material-story",
+            "title": "طراز — قصة الخامة",
+            "icon": "sicon-image",
+            "path": "home.teraz-material-story",
+            "fields": [
+                {
+                    "key": "4b8491d9-e5f6-4d72-8976-f2021a56d7d2",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "33adf858-8825-4dc4-b4b2-098059f9ac06",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "88509590-5590-4a61-9234-e4573f5e2c3c",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "26884e7b-73a3-497e-845d-bc05c9e10825",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "الصورة"
+                },
+                {
+                    "key": "6d339d76-5ee8-4d1e-9047-e57c72d44bf3",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "image_alt",
+                    "type": "string",
+                    "format": "text",
+                    "label": "نص بديل للصورة",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "626089a7-7338-4a7b-b64c-98c0295a9854",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "link_label",
+                    "type": "string",
+                    "format": "text",
+                    "label": "نص الرابط",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "5cc14421-faec-42a1-b7c9-b093a8b00db6",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "link_url",
+                    "type": "string",
+                    "format": "text",
+                    "label": "الرابط (فارغ = صفحة ثرى طويق تلقائيًا)",
+                    "description": "رابط أو مرساة داخل الصفحة مثل #knit. اتركه فارغًا للافتراضي."
+                }
+            ]
+        },
+        {
+            "key": "8e864b18-9a3a-4ebd-88ea-58a6f8c817bd",
+            "name": "teraz-strip-caps",
+            "title": "طراز — كابات طراز",
+            "icon": "sicon-hat",
+            "path": "home.teraz-strip-caps",
+            "fields": [
+                {
+                    "key": "d1a52f42-0da7-423f-97d1-222222222222",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة القسم الرئيسية"
+                },
+                {
+                    "key": "65b576b9-078f-4108-8384-09756824e23c",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "699c9dab-ef10-4b65-abb6-7b6928eb1cd5",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "f5169294-afd1-4014-b3d5-de83e5e20fe7",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "569bfb58-e9ea-4a34-8394-8bab84852ad7",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "products",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "المنتجات",
+                    "source": "products",
+                    "multichoice": true,
+                    "description": "اختر المنتجات بالترتيب المطلوب. إن تركته فارغًا يملأ طراز القسم تلقائيًا من منتجات المتجر المطابقة."
+                },
+                {
+                    "key": "2687dc1a-41c9-4a42-8ec7-94262f05a2c2",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "category",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "أو تصنيف",
+                    "source": "categories",
+                    "multichoice": false,
+                    "description": "بديل عن اختيار المنتجات: يحمّل القسم منتجات هذا التصنيف."
+                }
+            ]
+        },
+        {
+            "key": "03beff6d-50f6-4654-b956-c5e8ec97f085",
+            "name": "teraz-editorial-caps",
+            "title": "طراز — ملاحظة الكابات",
+            "icon": "sicon-edit",
+            "path": "home.teraz-editorial-caps",
+            "fields": [
+                {
+                    "key": "f2484071-f166-4cdf-8862-345fba1451c7",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "e32df82c-bda5-4d1c-980c-3bd2b3cedc22",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "c62c2494-5f30-4a37-9939-33a67d499c2e",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "النص",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                }
+            ]
+        },
+        {
+            "key": "6855799b-a670-4fa7-812f-ecd6f8612c8a",
+            "name": "teraz-strip-socks",
+            "title": "طراز — شرابات الأناقة",
+            "icon": "sicon-layers",
+            "path": "home.teraz-strip-socks",
+            "fields": [
+                {
+                    "key": "d1a52f42-0da7-423f-97d1-333333333333",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة القسم الرئيسية"
+                },
+                {
+                    "key": "db2c049e-6f5b-4170-9e9a-901a2ef15ab5",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "c11d777f-f93b-4715-9100-57b4603d20ca",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "a496a7c6-4c74-4191-b012-20663c20806f",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "ea8a1a46-0a7e-4b0a-a014-0cd07df8f27a",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "products",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "المنتجات",
+                    "source": "products",
+                    "multichoice": true,
+                    "description": "اختر المنتجات بالترتيب المطلوب. إن تركته فارغًا يملأ طراز القسم تلقائيًا من منتجات المتجر المطابقة."
+                },
+                {
+                    "key": "334118dd-706b-46db-b87e-67d77ae1473c",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "category",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "أو تصنيف",
+                    "source": "categories",
+                    "multichoice": false,
+                    "description": "بديل عن اختيار المنتجات: يحمّل القسم منتجات هذا التصنيف."
+                }
+            ]
+        },
+        {
+            "key": "714ed143-e1d5-4559-b896-f0286a11321f",
+            "name": "teraz-quiet-band",
+            "title": "طراز — الشريط الهادئ",
+            "icon": "sicon-edit",
+            "path": "home.teraz-quiet-band",
+            "fields": [
+                {
+                    "key": "72a18662-b7da-43b0-abd4-f1e0f3391495",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "589ac2dd-cc9a-41ad-8478-06184e59c61d",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "النص",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                }
+            ]
+        },
+        {
+            "key": "7132880b-6836-48ba-82b5-d2a8d7f4d29c",
+            "name": "teraz-strip-clogs",
+            "title": "طراز — خفّ الكشخة",
+            "icon": "sicon-sandals",
+            "path": "home.teraz-strip-clogs",
+            "fields": [
+                {
+                    "key": "d1a52f42-0da7-423f-97d1-111111111111",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة القسم الرئيسية"
+                },
+                {
+                    "key": "0b0707f9-0eb7-40b0-ba22-268def8586b0",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "aaa51d18-38ce-4ce5-a8c0-46ad7905624f",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "3cd3fa55-d039-4dd8-9b19-400ab1523112",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "a0346893-4387-44ce-8ff1-c570afdcaab4",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "products",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "المنتجات",
+                    "source": "products",
+                    "multichoice": true,
+                    "description": "اختر المنتجات بالترتيب المطلوب. إن تركته فارغًا يملأ طراز القسم تلقائيًا من منتجات المتجر المطابقة."
+                },
+                {
+                    "key": "62ae0a2b-9716-4018-b2d5-91af5657c659",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "category",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "أو تصنيف",
+                    "source": "categories",
+                    "multichoice": false,
+                    "description": "بديل عن اختيار المنتجات: يحمّل القسم منتجات هذا التصنيف."
+                }
+            ]
+        },
+        {
+            "key": "13b52f42-0da7-423f-97d1-5f2a12817bcd",
+            "name": "teraz-editorial-clogs",
+            "title": "طراز — ملاحظة الخف",
+            "icon": "sicon-edit",
+            "path": "home.teraz-editorial-clogs",
+            "fields": [
+                {
+                    "key": "002511b4-0d99-4364-90a2-ce74262bb6fc",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "0b0ffaa9-c9d7-4ce5-a809-e48151b23d8b",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "076c815e-6364-4c9a-bb42-78abb8f16ada",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "النص",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                }
+            ]
+        },
+        {
+            "key": "9345d95b-420a-440c-92c9-f2bbb22be71f",
+            "name": "teraz-strip-care",
+            "title": "طراز — العناية بالجزم (مع خطوات العناية)",
+            "icon": "sicon-sparkling",
+            "path": "home.teraz-strip-care",
+            "fields": [
+                {
+                    "key": "d1a52f42-0da7-423f-97d1-444444444444",
+                    "icon": "sicon-image",
+                    "required": false,
+                    "id": "image",
+                    "type": "string",
+                    "format": "image",
+                    "label": "صورة القسم الرئيسية"
+                },
+                {
+                    "key": "6e432e93-38bd-4891-bb28-0024d62c07b6",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "8cae65c4-c1c4-4a96-a6f3-97d12287f4fc",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "02176859-37f9-465b-ac98-38cda4240f8e",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "dc1a8259-1edf-47b1-8c0d-8d1f2d442f5a",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "products",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "المنتجات",
+                    "source": "products",
+                    "multichoice": true,
+                    "description": "اختر المنتجات بالترتيب المطلوب. إن تركته فارغًا يملأ طراز القسم تلقائيًا من منتجات المتجر المطابقة."
+                },
+                {
+                    "key": "8a4533cf-cdc7-47de-b28e-6bd863b3b7e1",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "category",
+                    "type": "items",
+                    "format": "dropdown-list",
+                    "label": "أو تصنيف",
+                    "source": "categories",
+                    "multichoice": false,
+                    "description": "بديل عن اختيار المنتجات: يحمّل القسم منتجات هذا التصنيف."
+                },
+                {
+                    "key": "20be486d-ee24-4983-aacb-be38e946a60e",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "step_1_title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "الخطوة 1 — عنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "84b6cb50-89b2-4ed7-b9be-05b151e261bd",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "step_1_text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الخطوة 1 — نص",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "566e3218-d4a5-45b8-8aff-29e32d35d092",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "step_2_title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "الخطوة 2 — عنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "dac6da60-a34c-4355-97a4-6ad50baa34c9",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "step_2_text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الخطوة 2 — نص",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                }
+            ]
+        },
+        {
+            "key": "578ab24e-87ad-4332-8003-9e3f86bce28c",
+            "name": "teraz-guarantee",
+            "title": "طراز — الضمان الذهبي",
+            "icon": "sicon-award-ribbon",
+            "path": "home.teraz-guarantee",
+            "fields": [
+                {
+                    "key": "e6f1e878-446c-4be3-88fa-7891fe0b9fcb",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "aa4f832d-cc94-4bb2-a577-1d9e818f6bcd",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "31f42e66-7290-42a8-8ee9-c9d13a867c2f",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الوصف",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "7803af8d-0d60-4c0b-a204-042969443c98",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "return_days",
+                    "type": "number",
+                    "format": "number",
+                    "label": "أيام الاسترجاع",
+                    "value": 14
+                },
+                {
+                    "key": "a374485b-51b5-4640-8502-13784c71021c",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "return_title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "الاسترجاع — عنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "0b043e41-7fe8-45cb-96b0-92656ec5cbaa",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "return_text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الاسترجاع — نص",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "815cab5c-dbe1-4905-a007-31517bb52806",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "exchange_days",
+                    "type": "number",
+                    "format": "number",
+                    "label": "أيام الاستبدال",
+                    "value": 20
+                },
+                {
+                    "key": "83211201-59f7-4e3e-a73a-25095b4c4593",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "exchange_title",
+                    "type": "string",
+                    "format": "text",
+                    "label": "الاستبدال — عنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "0fe51ee9-cb84-4140-8921-df2f699cfdf4",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "exchange_text",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الاستبدال — نص",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "cd414a2b-8593-4266-adc7-2388467f195b",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "fine_print",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "الملاحظة الصغيرة",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                }
+            ]
+        },
+        {
+            "key": "c4570910-35fd-444d-94a4-3b25c1b6c79e",
+            "name": "teraz-questions",
+            "title": "طراز — الأسئلة الشائعة",
+            "icon": "sicon-chat-2",
+            "path": "home.teraz-questions",
+            "fields": [
+                {
+                    "key": "56466d69-619c-45f3-aeef-06df90469206",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "be989f5d-5c00-44ff-83ee-e8c35be8594e",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "38a239b6-b7cb-4eed-aeb3-689b7400a3db",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "faqs",
+                    "type": "collection",
+                    "format": "collection",
+                    "label": "الأسئلة",
+                    "fields": [
+                        {
+                            "id": "question",
+                            "type": "string",
+                            "format": "text",
+                            "label": "السؤال",
+                            "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                        },
+                        {
+                            "id": "answer",
+                            "type": "string",
+                            "format": "textarea",
+                            "label": "الجواب",
+                            "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                        }
+                    ],
+                    "minimum": 1,
+                    "maximum": 12
+                }
+            ]
+        },
+        {
+            "key": "9afb4dd6-e849-477e-a724-59bc70f84a5e",
+            "name": "teraz-journal",
+            "title": "طراز — دليل طراز",
+            "icon": "sicon-blog",
+            "path": "home.teraz-journal",
+            "fields": [
+                {
+                    "key": "b765b428-3cab-487a-917b-4df89f8a9d64",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "f9e254e0-685c-466f-87d8-18934349e549",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "95c36ca8-2552-4d2a-845e-d6c465123da7",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "articles",
+                    "type": "collection",
+                    "format": "collection",
+                    "label": "الأدلة",
+                    "fields": [
+                        {
+                            "id": "tag",
+                            "type": "string",
+                            "format": "text",
+                            "label": "الوسم",
+                            "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                        },
+                        {
+                            "id": "title",
+                            "type": "string",
+                            "format": "text",
+                            "label": "العنوان",
+                            "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                        },
+                        {
+                            "id": "text",
+                            "type": "string",
+                            "format": "textarea",
+                            "label": "النص",
+                            "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                        }
+                    ],
+                    "minimum": 1,
+                    "maximum": 6
+                }
+            ]
+        },
+        {
+            "key": "2e629457-251b-4531-922b-fbf114360d4d",
+            "name": "teraz-closing",
+            "title": "طراز — الدعوة الختامية",
+            "icon": "sicon-hand-pointing-right",
+            "path": "home.teraz-closing",
+            "fields": [
+                {
+                    "key": "79624e65-9c5a-4ea8-80a3-97f6ba63aabc",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "eyebrow",
+                    "type": "string",
+                    "format": "text",
+                    "label": "العنوان الصغير",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "242a0f53-ba84-4bc1-a059-cc3cdd05bed0",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "title",
+                    "type": "string",
+                    "format": "textarea",
+                    "label": "العنوان",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "567e23d1-8275-4452-9d21-7d7cd754467c",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "button_label",
+                    "type": "string",
+                    "format": "text",
+                    "label": "نص الزر",
+                    "description": "اتركه فارغًا لاستخدام النص الافتراضي لطراز."
+                },
+                {
+                    "key": "e9742f35-d715-4bd8-8e12-76143ce700a7",
+                    "icon": "sicon-format-text-alt",
+                    "required": false,
+                    "id": "button_link",
+                    "type": "string",
+                    "format": "text",
+                    "label": "رابط الزر",
+                    "description": "رابط أو مرساة داخل الصفحة مثل #knit. اتركه فارغًا للافتراضي."
+                }
+            ]
+        }
+    ],
+    "support_url": null,
+    "description": {
+        "ar": "",
+        "en": ""
+    }
+}
